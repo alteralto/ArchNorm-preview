@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArchNorm — AI-ассистент</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#F3F0E8;--green-dark:#18371F;--green-mid:#345D38;--green-light:#E5EEE0;
+  --terra:#8C4A38;--terra-light:#F5E8E4;--text:#191B17;--muted:#6D7068;
+  --line:rgba(25,27,23,0.11);--line-strong:rgba(25,27,23,0.18);
+  --radius:14px;--chat-bg:#FBFAF6;--mono:"JetBrains Mono",ui-monospace,monospace;
+}
+html,body{height:100%;font-family:'Manrope',sans-serif;background:#10140f;color:var(--text);font-size:15px;-webkit-font-smoothing:antialiased}
+
+/* ── LAYOUT ── */
+.app{
+  display:grid;grid-template-columns:280px minmax(620px,1fr) 388px;grid-template-rows:62px 1fr;
+  height:100vh;overflow:hidden;background:var(--chat-bg);
+}
+
+/* ── TOPBAR ── */
+.topbar{grid-column:1/-1;display:flex;align-items:center;gap:16px;padding:0 22px;background:#18371F;border-bottom:1px solid rgba(255,255,255,0.1)}
+.logo{font-size:19px;font-weight:800;color:#fff;letter-spacing:-0.45px;margin-right:8px}
+.topbar-badge{font-family:var(--mono);font-size:10px;font-weight:600;background:rgba(255,255,255,0.11);color:rgba(255,255,255,0.72);padding:4px 10px;border-radius:100px;letter-spacing:0.02em}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.api-status{font-size:12px;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:6px}
+.status-dot{width:7px;height:7px;border-radius:50%;background:#74B86A;box-shadow:0 0 0 4px rgba(116,184,106,.14)}
+.status-dot.offline{background:#f44336}
+
+/* ── SIDEBAR ── */
+.sidebar{background:#F0EDE5;border-right:1px solid var(--line);padding:22px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:20px}
+.sidebar-section{display:flex;flex-direction:column;gap:8px}
+.sidebar-label{font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#6A6E63}
+.sidebar-select,.sidebar-input{
+  width:100%;background:#FBFAF6;border:1px solid var(--line);border-radius:10px;
+  padding:10px 12px;font-family:'Manrope',sans-serif;font-size:13px;color:var(--text);
+  outline:none;transition:border-color .2s,background .2s,transform .16s;appearance:none;
+}
+.sidebar-select:focus,.sidebar-input:focus{border-color:var(--green-mid);background:#fff}
+.sidebar-select:active,.sidebar-input:active{transform:translateY(1px)}
+.sidebar-tip{font-size:12px;color:#4C544A;line-height:1.55;padding:12px;background:var(--green-light);border-radius:12px;border:1px solid rgba(52,93,56,.12)}
+.sidebar-tip strong{color:var(--green-dark);font-weight:600}
+.corpus-list{display:flex;flex-direction:column;gap:4px}
+.corpus-item{font-family:var(--mono);font-size:10px;color:#5F655C;padding:5px 8px;background:#FBFAF6;border-radius:8px;border:1px solid var(--line);display:flex;align-items:center;gap:7px}
+.corpus-dot{width:6px;height:6px;border-radius:50%;background:var(--green-mid);flex-shrink:0}
+
+/* ── CHAT ── */
+.chat-area{display:flex;flex-direction:column;background:linear-gradient(180deg,#FBFAF6 0%,#F7F4ED 100%);overflow:hidden}
+.messages{flex:1;overflow-y:auto;padding:34px 32px 96px;display:flex;flex-direction:column;gap:18px;scroll-behavior:smooth}
+.messages::-webkit-scrollbar{width:4px}
+.messages::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:2px}
+
+.msg{display:flex;flex-direction:column;gap:6px}
+.msg-user{align-items:flex-end}
+.msg-user .bubble{background:#18371F;color:#fff;padding:12px 16px;border-radius:16px 16px 5px 16px;max-width:78%;font-size:14px;line-height:1.55;box-shadow:0 14px 34px rgba(24,55,31,.16)}
+.msg-ai .bubble{background:#F1EDE4;border:1px solid var(--line-strong);padding:18px 18px;border-radius:5px 18px 18px 18px;max-width:100%;font-size:14px;line-height:1.7;box-shadow:0 18px 44px rgba(28,28,26,.06)}
+.msg-label{font-family:var(--mono);font-size:10px;font-weight:600;color:#73776F;letter-spacing:0.08em;text-transform:uppercase;padding:0 4px}
+.msg-user .msg-label{text-align:right}
+
+.answer-text{color:var(--text);margin-bottom:12px;white-space:pre-wrap}
+.citations-row{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
+.cite-tag{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--green-dark);background:rgba(229,238,224,.76);padding:5px 10px;border-radius:8px;cursor:pointer;transition:background .15s,transform .15s}
+.cite-tag:hover{background:#DCE9D6;transform:translateX(2px)}
+.cite-tag .clause{font-weight:400;color:var(--green-mid)}
+.risk-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.risk-badge{font-family:var(--mono);font-size:10px;font-weight:600;background:#F8E8E4;color:#8C2C1C;padding:4px 10px;border-radius:100px;display:flex;align-items:center;gap:5px}
+.risk-badge::before{content:'!';font-size:10px}
+.not-found{font-size:13px;color:var(--muted);font-style:italic;padding:9px 12px;background:#FFF8DF;border:1px solid #E9D28A;border-radius:10px;margin-top:8px}
+
+.typing-indicator{display:flex;align-items:center;gap:4px;padding:12px 16px}
+.typing-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:bounce .8s infinite}
+.typing-dot:nth-child(2){animation-delay:.15s}
+.typing-dot:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--muted);text-align:center}
+.empty-icon{width:48px;height:48px;border:1px solid var(--line);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:14px;font-weight:700;color:var(--green-dark);background:#F1EDE4}
+.empty-state p{font-size:14px;max-width:240px;line-height:1.5}
+.suggested{display:flex;flex-direction:column;gap:8px;margin-top:8px;width:100%;max-width:400px}
+.sugg-btn{background:#F1EDE4;border:1px solid var(--line);border-radius:12px;padding:11px 14px;font-size:13px;font-family:'Manrope',sans-serif;color:var(--text);cursor:pointer;text-align:left;transition:border-color .2s,background .2s,transform .16s;line-height:1.4}
+.sugg-btn:hover{border-color:var(--green-mid);background:var(--green-light);transform:translateY(-1px)}
+
+/* ── INPUT ── */
+.input-area{padding:16px 20px;border-top:1px solid var(--line);background:rgba(251,250,246,.94);backdrop-filter:blur(10px)}
+.input-row{display:flex;gap:10px;align-items:flex-end}
+.query-input{flex:1;background:#F1EDE4;border:1px solid var(--line);border-radius:14px;padding:13px 16px;font-family:'Manrope',sans-serif;font-size:14px;color:var(--text);outline:none;resize:none;max-height:120px;line-height:1.5;transition:border-color .2s,background .2s}
+.query-input:focus{border-color:var(--green-mid);background:#fff}
+.send-btn{flex-shrink:0;width:44px;height:44px;background:var(--green-dark);border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .15s;color:#fff}
+.send-btn:hover{background:var(--green-mid);transform:translateY(-1px)}
+.send-btn:disabled{background:var(--line-strong);cursor:not-allowed;transform:none}
+.send-btn svg{width:18px;height:18px;fill:currentColor}
+.input-hint{font-family:var(--mono);font-size:10px;color:#7A7D75;margin-top:7px}
+
+/* ── NORM PANEL ── */
+.norm-panel{background:#F0EDE5;border-left:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden}
+.norm-header{padding:18px 16px 13px;border-bottom:1px solid var(--line);flex-shrink:0}
+.norm-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.norm-sub{font-family:var(--mono);font-size:10px;color:#73776F}
+.norm-cards{flex:1;overflow-y:auto;padding:12px 12px;display:flex;flex-direction:column;gap:10px}
+.norm-cards::-webkit-scrollbar{width:4px}
+.norm-cards::-webkit-scrollbar-thumb{background:var(--line-strong)}
+.norm-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted);text-align:center;padding:24px}
+.norm-empty p{font-size:13px;max-width:200px;line-height:1.5}
+
+.norm-card{background:#FBFAF6;border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:border-color .2s,transform .2s;animation:rise .34s ease both}
+.norm-card.active{border-color:var(--green-mid)}
+.norm-card:hover{transform:translateY(-1px)}
+.norm-card-head{padding:10px 12px;display:flex;align-items:center;gap:8px}
+.norm-name{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--green-dark);flex:1}
+.norm-rel{font-family:var(--mono);font-size:9px;font-weight:600;padding:3px 8px;border-radius:100px}
+.norm-rel.high{background:var(--green-light);color:var(--green-dark)}
+.norm-rel.medium{background:#EFF6FF;color:#1D4ED8}
+.norm-clause{font-size:11px;color:var(--muted);padding:0 12px 6px}
+.norm-excerpt{padding:8px 12px 12px;font-size:12px;color:var(--text);line-height:1.68;border-top:1px solid var(--line)}
+.norm-excerpt mark{background:#FEF3C7;color:#92400E;border-radius:2px;padding:1px 0}
+
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){.app{grid-template-columns:1fr;grid-template-rows:56px auto 1fr}.sidebar,.norm-panel{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <span class="logo">ArchNorm</span>
+    <span class="topbar-badge">AI-ассистент · Beta</span>
+    <div class="topbar-right">
+      <div class="api-status">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">Local API · RAG ready</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Контекст проекта</div>
+      <select class="sidebar-select" id="obj-type">
+        <option value="office">Офисное здание</option>
+        <option value="residential">Жилой дом</option>
+        <option value="public">Общественное здание</option>
+        <option value="industrial">Производственный объект</option>
+        <option value="mixed">Многофункциональный комплекс</option>
+      </select>
+      <select class="sidebar-select" id="stage">
+        <option value="П">Стадия П (проектная)</option>
+        <option value="Р">Стадия Р (рабочая)</option>
+      </select>
+      <select class="sidebar-select" id="floors">
+        <option value="3">До 3 этажей</option>
+        <option value="5">4–5 этажей</option>
+        <option value="9">6–9 этажей</option>
+        <option value="17">10–17 этажей</option>
+        <option value="25">Выше 17 этажей</option>
+      </select>
+      <input class="sidebar-input" id="area" type="text" placeholder="Площадь, м² (напр. 8000)">
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Нормативный домен</div>
+      <select class="sidebar-select" id="domain">
+        <option value="fire">Пожарная безопасность</option>
+        <option value="access">Доступность (МГН)</option>
+        <option value="sanitary">Санитарные нормы</option>
+      </select>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Корпус норм</div>
+      <div class="corpus-list" id="corpus-list"></div>
+    </div>
+
+    <div class="sidebar-tip">
+      <strong>Как работает:</strong> ассистент отвечает строго по загруженному нормкорпусу. Если ответа нет в документах — честно скажет об этом.
+    </div>
+  </aside>
+
+  <!-- CHAT -->
+  <main class="chat-area">
+    <div class="messages" id="messages">
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">AN</div>
+        <p>Задайте вопрос по нормативам — ассистент найдёт применимые требования и укажет источники</p>
+        <div class="suggested">
+          <button class="sugg-btn" data-domain="fire" onclick="sendSuggested(this)">Какова минимальная ширина эвакуационного выхода для офисного здания?</button>
+          <button class="sugg-btn" data-domain="fire" onclick="sendSuggested(this)">Какой тип СОУЭ нужен для здания площадью 8000 м²?</button>
+          <button class="sugg-btn" data-domain="access" onclick="sendSuggested(this)">Требования к пандусу для доступности МГН</button>
+          <button class="sugg-btn" data-domain="sanitary" onclick="sendSuggested(this)">Нормируемая освещённость рабочих мест в офисе</button>
+        </div>
+      </div>
+    </div>
+    <div class="input-area">
+      <div class="input-row">
+        <textarea class="query-input" id="query-input" rows="1" placeholder="Спросите про нормативные требования к вашему проекту..."></textarea>
+        <button class="send-btn" id="send-btn" onclick="sendQuery()">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+      <div class="input-hint">Скринкаст-режим: локальный retrieval по демо-корпусу, без внешнего API · Ctrl+Enter для отправки</div>
+    </div>
+  </main>
+
+  <!-- NORM PANEL -->
+  <aside class="norm-panel">
+    <div class="norm-header">
+      <div class="norm-title">Нормативные источники</div>
+      <div class="norm-sub" id="norm-sub">Задайте вопрос, чтобы увидеть релевантные нормы</div>
+    </div>
+    <div class="norm-cards" id="norm-cards">
+      <div class="norm-empty">
+        <p>Здесь появятся выдержки из норм с выделенным контентом</p>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+// ─── CORPUS ───────────────────────────────────────────────────────────────────
+const CORPUS = {
+  fire: {
+    label: 'Пожарная безопасность',
+    docs: [
+      { id:'SP1', name:'СП 1.13130.2020', desc:'Эвакуационные пути и выходы',
+        clauses:[
+          { clause:'п. 4.2.5', text:'Ширина эвакуационного выхода из помещений при числе эвакуирующихся более 15 человек должна быть не менее 0,9 м. При числе эвакуирующихся не более 15 человек — не менее 0,8 м.' },
+          { clause:'п. 4.2.6', text:'Высота прохода в свету на путях эвакуации должна быть не менее 2 м во всех зданиях.' },
+          { clause:'п. 7.1.12', text:'Расстояние от наиболее удалённой точки офисного помещения до ближайшего эвакуационного выхода не должно превышать 60 м при наличии двух и более эвакуационных выходов.' },
+          { clause:'п. 4.2.1', text:'Количество эвакуационных выходов из здания, сооружения и с каждого этажа должно быть не менее двух.' },
+        ]
+      },
+      { id:'SP2', name:'СП 2.13130.2020', desc:'Огнестойкость объектов защиты',
+        clauses:[
+          { clause:'п. 6.9.1', text:'Здания класса функциональной пожарной опасности Ф4.3 (административные, офисные) высотой до 28 м должны иметь степень огнестойкости не ниже III и класс конструктивной пожарной опасности не ниже С1.' },
+          { clause:'табл. 6.9', text:'Для 5-этажного офисного здания: степень огнестойкости — II, класс конструктивной пожарной опасности — С0 или С1. Предел огнестойкости несущих конструкций — не менее R90.' },
+        ]
+      },
+      { id:'SP3', name:'СП 3.13130.2009', desc:'СОУЭ — оповещение и управление эвакуацией',
+        clauses:[
+          { clause:'п. 7.1', text:'Для административных и офисных зданий площадью более 5000 м² требуется система оповещения и управления эвакуацией (СОУЭ) 4-го типа: речевое оповещение с возможностью управления эвакуацией по зонам.' },
+          { clause:'п. 7.2', text:'Для административных зданий площадью от 2000 до 5000 м² — СОУЭ 3-го типа: речевое оповещение без управления по зонам.' },
+          { clause:'п. 5.1', text:'Уровень звукового давления сигналов СОУЭ должен быть не менее чем на 15 дБА выше допустимого уровня шума в защищаемом помещении, но не менее 75 дБА.' },
+        ]
+      },
+      { id:'GOST57', name:'ГОСТ Р 57974-2017', desc:'Расстановка пожарных извещателей',
+        clauses:[
+          { clause:'п. 13.3.3', text:'В офисных помещениях с высотой потолка до 3,5 м: расстояние между дымовыми пожарными извещателями не более 9 м, расстояние от стены — не более 4,5 м.' },
+          { clause:'п. 13.3.7', text:'Каждый дымовой извещатель должен контролировать площадь не более 85 м² при высоте потолка до 3,5 м.' },
+        ]
+      },
+    ]
+  },
+  access: {
+    label: 'Доступность МГН',
+    docs: [
+      { id:'SP59', name:'СП 59.13330.2020', desc:'Доступность зданий для МГН',
+        clauses:[
+          { clause:'п. 5.1.2', text:'Ширина дверных проёмов в свету на путях движения маломобильных групп населения (МГН) должна быть не менее 0,9 м для однопольных дверей.' },
+          { clause:'п. 5.2.4', text:'Уклон пандуса при перепаде высот до 0,2 м — не более 1:5; при перепаде высот до 0,4 м — не более 1:10; при перепаде более 0,4 м — не более 1:20 (5%).' },
+          { clause:'п. 5.2.6', text:'Горизонтальные площадки в начале и конце пандуса должны иметь размер не менее 1,5 × 1,5 м. При длине пандуса более 9 м необходима промежуточная площадка.' },
+          { clause:'п. 5.1.5', text:'Ширина коридоров и проходов на путях передвижения МГН должна быть не менее 1,5 м при встречном движении и не менее 1,2 м — при одностороннем.' },
+        ]
+      },
+      { id:'GOST51', name:'ГОСТ Р 51671-2020', desc:'Технические требования для доступности',
+        clauses:[
+          { clause:'п. 6.3', text:'Информационные тактильные полосы (направляющие и предупреждающие) должны быть предусмотрены на входной группе и путях эвакуации зданий, доступных для лиц с нарушением зрения.' },
+          { clause:'п. 7.1', text:'Лифты в доступных зданиях должны иметь кабину не менее 1,1 × 1,4 м. Ширина дверного проёма лифта — не менее 0,9 м.' },
+        ]
+      },
+    ]
+  },
+  sanitary: {
+    label: 'Санитарные нормы',
+    docs: [
+      { id:'SanPin', name:'СанПиН 2.2.2/2.4.1340-03', desc:'Гигиенические требования к ПЭВМ',
+        clauses:[
+          { clause:'п. 3.4', text:'Площадь на одно рабочее место с ПЭВМ для пользователей должна составлять не менее 4,5 м² при рядовом расположении мониторов. При использовании старых ЭЛТ-мониторов — не менее 6 м².' },
+          { clause:'п. 3.2', text:'Рабочие места с ПЭВМ не допускается размещать в подвальных помещениях и цокольных этажах. Исключение — при соответствующем естественном или искусственном освещении и вентиляции.' },
+        ]
+      },
+      { id:'SP131', name:'СП 131.13330.2020', desc:'Строительная климатология',
+        clauses:[
+          { clause:'п. А.2, табл. А.2', text:'Расчётная температура воздуха в рабочих помещениях офисного назначения в холодный период — 21–23°C (оптимально), допустимо 18–24°C. В тёплый период — 22–25°C (оптимально).' },
+        ]
+      },
+      { id:'SP52', name:'СП 52.13330.2016', desc:'Естественное и искусственное освещение',
+        clauses:[
+          { clause:'п. 5.4', text:'Нормируемая освещённость рабочей поверхности при выполнении работы разряда Б (чтение, написание от руки, работа с документами) — 300 лк при искусственном освещении.' },
+          { clause:'п. 5.3', text:'Нормируемое значение КЕО (коэффициент естественной освещённости) для офисных помещений при боковом освещении — не менее 0,4% в III световом климатическом поясе.' },
+          { clause:'п. 7.2', text:'Показатель ослеплённости от светильников общего освещения в офисных помещениях не должен превышать 20.' },
+        ]
+      },
+    ]
+  }
+};
+
+const OBJ_META = {
+  office: { label: 'офисное здание', cls: 'Ф4.3', tokens: ['офис', 'административн', 'рабоч', 'сотрудник'] },
+  residential: { label: 'жилой дом', cls: 'Ф1.3', tokens: ['жил', 'квартир', 'мкд', 'дом'] },
+  public: { label: 'общественное здание', cls: 'Ф2/Ф3', tokens: ['обществен', 'посетител', 'зрител', 'мгн'] },
+  industrial: { label: 'производственный объект', cls: 'Ф5', tokens: ['производств', 'цех', 'склад'] },
+  mixed: { label: 'многофункциональный комплекс', cls: 'mixed-use', tokens: ['мфк', 'многофункцион', 'обществен', 'офис', 'жил'] },
+};
+
+const SYNONYMS = [
+  { keys: ['эвакуац', 'выход', 'двер', 'проем', 'проём', 'ширин'], add: ['эвакуационн', 'выход', 'ширина', 'проход', 'двер'] },
+  { keys: ['соуэ', 'оповещ', 'эвакуац'], add: ['соуэ', 'оповещения', 'управления', 'эвакуацией', 'речевое'] },
+  { keys: ['огнестойк', 'r90', 'конструкц'], add: ['огнестойкости', 'конструктивной', 'пожарной', 'опасности', 'R90'] },
+  { keys: ['извещател', 'датчик', 'дым'], add: ['дымовые', 'пожарные', 'извещатели', 'расстояние'] },
+  { keys: ['пандус', 'уклон', 'мгн', 'доступ'], add: ['пандус', 'уклон', 'маломобильных', 'МГН', 'площадка'] },
+  { keys: ['коридор', 'проход', 'мгн'], add: ['коридоров', 'проходов', 'путях', 'передвижения'] },
+  { keys: ['лифт', 'кабин'], add: ['лифты', 'кабина', 'дверного', 'проёма'] },
+  { keys: ['освещ', 'свет', 'лк', 'рабоч'], add: ['освещённость', 'рабочей', 'поверхности', '300', 'лк'] },
+  { keys: ['температур', 'климат', 'вентиляц'], add: ['температура', 'рабочих', 'помещениях', '21', '23'] },
+  { keys: ['пэвм', 'мест', 'площад'], add: ['ПЭВМ', 'рабочее', 'место', 'площадь'] },
+];
+
+const STOP_WORDS = new Set([
+  'как', 'какой', 'какая', 'какие', 'что', 'для', 'при', 'или', 'это', 'нужно',
+  'нужен', 'нужна', 'требования', 'требование', 'минимальная', 'минимальный',
+  'проект', 'здание', 'объект', 'стадия', 'пункт', 'норма', 'нормы',
+]);
+
+function normalizeText(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/ё/g, 'е')
+    .replace(/[^\p{L}\p{N}.]+/gu, ' ')
+    .trim();
+}
+
+function tokenize(value) {
+  return normalizeText(value)
+    .split(/\s+/)
+    .filter(Boolean)
+    .filter(token => token.length > 2 && !STOP_WORDS.has(token));
+}
+
+function expandTokens(tokens, contextTokens = []) {
+  const expanded = new Set([...tokens, ...contextTokens]);
+  const joined = [...expanded].join(' ');
+  for (const group of SYNONYMS) {
+    if (group.keys.some(key => joined.includes(normalizeText(key)))) {
+      group.add.forEach(token => expanded.add(normalizeText(token)));
+    }
+  }
+  return expanded;
+}
+
+function getProjectContext() {
+  const objType = document.getElementById('obj-type');
+  const stage = document.getElementById('stage');
+  const floors = document.getElementById('floors');
+  const areaRaw = document.getElementById('area').value;
+  const domain = document.getElementById('domain').value;
+  const objValue = objType.value;
+  const obj = OBJ_META[objValue] || OBJ_META.office;
+  const area = Number(String(areaRaw).replace(/[^\d.]/g, '')) || null;
+
+  return {
+    objValue,
+    objLabel: objType.options[objType.selectedIndex].text,
+    objShort: obj.label,
+    functionalClass: obj.cls,
+    stageValue: stage.value,
+    stageLabel: stage.options[stage.selectedIndex].text,
+    floorsValue: floors.value,
+    floorsLabel: floors.options[floors.selectedIndex].text,
+    area,
+    domain,
+    domainLabel: CORPUS[domain]?.label || domain,
+    tokens: obj.tokens,
+  };
+}
+
+function getClauses(domain) {
+  const d = CORPUS[domain];
+  if (!d) return [];
+  return d.docs.flatMap(doc => doc.clauses.map(clause => ({
+    docName: doc.name,
+    docDesc: doc.desc,
+    clause: clause.clause,
+    text: clause.text,
+  })));
+}
+
+function scoreClause(item, tokenSet, context) {
+  const haystack = normalizeText(`${item.docName} ${item.docDesc} ${item.clause} ${item.text}`);
+  let score = 0;
+
+  tokenSet.forEach(token => {
+    if (haystack.includes(token)) score += token.length > 4 ? 2 : 1;
+  });
+
+  if (context.objValue === 'office' && haystack.includes('офис')) score += 2;
+  if (context.objValue === 'public' && haystack.includes('мгн')) score += 1;
+  if (context.area && context.area > 5000 && haystack.includes('5000')) score += 3;
+  if (context.area && context.area >= 2000 && context.area <= 5000 && haystack.includes('2000')) score += 2;
+  if (Number(context.floorsValue) >= 5 && haystack.includes('5-этаж')) score += 2;
+  if (context.stageValue === 'Р' && haystack.includes('провер')) score += 0.5;
+
+  return score;
+}
+
+function pickHighlight(text, tokenSet) {
+  const normalizedTokens = [...tokenSet].filter(token => token.length > 3);
+  const sentences = text.split(/(?<=[.!?])\s+/);
+  const best = sentences.find(sentence => {
+    const s = normalizeText(sentence);
+    return normalizedTokens.some(token => s.includes(token));
+  }) || sentences[0] || text;
+  const words = best.split(/\s+/).slice(0, 18).join(' ');
+  return words.replace(/[.,;:]$/, '');
+}
+
+function retrieveCitations(query, context) {
+  const baseTokens = tokenize(query);
+  const contextTokens = tokenize([
+    context.objShort,
+    context.objLabel,
+    context.stageLabel,
+    context.floorsLabel,
+    context.domainLabel,
+    ...context.tokens,
+  ].join(' '));
+  const tokenSet = expandTokens(baseTokens, contextTokens);
+
+  const scored = getClauses(context.domain)
+    .map(item => ({ ...item, score: scoreClause(item, tokenSet, context) }))
+    .filter(item => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4);
+
+  if (!scored.length) return [];
+  const maxScore = Math.max(...scored.map(item => item.score), 1);
+
+  return scored.map((item, index) => ({
+    sourceId: `${item.docName}:${item.clause}:${index}`,
+    norm: item.docName,
+    clause: item.clause,
+    excerpt: item.text,
+    highlight: pickHighlight(item.text, tokenSet),
+    relevance: index === 0 || item.score >= maxScore * 0.72 ? 'high' : 'medium',
+    score: Math.min(0.98, Math.max(0.42, item.score / (maxScore + 2) + (index === 0 ? 0.18 : 0))),
+  }));
+}
+
+function buildAnswer(query, citations, context) {
+  if (!citations.length) {
+    return {
+      answer: [
+        `В выбранном демо-корпусе «${context.domainLabel}» я не нашёл достаточного основания для ответа на этот вопрос.`,
+        `Я не буду достраивать требование без документа. Для скринкаста можно сменить нормативный домен или уточнить запрос: например, спросить про эвакуационный выход, СОУЭ, пандус, МГН, освещённость или рабочее место.`,
+      ].join('\n\n'),
+      citations: [],
+      risk_flags: ['Нет подтверждающего фрагмента в выбранном корпусе'],
+      not_in_corpus: true,
+    };
+  }
+
+  const lead = `По загруженному демо-корпусу для контекста «${context.objLabel}, ${context.stageLabel}${context.area ? `, ${context.area} м²` : ''}» применимы следующие требования.`;
+  const bullets = citations.slice(0, 3).map((c, index) =>
+    `${index + 1}. ${c.excerpt} Основание: ${c.norm}, ${c.clause}.`
+  );
+
+  const caveats = [];
+  if (context.area) caveats.push(`площадь ${context.area} м²`);
+  caveats.push(`этажность: ${context.floorsLabel}`);
+  caveats.push(`функциональный класс нужно подтвердить отдельно (${context.functionalClass})`);
+
+  const nextStep = context.stageValue === 'Р'
+    ? 'На стадии Р это стоит вынести в чек-лист рабочей документации и проверить по планам/спецификациям.'
+    : 'На стадии П это стоит зафиксировать как ранний risk flag до детализации рабочих решений.';
+
+  return {
+    answer: `${lead}\n\n${bullets.join('\n')}\n\nПроверить условия применения: ${caveats.join('; ')}. ${nextStep}`,
+    citations,
+    risk_flags: buildRiskFlags(citations, context),
+    not_in_corpus: false,
+  };
+}
+
+function buildRiskFlags(citations, context) {
+  const flags = [];
+  const joined = citations.map(c => c.excerpt).join(' ').toLowerCase();
+
+  if (joined.includes('более 5000') && (!context.area || context.area <= 5000)) {
+    flags.push('Порог по площади влияет на применимость требования');
+  }
+  if (joined.includes('не менее двух')) {
+    flags.push('Нужно проверить число выходов по каждому этажу и помещению');
+  }
+  if (joined.includes('пандус') || joined.includes('мгн')) {
+    flags.push('Нужна сверка с фактическим перепадом высот и маршрутом МГН');
+  }
+  if (joined.includes('освещ')) {
+    flags.push('Нужен светотехнический расчёт, одного текстового условия недостаточно');
+  }
+  if (context.objValue !== 'office' && joined.includes('офис')) {
+    flags.push('Часть найденных фрагментов относится к офисному/административному сценарию');
+  }
+
+  return flags.slice(0, 3);
+}
+
+function runLocalAssistant(query, context) {
+  const citations = retrieveCitations(query, context);
+  return buildAnswer(query, citations, context);
+}
+
+function getApiBase() {
+  const params = new URLSearchParams(window.location.search);
+  const explicit = params.get('api');
+  if (explicit) return explicit.replace(/\/$/, '');
+
+  const stored = localStorage.getItem('ARCHNORM_API_BASE');
+  if (stored) return stored.replace(/\/$/, '');
+
+  if (window.location.protocol.startsWith('http')) {
+    return window.location.origin;
+  }
+  return 'http://127.0.0.1:8000';
+}
+
+async function askBackend(query, context) {
+  const response = await fetch(`${getApiBase()}/rag/ask`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      question: query,
+      top_k: 5,
+      project_context: context,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`API ${response.status}`);
+  }
+  return response.json();
+}
+
+function backendToUi(result) {
+  const citations = (result.sources || []).map((source, index) => {
+    const text = source.text || '';
+    const score = Number(source.score || 0);
+    const page = source.page_hint ? `стр. ${source.page_hint}` : '';
+    const sourceId = source.source_id || source.chunk_id || `${source.doc_name || 'source'}:${source.clause_number || index}`;
+    return {
+      sourceId,
+      norm: source.doc_name || 'Источник',
+      clause: source.clause_number || '',
+      page,
+      excerpt: text,
+      highlight: pickEvidenceHighlight(text, result.answer || result.question || ''),
+      relevance: index === 0 || score >= 0.72 ? 'high' : 'medium',
+      score: score || 0.5,
+    };
+  });
+
+  const model = result.model_info || {};
+  const backend = [model.provider || model.backend || 'local', model.model || '']
+    .filter(Boolean)
+    .join(' · ');
+
+  return {
+    answer: result.answer || 'Ответ от локального RAG не вернул текст.',
+    citations,
+    risk_flags: backend ? [`RAG: ${backend}`] : [],
+    not_in_corpus: citations.length === 0,
+  };
+}
+
+// Update corpus list in sidebar
+function updateCorpusList() {
+  const domain = document.getElementById('domain').value;
+  const d = CORPUS[domain];
+  const list = document.getElementById('corpus-list');
+  list.innerHTML = d ? d.docs.map(doc =>
+    `<div class="corpus-item"><span class="corpus-dot"></span>${doc.name}</div>`
+  ).join('') : '';
+}
+
+document.getElementById('domain').addEventListener('change', updateCorpusList);
+updateCorpusList();
+
+// Auto-resize textarea
+const qi = document.getElementById('query-input');
+qi.addEventListener('input', () => { qi.style.height='auto'; qi.style.height=qi.scrollHeight+'px'; });
+qi.addEventListener('keydown', e => { if ((e.ctrlKey||e.metaKey) && e.key==='Enter') sendQuery(); });
+
+function sendSuggested(btn) {
+  if (btn.dataset.domain) {
+    document.getElementById('domain').value = btn.dataset.domain;
+    updateCorpusList();
+  }
+  qi.value = btn.textContent;
+  sendQuery();
+}
+
+// ─── SEND QUERY ───────────────────────────────────────────────────────────────
+let isLoading = false;
+
+async function sendQuery() {
+  const query = qi.value.trim();
+  if (!query || isLoading) return;
+
+  const context = getProjectContext();
+
+  document.getElementById('empty-state')?.remove();
+  isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+  qi.value = '';
+  qi.style.height = 'auto';
+
+  // Add user message
+  addMessage('user', query);
+
+  // Add typing indicator
+  const typingId = 'typing-' + Date.now();
+  addTyping(typingId);
+
+  // Clear norm panel
+  document.getElementById('norm-sub').textContent = 'Поиск релевантных норм...';
+  document.getElementById('norm-cards').innerHTML = '';
+
+  try {
+    document.getElementById('status-dot').className = 'status-dot';
+    document.getElementById('status-text').textContent = 'Local API · querying RAG...';
+    const result = await askBackend(query, context);
+    const parsed = backendToUi(result);
+    removeTyping(typingId);
+    addAIMessage(parsed);
+    renderNormCards(parsed.citations || [], context.domain);
+    document.getElementById('status-dot').className = 'status-dot';
+    document.getElementById('status-text').textContent = 'Local API · RAG + LM Studio';
+  } catch (error) {
+    window.setTimeout(() => {
+      const parsed = runLocalAssistant(query, context);
+      removeTyping(typingId);
+      addAIMessage(parsed);
+      renderNormCards(parsed.citations || [], context.domain);
+      document.getElementById('status-dot').className = 'status-dot offline';
+      document.getElementById('status-text').textContent = 'Fallback · demo corpus';
+      isLoading = false;
+      document.getElementById('send-btn').disabled = false;
+    }, 520);
+    return;
+  }
+
+  isLoading = false;
+  document.getElementById('send-btn').disabled = false;
+}
+
+// ─── UI HELPERS ───────────────────────────────────────────────────────────────
+function addMessage(type, text) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  if (type === 'user') {
+    div.className = 'msg msg-user';
+    div.innerHTML = `<div class="msg-label">Вы</div><div class="bubble">${escHtml(text)}</div>`;
+  } else {
+    div.className = 'msg msg-ai';
+    div.innerHTML = `<div class="msg-label">ArchNorm</div><div class="bubble"><div class="answer-text">${escHtml(text)}</div></div>`;
+  }
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addAIMessage(parsed) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-ai';
+
+  let html = `<div class="msg-label">ArchNorm</div><div class="bubble">`;
+  html += `<div class="answer-text">${escHtml(parsed.answer)}</div>`;
+
+  if (parsed.not_in_corpus) {
+    html += `<div class="not-found">Ответ не найден в демо-корпусе. Попробуйте уточнить домен в настройках проекта.</div>`;
+  }
+
+  if (parsed.citations?.length) {
+    html += `<div class="citations-row">`;
+    for (const c of parsed.citations) {
+      const rel = c.relevance === 'high' ? 'источник' : 'контекст';
+      const label = [c.norm, c.clause, c.page].filter(Boolean).join(' · ');
+      html += `<span class="cite-tag" onclick="highlightNorm('${escHtml(c.sourceId)}')">${rel} ${escHtml(label)}</span>`;
+    }
+    html += `</div>`;
+  }
+
+  if (parsed.risk_flags?.length) {
+    html += `<div class="risk-row">`;
+    for (const r of parsed.risk_flags) {
+      html += `<span class="risk-badge">${escHtml(r)}</span>`;
+    }
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  div.innerHTML = html;
+  msgs.appendChild(div);
+  window.requestAnimationFrame(() => {
+    msgs.scrollTop = Math.max(0, div.offsetTop - 18);
+  });
+}
+
+function addTyping(id) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.id = id; div.className = 'msg msg-ai';
+  div.innerHTML = `<div class="msg-label">ArchNorm</div><div class="bubble"><div class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping(id) {
+  document.getElementById(id)?.remove();
+}
+
+function renderNormCards(citations, domain) {
+  const panel = document.getElementById('norm-cards');
+  const sub = document.getElementById('norm-sub');
+
+  if (!citations.length) {
+    panel.innerHTML = '<div class="norm-empty"><p>Нормы не найдены для этого запроса</p></div>';
+    sub.textContent = 'Нормы не найдены';
+    return;
+  }
+
+  sub.textContent = `${citations.length} источник${citations.length > 1 ? 'а' : ''} · click для перехода`;
+  panel.innerHTML = '';
+
+  for (const c of citations) {
+    const card = document.createElement('div');
+    card.className = 'norm-card' + (c.relevance === 'high' ? ' active' : '');
+    const sourceId = c.sourceId || `${c.norm}:${c.clause}`;
+    card.id = 'norm-' + sourceId.replace(/[^a-zA-Z0-9]/g, '-');
+
+    const excerptHtml = c.highlight
+      ? escHtml(c.excerpt).replace(escHtml(c.highlight), `<mark>${escHtml(c.highlight)}</mark>`)
+      : escHtml(c.excerpt);
+
+    card.innerHTML = `
+      <div class="norm-card-head">
+        <span class="norm-name">${escHtml(c.norm)}</span>
+        <span class="norm-rel ${c.relevance}">${c.relevance === 'high' ? 'Ключевой' : 'Доп.'} · ${Math.round((c.score || 0.5) * 100)}%</span>
+      </div>
+      <div class="norm-clause">${escHtml([c.clause, c.page].filter(Boolean).join(' · '))}</div>
+      <div class="norm-excerpt">${excerptHtml}</div>
+    `;
+    panel.appendChild(card);
+  }
+}
+
+function highlightNorm(sourceId) {
+  const id = 'norm-' + sourceId.replace(/[^a-zA-Z0-9]/g, '-');
+  const el = document.getElementById(id);
+  if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.style.borderColor='var(--terra)'; setTimeout(()=>el.style.borderColor='',1500); }
+}
+
+function pickEvidenceHighlight(text, basis) {
+  const sentences = String(text || '').split(/(?<=[.!?;])\s+/).filter(Boolean);
+  if (!sentences.length) return String(text || '').split(/\s+/).slice(0, 24).join(' ');
+
+  const basisTokens = new Set(tokenize(basis));
+  let best = sentences[0];
+  let bestScore = -1;
+
+  for (const sentence of sentences) {
+    const sentenceTokens = tokenize(sentence);
+    const score = sentenceTokens.reduce((sum, token) => sum + (basisTokens.has(token) ? 1 : 0), 0);
+    if (score > bestScore) {
+      best = sentence;
+      bestScore = score;
+    }
+  }
+
+  return best.split(/\s+/).slice(0, 28).join(' ').replace(/[.,;:]$/, '');
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function bootSceneFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const scene = params.get('scene');
+  if (!scene) return;
+
+  const scenes = {
+    fire: {
+      domain: 'fire',
+      obj: 'office',
+      floors: '5',
+      area: '8000',
+      query: 'Какой тип СОУЭ нужен для офисного здания площадью 8000 м²?',
+    },
+    access: {
+      domain: 'access',
+      obj: 'public',
+      floors: '3',
+      area: '4200',
+      query: 'Какие требования к пандусу и дверным проёмам для МГН?',
+    },
+    sanitary: {
+      domain: 'sanitary',
+      obj: 'office',
+      floors: '9',
+      area: '12000',
+      query: 'Какая нормируемая освещённость рабочих мест в офисе?',
+    },
+  };
+
+  const selected = scenes[scene] || scenes.fire;
+  document.getElementById('domain').value = selected.domain;
+  document.getElementById('obj-type').value = selected.obj;
+  document.getElementById('floors').value = selected.floors;
+  document.getElementById('area').value = selected.area;
+  updateCorpusList();
+}
+
+window.addEventListener('load', bootSceneFromUrl);
+</script>
+</body>
+</html>

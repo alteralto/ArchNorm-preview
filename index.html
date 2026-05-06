@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArchNorm — AI-система первого нормативного прохода</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #F4F1EB;
+    --green-dark: #2B4A2D;
+    --green-mid: #3D6640;
+    --green-light: #E8EFE4;
+    --terra: #8C4A38;
+    --terra-light: #F5E8E4;
+    --text: #1C1C1A;
+    --muted: #6B6B65;
+    --border: rgba(28,28,26,0.12);
+    --radius: 12px;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px;
+    height: 64px;
+    background: rgba(244,241,235,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Manrope', sans-serif;
+    font-size: 20px; font-weight: 800;
+    color: var(--green-dark);
+    text-decoration: none;
+    letter-spacing: -0.5px;
+  }
+  .nav-links { display: flex; gap: 32px; align-items: center; }
+  .nav-links a {
+    text-decoration: none; color: var(--muted);
+    font-size: 14px; font-weight: 400;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .btn-nav {
+    background: var(--green-dark); color: #fff;
+    padding: 9px 20px; border-radius: 8px;
+    font-size: 14px; font-weight: 500;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: background .2s, transform .15s;
+  }
+  .btn-nav:hover { background: var(--green-mid); transform: translateY(-1px); }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 120px 24px 80px;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 20% 80%, rgba(43,74,45,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 80% 20%, rgba(140,74,56,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-label {
+    display: inline-flex; gap: 8px; align-items: center;
+    background: var(--green-light);
+    color: var(--green-dark);
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 6px 14px; border-radius: 100px;
+    margin-bottom: 32px;
+  }
+  .hero-label span { width: 6px; height: 6px; border-radius: 50%; background: var(--green-dark); }
+  h1 {
+    font-family: 'Manrope', sans-serif;
+    font-size: clamp(44px, 6.3vw, 78px);
+    font-weight: 700; line-height: 1.03;
+    letter-spacing: -2.4px;
+    color: var(--text);
+    max-width: 860px;
+    margin-bottom: 24px;
+  }
+  h1 em { color: var(--green-dark); font-style: normal; }
+  .hero-sub {
+    font-size: 18px; color: var(--muted); font-weight: 300;
+    max-width: 560px; line-height: 1.65;
+    margin-bottom: 48px;
+  }
+  .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .btn-primary {
+    background: var(--green-dark); color: #fff;
+    padding: 14px 28px; border-radius: var(--radius);
+    font-size: 15px; font-weight: 500;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: background .2s, transform .15s, box-shadow .2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover {
+    background: var(--green-mid);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(43,74,45,0.2);
+  }
+  .btn-secondary {
+    background: transparent; color: var(--text);
+    padding: 14px 28px; border-radius: var(--radius);
+    font-size: 15px; font-weight: 500;
+    text-decoration: none; border: 1px solid var(--border); cursor: pointer;
+    transition: border-color .2s, background .2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-secondary:hover { border-color: var(--text); background: rgba(28,28,26,0.04); }
+  .hero-stats {
+    display: flex; gap: 48px; margin-top: 72px;
+    padding-top: 40px; border-top: 1px solid var(--border);
+    flex-wrap: wrap; justify-content: center;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: var(--mono);
+    font-size: 34px; font-weight: 600;
+    color: var(--green-dark); line-height: 1;
+    display: block;
+  }
+  .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* ─── SECTION BASE ─── */
+  section { padding: 96px 24px; }
+  .container { max-width: 1080px; margin: 0 auto; }
+  .section-tag {
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--terra); margin-bottom: 16px;
+  }
+  h2 {
+    font-family: 'Manrope', sans-serif;
+    font-size: clamp(34px, 4.6vw, 54px);
+    font-weight: 700; line-height: 1.08;
+    letter-spacing: -1.7px;
+    margin-bottom: 16px;
+  }
+  .section-sub {
+    font-size: 17px; color: var(--muted); font-weight: 300;
+    max-width: 520px; line-height: 1.65;
+    margin-bottom: 56px;
+  }
+
+  /* ─── PROBLEM ─── */
+  #problem { background: var(--green-dark); }
+  #problem .section-tag { color: rgba(232,239,228,0.6); }
+  #problem h2 { color: #fff; }
+  #problem .section-sub { color: rgba(255,255,255,0.55); }
+  .pain-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2px;
+  }
+  .pain-card {
+    background: rgba(255,255,255,0.05);
+    padding: 40px 36px;
+    position: relative; overflow: hidden;
+  }
+  .pain-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 3px; height: 0;
+    background: var(--terra);
+    transition: height .4s ease;
+  }
+  .pain-card:hover::before { height: 100%; }
+  .pain-num {
+    font-family: var(--mono);
+    font-size: 46px; font-weight: 500;
+    color: rgba(255,255,255,0.08);
+    line-height: 1; margin-bottom: 16px;
+    display: block;
+  }
+  .pain-title {
+    font-size: 18px; font-weight: 500;
+    color: #fff; margin-bottom: 12px;
+  }
+  .pain-desc { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.7; }
+
+  /* ─── HOW IT WORKS ─── */
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-top: 56px;
+  }
+  .step {
+    background: var(--cream); padding: 36px 28px;
+    position: relative;
+  }
+  .step-num {
+    font-family: 'Cormorant Garant', serif;
+    font-size: 13px; font-weight: 600;
+    color: var(--muted); letter-spacing: 0.05em;
+    margin-bottom: 20px; display: block;
+  }
+  .step-icon {
+    width: 40px; height: 40px;
+    background: var(--green-light);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px;
+    font-family: var(--mono);
+    font-size: 11px; font-weight: 700;
+    color: var(--green-dark);
+  }
+  .step-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .step-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .step-badge {
+    display: inline-block;
+    background: var(--terra-light); color: var(--terra);
+    font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 100px;
+    margin-top: 16px;
+  }
+
+  /* ─── DEMO BLOCK ─── */
+  #demo { background: #fff; }
+  .demo-window {
+    border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.06);
+  }
+  .demo-topbar {
+    background: var(--green-dark); padding: 14px 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .demo-dots { display: flex; gap: 6px; }
+  .demo-dots span {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+  }
+  .demo-title { font-size: 13px; color: rgba(255,255,255,0.6); margin-left: 8px; }
+  .demo-body { display: grid; grid-template-columns: 340px 1fr; min-height: 440px; }
+  .demo-input-panel {
+    padding: 28px 24px;
+    border-right: 1px solid var(--border);
+    background: var(--cream);
+  }
+  .demo-label {
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); margin-bottom: 8px; display: block;
+  }
+  .demo-field {
+    width: 100%;
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px; color: var(--text);
+    margin-bottom: 16px; resize: none;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .demo-field:focus { border-color: var(--green-mid); }
+  select.demo-field { appearance: none; cursor: pointer; }
+  .demo-run-btn {
+    width: 100%; padding: 12px;
+    background: var(--green-dark); color: #fff;
+    border: none; border-radius: 8px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background .2s;
+    margin-top: 4px;
+  }
+  .demo-run-btn:hover { background: var(--green-mid); }
+  .demo-output-panel { padding: 28px 28px; }
+  .demo-placeholder {
+    height: 100%; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    color: var(--muted); text-align: center; gap: 12px;
+  }
+  .demo-placeholder-icon {
+    width: 56px; height: 56px;
+    background: var(--green-light);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 14px; font-weight: 700;
+    color: var(--green-dark);
+  }
+  .demo-placeholder p { font-size: 14px; max-width: 200px; line-height: 1.5; }
+  .demo-result { display: none; }
+  .result-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .result-title { font-size: 14px; font-weight: 600; }
+  .result-badge {
+    font-size: 11px; font-weight: 600;
+    background: var(--green-light); color: var(--green-dark);
+    padding: 4px 10px; border-radius: 100px;
+  }
+  .req-card {
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; margin-bottom: 10px;
+    transition: border-color .2s;
+  }
+  .req-card:hover { border-color: var(--green-mid); }
+  .req-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .req-norm { font-size: 12px; font-weight: 600; color: var(--green-dark); }
+  .req-flag {
+    font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 100px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .flag-risk { background: #FEF2F2; color: #991B1B; }
+  .flag-ok { background: var(--green-light); color: var(--green-dark); }
+  .flag-info { background: #EFF6FF; color: #1D4ED8; }
+  .req-text { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+  .req-cite {
+    font-size: 11px; color: var(--muted); margin-top: 8px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .req-cite::before {
+    content: 'ref';
+    font-family: var(--mono);
+    font-size: 9px; color: var(--green-dark);
+    letter-spacing: 0.04em;
+  }
+
+  /* ─── FEATURES ─── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-top: 56px;
+  }
+  .feature-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 32px 28px;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.06);
+  }
+  .feature-icon {
+    width: 48px; height: 48px;
+    background: var(--green-light); border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 12px; font-weight: 700;
+    color: var(--green-dark); margin-bottom: 20px;
+  }
+  .feature-title { font-size: 17px; font-weight: 600; margin-bottom: 10px; }
+  .feature-desc { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+  /* ─── PRICING ─── */
+  #pricing { background: var(--cream); }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px; margin-top: 56px;
+  }
+  .price-card {
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 16px; padding: 32px 28px;
+    position: relative; display: flex; flex-direction: column;
+    transition: transform .2s;
+  }
+  .price-card:hover { transform: translateY(-3px); }
+  .price-card.featured {
+    border: 2px solid var(--green-dark);
+    background: #fff;
+  }
+  .featured-badge {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--green-dark); color: #fff;
+    font-size: 11px; font-weight: 600;
+    padding: 4px 14px; border-radius: 100px; white-space: nowrap;
+  }
+  .price-tier { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 16px; }
+  .price-amount {
+    font-family: var(--mono);
+    font-size: 31px; font-weight: 600; line-height: 1;
+    margin-bottom: 4px;
+  }
+  .price-period { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  .price-features { list-style: none; flex: 1; margin-bottom: 28px; }
+  .price-features li {
+    font-size: 14px; color: var(--muted);
+    padding: 7px 0; border-bottom: 1px solid var(--border);
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+  .price-features li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green-dark); margin-top: 8px; flex-shrink: 0; }
+  .price-features li.na { color: #ccc; }
+  .price-features li.na::before { background: #ccc; }
+  .btn-plan {
+    width: 100%; padding: 12px;
+    border-radius: 10px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer; border: none;
+    transition: background .2s, transform .15s;
+  }
+  .btn-plan.outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-plan.outline:hover { border-color: var(--green-dark); color: var(--green-dark); }
+  .btn-plan.filled {
+    background: var(--green-dark); color: #fff;
+  }
+  .btn-plan.filled:hover { background: var(--green-mid); transform: translateY(-1px); }
+
+  /* ─── CTA / PILOT ─── */
+  #pilot {
+    background: var(--green-dark);
+    text-align: center;
+  }
+  #pilot h2 { color: #fff; }
+  #pilot .section-sub { color: rgba(255,255,255,0.55); margin: 0 auto 48px; }
+  .pilot-form {
+    max-width: 500px; margin: 0 auto;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .pilot-input {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px; padding: 14px 16px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px; color: #fff;
+    outline: none; transition: border-color .2s;
+  }
+  .pilot-input::placeholder { color: rgba(255,255,255,0.4); }
+  .pilot-input:focus { border-color: rgba(255,255,255,0.5); }
+  .pilot-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .btn-pilot {
+    background: #fff; color: var(--green-dark);
+    padding: 15px 28px; border-radius: 10px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px; font-weight: 600;
+    border: none; cursor: pointer;
+    transition: background .2s, transform .15s;
+    margin-top: 4px;
+  }
+  .btn-pilot:hover { background: var(--green-light); transform: translateY(-1px); }
+  .pilot-note { font-size: 13px; color: rgba(255,255,255,0.35); margin-top: 8px; }
+  .success-msg {
+    display: none;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px; padding: 28px;
+    color: #fff; text-align: center;
+  }
+  .success-msg h3 { font-size: 22px; font-weight: 500; margin-bottom: 8px; }
+  .success-msg p { font-size: 14px; color: rgba(255,255,255,0.6); }
+
+  /* ─── DEMO KIT ─── */
+  .kit-section {
+    background: #fff;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .kit-grid {
+    display: grid;
+    grid-template-columns: 1.25fr 0.75fr;
+    gap: 28px;
+    align-items: stretch;
+  }
+  .kit-panel {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 32px;
+  }
+  .kit-list { list-style: none; display: grid; gap: 12px; margin-top: 22px; }
+  .kit-list li {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 14px;
+    align-items: start;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .kit-code {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--green-dark);
+    background: var(--green-light);
+    border-radius: 8px;
+    padding: 5px 8px;
+    text-align: center;
+  }
+  .kit-title { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .kit-desc { font-size: 13px; color: var(--muted); line-height: 1.55; }
+  .kit-side {
+    background: var(--green-dark);
+    color: #fff;
+    border-radius: 18px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 280px;
+  }
+  .kit-side p { color: rgba(255,255,255,0.62); font-size: 14px; line-height: 1.65; margin-top: 10px; }
+  .kit-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 28px; }
+  .kit-actions a, .kit-actions button {
+    width: 100%;
+    border: 1px solid rgba(255,255,255,0.16);
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background .2s, transform .15s;
+    text-align: left;
+  }
+  .kit-actions a:hover, .kit-actions button:hover { background: rgba(255,255,255,0.14); transform: translateY(-1px); }
+
+  /* ─── SUPPORT WIDGET ─── */
+  .support-launcher {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 120;
+    background: #1F3E24;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 999px;
+    padding: 12px 16px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 16px 38px rgba(28,28,26,0.22);
+    transition: transform .2s, background .2s;
+  }
+  .support-launcher:hover { transform: translateY(-2px); background: var(--green-mid); }
+  .support-panel {
+    position: fixed;
+    right: 22px;
+    bottom: 78px;
+    z-index: 121;
+    width: min(380px, calc(100vw - 32px));
+    background: #FBFAF6;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 28px 80px rgba(28,28,26,0.22);
+    padding: 18px;
+    display: none;
+  }
+  .support-panel.open { display: block; animation: supportIn .24s cubic-bezier(.16,1,.3,1) both; }
+  .support-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:14px; }
+  .support-title { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; }
+  .support-sub { font-size: 13px; color: var(--muted); line-height: 1.5; margin-top: 4px; }
+  .support-close {
+    border: none;
+    background: var(--green-light);
+    color: var(--green-dark);
+    width: 30px; height: 30px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  .support-options { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+  .support-option {
+    border:1px solid var(--border);
+    background:#fff;
+    border-radius:10px;
+    padding:10px;
+    font-size:12px;
+    color:var(--text);
+    cursor:pointer;
+    text-align:left;
+    transition:border-color .2s, background .2s;
+  }
+  .support-option:hover { border-color: var(--green-mid); background: var(--green-light); }
+  .support-field {
+    width:100%;
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:#fff;
+    font-family:'Manrope',sans-serif;
+    font-size:13px;
+    color:var(--text);
+    padding:11px 12px;
+    outline:none;
+    margin-bottom:8px;
+  }
+  .support-field:focus { border-color: var(--green-mid); }
+  .support-submit {
+    width:100%;
+    border:none;
+    border-radius:10px;
+    background:var(--green-dark);
+    color:#fff;
+    font-family:'Manrope',sans-serif;
+    font-size:14px;
+    font-weight:600;
+    padding:12px;
+    cursor:pointer;
+  }
+  .support-note { font-size:12px; color:var(--muted); margin-top:8px; line-height:1.5; }
+  @keyframes supportIn { from { opacity:0; transform: translateY(10px) scale(.98); } to { opacity:1; transform: translateY(0) scale(1); } }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: #1A1A18; color: rgba(255,255,255,0.4);
+    padding: 40px 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .footer-logo {
+    font-family: 'Manrope', sans-serif;
+    font-size: 19px; font-weight: 800;
+    color: rgba(255,255,255,0.8);
+  }
+  footer p { font-size: 13px; }
+  footer a { color: rgba(255,255,255,0.4); text-decoration: none; }
+  footer a:hover { color: rgba(255,255,255,0.7); }
+
+  /* ─── SCROLL ANIMATION ─── */
+  .fade-in {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+  .fade-in.visible {
+    opacity: 1; transform: translateY(0);
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    nav { padding: 0 20px; }
+    .nav-links .nav-hide { display: none; }
+    section { padding: 64px 20px; }
+    .steps-grid { grid-template-columns: 1fr 1fr; }
+    .demo-body { grid-template-columns: 1fr; }
+    .kit-grid { grid-template-columns: 1fr; }
+    .demo-input-panel { border-right: none; border-bottom: 1px solid var(--border); }
+    footer { padding: 32px 20px; }
+    .pilot-row { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .steps-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">ArchNorm</a>
+  <div class="nav-links">
+    <a href="#how" class="nav-hide">Как работает</a>
+    <a href="#pricing" class="nav-hide">Тарифы</a>
+    <a href="#pilot" class="nav-hide">Пилот</a>
+    <a href="#pilot" class="btn-nav">Запросить пилот</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-label"><span></span> GenAI / RAG / Pilot-ready</div>
+  <h1>Нормативный первый проход —<br><em>до того, как ошибка стала дорогой</em></h1>
+  <p class="hero-sub">ArchNorm находит применимые требования, собирает citations и помечает risk flags. До экспертизы. До возврата. До переделок</p>
+  <div class="hero-ctas">
+    <button class="btn-primary" onclick="document.getElementById('demo-section').scrollIntoView({behavior:'smooth'})">
+      Посмотреть демо
+    </button>
+    <a href="#pilot" class="btn-secondary">Запросить пилот</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">1–2ч</span>
+      <div class="stat-label">в день на поиск норм вручную</div>
+    </div>
+    <div class="stat">
+      <span class="stat-num">4–6</span>
+      <div class="stat-label">недели длится пилот</div>
+    </div>
+    <div class="stat">
+      <span class="stat-num">17к+</span>
+      <div class="stat-label">бюро в беачхед-рынке</div>
+    </div>
+    <div class="stat">
+      <span class="stat-num">0</span>
+      <div class="stat-label">тяжёлого BIM не требуется</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="container">
+    <div class="section-tag">Проблема</div>
+    <h2 style="color:#fff">Одна поздняя ошибка —<br>и весь цикл заново</h2>
+    <p class="section-sub">Пока проверка ручная, ошибка всплывает на согласовании. Когда чертежи, календарь и бюджет уже приходится менять</p>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <span class="pain-num">01</span>
+        <div class="pain-title">Сдвиг сроков</div>
+        <p class="pain-desc">Замечание на экспертизе возвращает команду к началу. Каждый возврат — недели потерянного времени и смещение дедлайнов</p>
+      </div>
+      <div class="pain-card">
+        <span class="pain-num">02</span>
+        <div class="pain-title">Late rework</div>
+        <p class="pain-desc">Переделки на поздних стадиях в разы дороже ранних. Senior-специалисты тратят время на поиск норм вместо проектной работы</p>
+      </div>
+      <div class="pain-card">
+        <span class="pain-num">03</span>
+        <div class="pain-title">Возвраты</div>
+        <p class="pain-desc">Без проверяемого обоснования каждый спорный пункт — риск замечания. Цикл: ошибка, поиск норм, правка, новая проверка</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="container">
+    <div class="section-tag">Как работает</div>
+    <h2>Четыре шага<br>от документа до обоснования</h2>
+    <p class="section-sub">Загружаете параметры проекта — получаете применимые требования со ссылками и флагами риска</p>
+    <div class="steps-grid">
+      <div class="step">
+        <span class="step-num">01 / Контекст</span>
+        <div class="step-icon">DOC</div>
+        <div class="step-title">Параметры проекта</div>
+        <p class="step-desc">Тип здания, стадия, функциональное назначение, регион. Можно загрузить документ или заполнить форму</p>
+        <span class="step-badge">Document-first</span>
+      </div>
+      <div class="step">
+        <span class="step-num">02 / First pass</span>
+        <div class="step-icon">RAG</div>
+        <div class="step-title">Применимые требования</div>
+        <p class="step-desc">Система извлекает релевантные нормы из СП, СНиП, ГОСТ по доменному контексту вашего проекта</p>
+        <span class="step-badge">RAG-контур</span>
+      </div>
+      <div class="step">
+        <span class="step-num">03 / Evidence</span>
+        <div class="step-icon">REF</div>
+        <div class="step-title">Citations + Risk flags</div>
+        <p class="step-desc">Каждое требование — с точной ссылкой на пункт нормы. Спорные позиции помечаются флагами риска автоматически</p>
+        <span class="step-badge">Traceability</span>
+      </div>
+      <div class="step">
+        <span class="step-num">04 / Rationale</span>
+        <div class="step-icon">OUT</div>
+        <div class="step-title">Checklist + Обоснование</div>
+        <p class="step-desc">Готовый драфт обоснования и чеклист для нормоконтроля. Senior проверяет логику, а не собирает с нуля</p>
+        <span class="step-badge">Export-ready</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo-section">
+  <div class="container">
+    <div class="section-tag">Интерактивное демо</div>
+    <h2>Попробуйте прямо здесь</h2>
+    <p class="section-sub">Заполните параметры проекта и посмотрите, как выглядит first-pass результат</p>
+    <div class="demo-window fade-in">
+      <div class="demo-topbar">
+        <div class="demo-dots"><span></span><span></span><span></span></div>
+        <span class="demo-title">ArchNorm — нормативный first pass</span>
+      </div>
+      <div class="demo-body">
+        <div class="demo-input-panel">
+          <label class="demo-label">Тип объекта</label>
+          <select class="demo-field" id="obj-type">
+            <option value="office">Офисное здание</option>
+            <option value="residential">Жилой дом</option>
+            <option value="public">Общественное здание</option>
+            <option value="industrial">Производственный объект</option>
+          </select>
+
+          <label class="demo-label">Стадия документации</label>
+          <select class="demo-field" id="stage">
+            <option value="project">Проектная (П)</option>
+            <option value="working">Рабочая (Р)</option>
+          </select>
+
+          <label class="demo-label">Нормативный домен</label>
+          <select class="demo-field" id="domain">
+            <option value="fire">Пожарная безопасность</option>
+            <option value="access">Доступность МГН</option>
+            <option value="sanitary">Санитарные нормы</option>
+          </select>
+
+          <label class="demo-label">Краткое описание</label>
+          <textarea class="demo-field" id="desc" rows="3" placeholder="Напр.: 5-этажный офисный центр, Москва, 8000 м²..."></textarea>
+
+          <button class="demo-run-btn" onclick="runDemo()">Запустить first pass</button>
+        </div>
+
+        <div class="demo-output-panel">
+          <div class="demo-placeholder" id="demo-ph">
+            <div class="demo-placeholder-icon">RUN</div>
+            <p>Заполните параметры и нажмите «Запустить first pass»</p>
+          </div>
+          <div class="demo-result" id="demo-out"></div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+      <a class="btn-secondary" href="screencast/index.html">Открыть screencast-демо чата</a>
+      <span style="font-size:13px;color:var(--muted);">Работает локально через RAG API: вопрос, ответ ассистента, источники и выдержки норм</span>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" style="background:#fff;">
+  <div class="container">
+    <div class="section-tag">Ценность</div>
+    <h2>Что получает бюро</h2>
+    <p class="section-sub">Не новая BIM-платформа. Узкий compliance-слой, который встраивается в существующий процесс</p>
+    <div class="features-grid">
+      <div class="feature-card fade-in">
+        <div class="feature-icon">01</div>
+        <div class="feature-title">Быстрее первый проход</div>
+        <p class="feature-desc">Меньше ручного поиска и повторной сборки обоснования. Нормативная рамка — в начале проектной цепочки, не в конце</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">02</div>
+        <div class="feature-title">Доказуемые ссылки</div>
+        <p class="feature-desc">Citations, traceability и объяснимый rationale. Каждый тезис можно проверить по точному пункту нормативного документа</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">03</div>
+        <div class="feature-title">Меньше bottleneck</div>
+        <p class="feature-desc">Senior staff проверяет логику, а не собирает её с нуля. Нагрузка на экспертов снижается — предсказуемость растёт</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">04</div>
+        <div class="feature-title">Без тяжёлого внедрения</div>
+        <p class="feature-desc">Document-first workflow. Не требует зрелого BIM-стека на входе. Пилотируется как first pass, а не как новая платформа</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="container">
+    <div class="section-tag">Тарифы</div>
+    <h2>Начните с демо,<br>масштабируйте по мере роста</h2>
+    <p class="section-sub">Гибкая модель от бесплатного демо до корпоративного контура. Пилот — фиксированная стоимость</p>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-tier">Demo</div>
+        <div class="price-amount">0 ₽</div>
+        <div class="price-period">ограниченный доступ</div>
+        <ul class="price-features">
+          <li>1 нормативный домен</li>
+          <li>До 3 запросов</li>
+          <li>Базовые citations</li>
+          <li class="na">Risk flags</li>
+          <li class="na">Экспорт отчёта</li>
+        </ul>
+        <button class="btn-plan outline" onclick="document.getElementById('demo-section').scrollIntoView({behavior:'smooth'})">Попробовать</button>
+      </div>
+
+      <div class="price-card">
+        <div class="price-tier">Individual</div>
+        <div class="price-amount">3–5к ₽</div>
+        <div class="price-period">за место / месяц</div>
+        <ul class="price-features">
+          <li>2 нормативных домена</li>
+          <li>Неограниченные запросы</li>
+          <li>Citations + Risk flags</li>
+          <li>Экспорт в PDF</li>
+          <li class="na">Командный воркфлоу</li>
+        </ul>
+        <button class="btn-plan outline" onclick="scrollToPilot()">Связаться</button>
+      </div>
+
+      <div class="price-card featured">
+        <div class="featured-badge">Популярный</div>
+        <div class="price-tier">Team</div>
+        <div class="price-amount">12к+ ₽</div>
+        <div class="price-period">за место / месяц</div>
+        <ul class="price-features">
+          <li>Все нормативные домены</li>
+          <li>Командный воркфлоу</li>
+          <li>Citations + Risk flags</li>
+          <li>Rationale checklist</li>
+          <li>Приоритетная поддержка</li>
+        </ul>
+        <button class="btn-plan filled" onclick="scrollToPilot()">Запросить пилот</button>
+      </div>
+
+      <div class="price-card">
+        <div class="price-tier">Enterprise</div>
+        <div class="price-amount">Custom</div>
+        <div class="price-period">on-premise / private cloud</div>
+        <ul class="price-features">
+          <li>Весь функционал Team</li>
+          <li>On-premise / LAN-контур</li>
+          <li>Кастомный нормкорпус</li>
+          <li>SLA и eval-отчёты</li>
+          <li>GigaChat integration</li>
+        </ul>
+        <button class="btn-plan outline" onclick="scrollToPilot()">Обсудить</button>
+      </div>
+    </div>
+
+    <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:24px;">
+      Пилот (4–6 недель, реальные документы): 150–500k ₽ фиксированно
+    </p>
+  </div>
+</section>
+
+<!-- DEMO KIT -->
+<section class="kit-section" id="kit">
+  <div class="container">
+    <div class="kit-grid">
+      <div class="kit-panel fade-in">
+        <div class="section-tag">Demo kit</div>
+        <h2>Материалы для промежуточного показа</h2>
+        <p class="section-sub" style="margin-bottom:0">Лендинг, локальный чат, схема системы, скриншоты и screencast собираются в отдельный пакет для передачи</p>
+        <ul class="kit-list">
+          <li>
+            <span class="kit-code">WEB</span>
+            <div>
+              <div class="kit-title">Лендинг и интерактивная демка</div>
+              <p class="kit-desc">Статический HTML без backend-зависимостей, можно открыть локально или быстро выложить на простой хостинг</p>
+            </div>
+          </li>
+          <li>
+            <span class="kit-code">RAG</span>
+            <div>
+              <div class="kit-title">Screencast-чат с локальным RAG API</div>
+              <p class="kit-desc">Автономный сценарий показывает принцип: вопрос, ответ ассистента, релевантные нормы и выдержки рядом</p>
+            </div>
+          </li>
+          <li>
+            <span class="kit-code">SRC</span>
+            <div>
+              <div class="kit-title">Схема и доказательные материалы</div>
+              <p class="kit-desc">SVG-архитектура, скриншоты, README и видео будут лежать в одной папке для Google Drive</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="kit-side fade-in">
+        <div>
+          <div class="section-tag" style="color:rgba(232,239,228,0.55)">Статус</div>
+          <h2 style="font-size:30px;color:#fff;letter-spacing:-0.8px;margin-bottom:0">Промежуточная версия готова к демонстрации</h2>
+          <p>Это не production-система, а аккуратный proof-of-work: видно, как будет выглядеть RAG-ответ, citations и окно норм</p>
+        </div>
+        <div class="kit-actions">
+          <a href="screencast/index.html">Открыть screencast-режим</a>
+          <button type="button" onclick="openSupport('Материалы и demo kit')">Запросить пакет материалов</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PILOT CTA -->
+<section id="pilot">
+  <div class="container">
+    <div class="section-tag" style="color:rgba(232,239,228,0.5)">Пилот</div>
+    <h2>Проверьте на своих документах</h2>
+    <p class="section-sub">Пилот 4–6 недель: один домен, ваши документы, baseline ручного прохода и понятный выход с метриками</p>
+    <div class="pilot-form" id="pilot-form">
+      <div class="pilot-row">
+        <input class="pilot-input" type="text" id="pilot-name" placeholder="Ваше имя">
+        <input class="pilot-input" type="text" id="pilot-company" placeholder="Название бюро">
+      </div>
+      <input class="pilot-input" type="email" id="pilot-email" placeholder="Email">
+      <select class="pilot-input" id="pilot-size" style="color:rgba(255,255,255,0.7)">
+        <option value="" disabled selected style="color:#999">Размер команды</option>
+        <option style="color:#000">До 10 человек</option>
+        <option style="color:#000">10–30 человек</option>
+        <option style="color:#000">30–80 человек</option>
+        <option style="color:#000">80+ человек</option>
+      </select>
+      <button class="btn-pilot" onclick="submitPilot()">Отправить заявку на пилот</button>
+      <p class="pilot-note">Ответим в течение 24 часов. Без спама и навязчивых продаж</p>
+    </div>
+    <div class="success-msg" id="success-msg">
+      <h3>Заявка принята</h3>
+      <p>Свяжемся с вами в течение 24 часов для уточнения параметров пилота<br>
+      Пока можете написать напрямую: <a href="mailto:xelartn75@gmail.com" style="color:rgba(255,255,255,0.7)">xelartn75@gmail.com</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">ArchNorm</div>
+  <p>AI-система первого нормативного прохода в строительстве</p>
+  <p>
+    <a href="mailto:xelartn75@gmail.com">xelartn75@gmail.com</a>
+    &nbsp;·&nbsp;
+    <a href="https://t.me/altarch">@altarch</a>
+    &nbsp;·&nbsp;
+    Алексей Ткаченко, CEO
+  </p>
+</footer>
+
+<button class="support-launcher" type="button" onclick="toggleSupport()">Поддержка</button>
+<aside class="support-panel" id="support-panel" aria-label="Окно поддержки">
+  <div class="support-head">
+    <div>
+      <div class="support-title">Быстрый контакт</div>
+      <p class="support-sub">Выберите тему, оставьте контакт — форма работает как статический prototype для будущей интеграции</p>
+    </div>
+    <button class="support-close" type="button" onclick="closeSupport()" aria-label="Закрыть">x</button>
+  </div>
+  <div class="support-options">
+    <button class="support-option" type="button" onclick="openSupport('Пилот с бюро')">Пилот с бюро</button>
+    <button class="support-option" type="button" onclick="openSupport('Технический вопрос')">Технический вопрос</button>
+    <button class="support-option" type="button" onclick="openSupport('Demo kit')">Demo kit</button>
+    <button class="support-option" type="button" onclick="openSupport('Инвестиции')">Инвестиции</button>
+  </div>
+  <input class="support-field" id="support-topic" type="text" placeholder="Тема обращения">
+  <input class="support-field" id="support-contact" type="text" placeholder="Email или Telegram">
+  <textarea class="support-field" id="support-message" rows="3" placeholder="Коротко опишите запрос"></textarea>
+  <button class="support-submit" type="button" onclick="submitSupport()">Сохранить заявку</button>
+  <p class="support-note" id="support-note">Сейчас это локальная форма. Для production подключим endpoint, CRM или почтовый webhook</p>
+</aside>
+
+<script>
+// Demo results data. This is intentionally deterministic for screencast capture:
+// no API call, but the output changes by domain, object type, stage and text hints.
+const demoData = {
+  fire: {
+    base: [
+      { norm: 'СП 1.13130.2020', risk: 'risk', flag: 'Риск', text: 'Ширина эвакуационного выхода из помещений при числе эвакуирующихся более 15 человек должна быть не менее 0,9 м', cite: 'п. 4.2.5', keywords: ['выход', 'двер', 'ширин', 'эвакуац'] },
+      { norm: 'СП 1.13130.2020', risk: 'risk', flag: 'Риск', text: 'Количество эвакуационных выходов из здания и с каждого этажа должно быть не менее двух', cite: 'п. 4.2.1', keywords: ['выход', 'этаж', 'количество'] },
+      { norm: 'СП 3.13130.2009', risk: 'info', flag: 'Уточнить', text: 'Для административных и офисных зданий площадью более 5000 м² требуется СОУЭ 4-го типа', cite: 'п. 7.1', keywords: ['соуэ', 'оповещ', '5000', 'площад'] },
+      { norm: 'ГОСТ Р 57974-2017', risk: 'risk', flag: 'Риск', text: 'В офисных помещениях с высотой потолка до 3,5 м расстояние между дымовыми извещателями — не более 9 м', cite: 'п. 13.3.3', keywords: ['извещател', 'дым', 'пожар'] },
+    ],
+    officeBoost: { norm: 'СП 2.13130.2020', risk: 'ok', flag: 'Ок', text: 'Для офисных зданий класса Ф4.3 высотой до 28 м требуется степень огнестойкости не ниже III и класс конструктивной пожарной опасности не ниже С1', cite: 'п. 6.9.1', keywords: ['офис', 'огнестойк', 'ф4.3'] },
+  },
+  access: {
+    base: [
+      { norm: 'СП 59.13330.2020', risk: 'ok', flag: 'Ок', text: 'Ширина дверных проёмов в свету на путях движения МГН должна быть не менее 0,9 м', cite: 'п. 5.1.2', keywords: ['мгн', 'двер', 'проем', 'ширин'] },
+      { norm: 'СП 59.13330.2020', risk: 'risk', flag: 'Риск', text: 'Уклон пандуса при перепаде более 0,4 м — не более 1:20 (5%)', cite: 'п. 5.2.4', keywords: ['пандус', 'уклон', 'перепад'] },
+      { norm: 'СП 59.13330.2020', risk: 'info', flag: 'Уточнить', text: 'Горизонтальные площадки в начале и конце пандуса должны иметь размер не менее 1,5 × 1,5 м', cite: 'п. 5.2.6', keywords: ['пандус', 'площадк', '1.5'] },
+      { norm: 'ГОСТ Р 51671-2020', risk: 'info', flag: 'Уточнить', text: 'Лифты в доступных зданиях должны иметь кабину не менее 1,1 × 1,4 м, ширина дверного проёма — не менее 0,9 м', cite: 'п. 7.1', keywords: ['лифт', 'кабин', 'мгн'] },
+    ],
+  },
+  sanitary: {
+    base: [
+      { norm: 'СП 52.13330.2016', risk: 'info', flag: 'Уточнить', text: 'Нормируемая освещённость рабочей поверхности при работе с документами — 300 лк', cite: 'п. 5.4', keywords: ['освещ', 'лк', 'рабоч'] },
+      { norm: 'СанПиН 2.2.2/2.4.1340-03', risk: 'ok', flag: 'Ок', text: 'Площадь на одно рабочее место с ПЭВМ должна составлять не менее 4,5 м² при рядовом расположении мониторов', cite: 'п. 3.4', keywords: ['пэвм', 'рабоч', 'мест', 'площад'] },
+      { norm: 'СП 131.13330.2020', risk: 'risk', flag: 'Риск', text: 'Расчётная температура воздуха в рабочих помещениях в холодный период — 21–23°C оптимально', cite: 'табл. А.2', keywords: ['температур', 'климат', 'вентиляц'] },
+      { norm: 'СП 52.13330.2016', risk: 'info', flag: 'Уточнить', text: 'Показатель ослеплённости от светильников общего освещения в офисных помещениях не должен превышать 20', cite: 'п. 7.2', keywords: ['ослеп', 'светильник'] },
+    ],
+  },
+};
+
+function normText(value) {
+  return String(value || '').toLowerCase().replace(/ё/g, 'е');
+}
+
+function pickDemoResults(domain, objType, stage, desc) {
+  const group = demoData[domain] || demoData.fire;
+  const query = normText(`${objType} ${stage} ${desc}`);
+  let results = [...group.base];
+
+  if (domain === 'fire' && objType === 'office') results.unshift(group.officeBoost);
+  if (domain === 'fire' && objType === 'residential') {
+    results = results.map(item => item.norm === 'СП 2.13130.2020'
+      ? { ...item, risk: 'info', flag: 'Уточнить', text: 'Для жилого дома функциональный класс и высота должны быть подтверждены отдельно; офисная эвристика Ф4.3 здесь не применяется' }
+      : item);
+  }
+  if (stage === 'working') {
+    results = results.map(item => item.risk === 'info'
+      ? { ...item, flag: 'Проверить', text: `${item.text} На стадии Р нужно сверить это с чертежом/спецификацией` }
+      : item);
+  }
+
+  const scored = results.map(item => {
+    const hitScore = item.keywords.reduce((sum, keyword) => sum + (query.includes(keyword) ? 2 : 0), 0);
+    const objectScore = objType === 'office' && item.text.toLowerCase().includes('офис') ? 2 : 0;
+    const areaScore = query.includes('8000') && item.text.includes('5000') ? 3 : 0;
+    return { ...item, score: hitScore + objectScore + areaScore };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, 4);
+}
+
+function runDemo() {
+  const domain = document.getElementById('domain').value;
+  const ph = document.getElementById('demo-ph');
+  const out = document.getElementById('demo-out');
+  const objType = document.getElementById('obj-type');
+  const stageEl = document.getElementById('stage');
+
+  ph.style.display = 'none';
+  out.style.display = 'block';
+
+  const desc = document.getElementById('desc').value;
+  const results = pickDemoResults(domain, objType.value, stageEl.value, desc);
+  const riskCount = results.filter(r => r.risk === 'risk').length;
+  const okCount = results.filter(r => r.risk === 'ok').length;
+
+  let html = `
+    <div class="result-header">
+      <span class="result-title">Результаты first pass · ${objType.options[objType.selectedIndex].text}</span>
+      <span class="result-badge">${stageEl.options[stageEl.selectedIndex].text}</span>
+    </div>
+    <div style="font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:14px;">
+      Ассистент отвечает только из демо-корпуса и показывает основания рядом с выводом
+      ${desc ? `Контекст: ${desc}` : 'Добавьте описание, чтобы выдача стала точнее'}
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+      <span style="font-size:12px;background:#FEF2F2;color:#991B1B;padding:4px 10px;border-radius:100px;font-weight:600;">${riskCount} риска</span>
+      <span style="font-size:12px;background:#EAF3DE;color:#3B6D11;padding:4px 10px;border-radius:100px;font-weight:600;">${okCount} выполнено</span>
+      <span style="font-size:12px;background:#EFF6FF;color:#1D4ED8;padding:4px 10px;border-radius:100px;font-weight:600;">${results.length - riskCount - okCount} уточнить</span>
+    </div>
+  `;
+
+  results.forEach(r => {
+    const flagClass = r.risk === 'risk' ? 'flag-risk' : r.risk === 'ok' ? 'flag-ok' : 'flag-info';
+    html += `
+      <div class="req-card">
+        <div class="req-top">
+          <span class="req-norm">${r.norm}</span>
+          <span class="req-flag ${flagClass}">${r.flag}</span>
+        </div>
+        <p class="req-text">${r.text}</p>
+        <div class="req-cite">${r.cite}</div>
+      </div>
+    `;
+  });
+
+  html += `
+    <div style="margin-top:16px;padding:12px;background:var(--green-light);border-radius:10px;font-size:13px;color:var(--green-dark);">
+      Локальная screencast-логика подключена к RAG API с offline fallback. Следующий шаг — заменить демо-корпус реальной индексированной базой
+    </div>
+  `;
+
+  out.innerHTML = html;
+}
+
+function scrollToPilot() {
+  document.getElementById('pilot').scrollIntoView({ behavior: 'smooth' });
+}
+
+function submitPilot() {
+  const name = document.getElementById('pilot-name').value.trim();
+  const email = document.getElementById('pilot-email').value.trim();
+  if (!name || !email) {
+    alert('Заполните имя и email, пожалуйста');
+    return;
+  }
+  document.getElementById('pilot-form').style.display = 'none';
+  document.getElementById('success-msg').style.display = 'block';
+}
+
+function toggleSupport() {
+  const panel = document.getElementById('support-panel');
+  panel.classList.toggle('open');
+}
+
+function openSupport(topic) {
+  const panel = document.getElementById('support-panel');
+  document.getElementById('support-topic').value = topic || '';
+  panel.classList.add('open');
+}
+
+function closeSupport() {
+  document.getElementById('support-panel').classList.remove('open');
+}
+
+function submitSupport() {
+  const topic = document.getElementById('support-topic').value.trim() || 'Обращение';
+  const contact = document.getElementById('support-contact').value.trim();
+  const note = document.getElementById('support-note');
+  if (!contact) {
+    note.textContent = 'Добавьте email или Telegram, чтобы заявка была пригодна для обработки';
+    return;
+  }
+  note.textContent = `Заявка «${topic}» сохранена в prototype-состоянии. В production это уйдёт в endpoint или почтовый webhook`;
+}
+
+const landingParams = new URLSearchParams(window.location.search);
+if (landingParams.get('scene') === 'demo') {
+  window.addEventListener('load', () => {
+    document.getElementById('desc').value = '5-этажный офисный центр, Москва, 8000 м²';
+    document.getElementById('domain').value = 'fire';
+    runDemo();
+    document.getElementById('demo-section').scrollIntoView();
+  });
+}
+if (landingParams.get('support') === 'open') {
+  window.addEventListener('load', () => openSupport('Пилот с бюро'));
+}
+
+// Fade-in on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
