@@ -3,7 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ArchNorm — AI-система первого нормативного прохода</title>
+<title>ArchNorm — нормативный AI-навигатор для архитекторов</title>
+<link rel="canonical" href="https://alteralto.github.io/ArchNorm-preview/">
+<script>
+  window.goatcounter = {
+    path: function() {
+      const prefix = '/ArchNorm-preview';
+      const path = window.location.pathname || '/';
+      return path.startsWith(prefix) ? (path.slice(prefix.length) || '/') : path;
+    }
+  };
+</script>
+<script data-goatcounter="https://archnorm.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -681,20 +692,20 @@
     <a href="#how" class="nav-hide">Как работает</a>
     <a href="#pricing" class="nav-hide">Тарифы</a>
     <a href="#pilot" class="nav-hide">Пилот</a>
-    <a href="#pilot" class="btn-nav">Запросить пилот</a>
+    <a href="#pilot" class="btn-nav" data-goatcounter-click="cta-nav-pilot">Запросить пилот</a>
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
   <div class="hero-label"><span></span> GenAI / RAG / Pilot-ready</div>
-  <h1>Нормативный первый проход —<br><em>до того, как ошибка стала дорогой</em></h1>
-  <p class="hero-sub">ArchNorm находит применимые требования, собирает citations и помечает risk flags. До экспертизы. До возврата. До переделок</p>
+  <h1>Нормативный AI-навигатор<br><em>для архитекторов и проектных бюро</em></h1>
+  <p class="hero-sub">ArchNorm помогает быстро вспомнить применимые требования СП/СНиП/ГОСТ, суммаризирует ответ из норм и показывает пункты, цитаты и источники</p>
   <div class="hero-ctas">
-    <button class="btn-primary" onclick="document.getElementById('demo-section').scrollIntoView({behavior:'smooth'})">
+    <button class="btn-primary" data-goatcounter-click="cta-hero-demo" onclick="document.getElementById('demo-section').scrollIntoView({behavior:'smooth'})">
       Посмотреть демо
     </button>
-    <a href="#pilot" class="btn-secondary">Запросить пилот</a>
+    <a href="#pilot" class="btn-secondary" data-goatcounter-click="cta-hero-pilot">Запросить пилот</a>
   </div>
   <div class="hero-stats">
     <div class="stat">
@@ -757,7 +768,7 @@
         <span class="step-badge">Document-first</span>
       </div>
       <div class="step">
-        <span class="step-num">02 / First pass</span>
+        <span class="step-num">02 / Нормативный контекст</span>
         <div class="step-icon">RAG</div>
         <div class="step-title">Применимые требования</div>
         <p class="step-desc">Система извлекает релевантные нормы из СП, СНиП, ГОСТ по доменному контексту вашего проекта</p>
@@ -786,11 +797,11 @@
   <div class="container">
     <div class="section-tag">Интерактивное демо</div>
     <h2>Попробуйте прямо здесь</h2>
-    <p class="section-sub">Заполните параметры проекта и посмотрите, как выглядит first-pass результат</p>
+    <p class="section-sub">Заполните параметры проекта и посмотрите, как ArchNorm собирает нормативный ответ</p>
     <div class="demo-window fade-in">
       <div class="demo-topbar">
         <div class="demo-dots"><span></span><span></span><span></span></div>
-        <span class="demo-title">ArchNorm — нормативный first pass</span>
+        <span class="demo-title">ArchNorm — нормативный навигатор</span>
       </div>
       <div class="demo-body">
         <div class="demo-input-panel">
@@ -818,20 +829,20 @@
           <label class="demo-label">Краткое описание</label>
           <textarea class="demo-field" id="desc" rows="3" placeholder="Напр.: 5-этажный офисный центр, Москва, 8000 м²..."></textarea>
 
-          <button class="demo-run-btn" onclick="runDemo()">Запустить first pass</button>
+          <button class="demo-run-btn" data-goatcounter-click="run-inline-demo" onclick="runDemo()">Найти нормы</button>
         </div>
 
         <div class="demo-output-panel">
           <div class="demo-placeholder" id="demo-ph">
             <div class="demo-placeholder-icon">RUN</div>
-            <p>Заполните параметры и нажмите «Запустить first pass»</p>
+            <p>Заполните параметры и нажмите «Найти нормы»</p>
           </div>
           <div class="demo-result" id="demo-out"></div>
         </div>
       </div>
     </div>
     <div style="margin-top:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-      <a class="btn-secondary" href="screencast/index.html">Открыть screencast-демо чата</a>
+      <a class="btn-secondary" href="screencast/index.html" data-goatcounter-click="open-screencast-demo">Открыть screencast-демо чата</a>
       <span style="font-size:13px;color:var(--muted);">Работает локально через RAG API: вопрос, ответ ассистента, источники и выдержки норм</span>
     </div>
   </div>
@@ -862,7 +873,7 @@
       <div class="feature-card fade-in">
         <div class="feature-icon">04</div>
         <div class="feature-title">Без тяжёлого внедрения</div>
-        <p class="feature-desc">Document-first workflow. Не требует зрелого BIM-стека на входе. Пилотируется как first pass, а не как новая платформа</p>
+        <p class="feature-desc">Document-first workflow. Не требует зрелого BIM-стека на входе. Пилотируется как нормативный навигатор, а не как новая платформа</p>
       </div>
     </div>
   </div>
@@ -886,7 +897,7 @@
           <li class="na">Risk flags</li>
           <li class="na">Экспорт отчёта</li>
         </ul>
-        <button class="btn-plan outline" onclick="document.getElementById('demo-section').scrollIntoView({behavior:'smooth'})">Попробовать</button>
+        <button class="btn-plan outline" data-goatcounter-click="pricing-demo-try" onclick="document.getElementById('demo-section').scrollIntoView({behavior:'smooth'})">Попробовать</button>
       </div>
 
       <div class="price-card">
@@ -900,7 +911,7 @@
           <li>Экспорт в PDF</li>
           <li class="na">Командный воркфлоу</li>
         </ul>
-        <button class="btn-plan outline" onclick="scrollToPilot()">Связаться</button>
+        <button class="btn-plan outline" data-goatcounter-click="pricing-studio-contact" onclick="scrollToPilot()">Связаться</button>
       </div>
 
       <div class="price-card featured">
@@ -915,7 +926,7 @@
           <li>Rationale checklist</li>
           <li>Приоритетная поддержка</li>
         </ul>
-        <button class="btn-plan filled" onclick="scrollToPilot()">Запросить пилот</button>
+        <button class="btn-plan filled" data-goatcounter-click="pricing-studio-pilot" onclick="scrollToPilot()">Запросить пилот</button>
       </div>
 
       <div class="price-card">
@@ -929,7 +940,7 @@
           <li>SLA и eval-отчёты</li>
           <li>GigaChat integration</li>
         </ul>
-        <button class="btn-plan outline" onclick="scrollToPilot()">Обсудить</button>
+        <button class="btn-plan outline" data-goatcounter-click="pricing-onprem-discuss" onclick="scrollToPilot()">Обсудить</button>
       </div>
     </div>
 
@@ -978,8 +989,8 @@
           <p>Это не production-система, а аккуратный proof-of-work: видно, как будет выглядеть RAG-ответ, citations и окно норм</p>
         </div>
         <div class="kit-actions">
-          <a href="screencast/index.html">Открыть screencast-режим</a>
-          <button type="button" onclick="openSupport('Материалы и demo kit')">Запросить пакет материалов</button>
+          <a href="screencast/index.html" data-goatcounter-click="open-screencast-kit">Открыть screencast-режим</a>
+          <button type="button" data-goatcounter-click="request-demo-kit" onclick="openSupport('Материалы и demo kit')">Запросить пакет материалов</button>
         </div>
       </div>
     </div>
@@ -990,7 +1001,7 @@
 <section id="pilot">
   <div class="container">
     <div class="section-tag" style="color:rgba(232,239,228,0.5)">Пилот</div>
-    <h2>Проверьте на своих документах</h2>
+    <h2>Попробуйте на своих документах</h2>
     <p class="section-sub">Пилот 4–6 недель: один домен, ваши документы, baseline ручного прохода и понятный выход с метриками</p>
     <div class="pilot-form" id="pilot-form">
       <div class="pilot-row">
@@ -1005,13 +1016,13 @@
         <option style="color:#000">30–80 человек</option>
         <option style="color:#000">80+ человек</option>
       </select>
-      <button class="btn-pilot" onclick="submitPilot()">Отправить заявку на пилот</button>
+      <button class="btn-pilot" data-goatcounter-click="submit-pilot-form" onclick="submitPilot()">Отправить заявку на пилот</button>
       <p class="pilot-note">Ответим в течение 24 часов. Без спама и навязчивых продаж</p>
     </div>
     <div class="success-msg" id="success-msg">
       <h3>Заявка принята</h3>
       <p>Свяжемся с вами в течение 24 часов для уточнения параметров пилота<br>
-      Пока можете написать напрямую: <a href="mailto:xelartn75@gmail.com" style="color:rgba(255,255,255,0.7)">xelartn75@gmail.com</a></p>
+      Пока можете написать напрямую: <a href="mailto:xelartn75@gmail.com" data-goatcounter-click="contact-email-pilot" style="color:rgba(255,255,255,0.7)">xelartn75@gmail.com</a></p>
     </div>
   </div>
 </section>
@@ -1019,17 +1030,17 @@
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">ArchNorm</div>
-  <p>AI-система первого нормативного прохода в строительстве</p>
+  <p>AI-навигатор по строительным нормам для архитектурного проектирования</p>
   <p>
-    <a href="mailto:xelartn75@gmail.com">xelartn75@gmail.com</a>
+    <a href="mailto:xelartn75@gmail.com" data-goatcounter-click="contact-email-footer">xelartn75@gmail.com</a>
     &nbsp;·&nbsp;
-    <a href="https://t.me/altarch">@altarch</a>
+    <a href="https://t.me/ArchNorm" data-goatcounter-click="contact-telegram-archnorm">@ArchNorm</a>
     &nbsp;·&nbsp;
     Алексей Ткаченко, CEO
   </p>
 </footer>
 
-<button class="support-launcher" type="button" onclick="toggleSupport()">Поддержка</button>
+<button class="support-launcher" type="button" data-goatcounter-click="support-open" onclick="toggleSupport()">Поддержка</button>
 <aside class="support-panel" id="support-panel" aria-label="Окно поддержки">
   <div class="support-head">
     <div>
@@ -1039,15 +1050,15 @@
     <button class="support-close" type="button" onclick="closeSupport()" aria-label="Закрыть">x</button>
   </div>
   <div class="support-options">
-    <button class="support-option" type="button" onclick="openSupport('Пилот с бюро')">Пилот с бюро</button>
-    <button class="support-option" type="button" onclick="openSupport('Технический вопрос')">Технический вопрос</button>
-    <button class="support-option" type="button" onclick="openSupport('Demo kit')">Demo kit</button>
-    <button class="support-option" type="button" onclick="openSupport('Инвестиции')">Инвестиции</button>
+    <button class="support-option" type="button" data-goatcounter-click="support-topic-pilot" onclick="openSupport('Пилот с бюро')">Пилот с бюро</button>
+    <button class="support-option" type="button" data-goatcounter-click="support-topic-tech" onclick="openSupport('Технический вопрос')">Технический вопрос</button>
+    <button class="support-option" type="button" data-goatcounter-click="support-topic-demo-kit" onclick="openSupport('Demo kit')">Demo kit</button>
+    <button class="support-option" type="button" data-goatcounter-click="support-topic-invest" onclick="openSupport('Инвестиции')">Инвестиции</button>
   </div>
   <input class="support-field" id="support-topic" type="text" placeholder="Тема обращения">
   <input class="support-field" id="support-contact" type="text" placeholder="Email или Telegram">
   <textarea class="support-field" id="support-message" rows="3" placeholder="Коротко опишите запрос"></textarea>
-  <button class="support-submit" type="button" onclick="submitSupport()">Сохранить заявку</button>
+  <button class="support-submit" type="button" data-goatcounter-click="submit-support-form" onclick="submitSupport()">Сохранить заявку</button>
   <p class="support-note" id="support-note">Сейчас это локальная форма. Для production подключим endpoint, CRM или почтовый webhook</p>
 </aside>
 
@@ -1131,7 +1142,7 @@ function runDemo() {
 
   let html = `
     <div class="result-header">
-      <span class="result-title">Результаты first pass · ${objType.options[objType.selectedIndex].text}</span>
+      <span class="result-title">Нормативный контекст · ${objType.options[objType.selectedIndex].text}</span>
       <span class="result-badge">${stageEl.options[stageEl.selectedIndex].text}</span>
     </div>
     <div style="font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:14px;">

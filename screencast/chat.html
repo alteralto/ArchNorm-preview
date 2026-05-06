@@ -3,6 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="canonical" href="https://alteralto.github.io/ArchNorm-preview/screencast/chat.html">
+<script>
+  window.goatcounter = {
+    path: function() {
+      const prefix = '/ArchNorm-preview';
+      const path = window.location.pathname || '/';
+      return path.startsWith(prefix) ? (path.slice(prefix.length) || '/') : path;
+    }
+  };
+</script>
+<script data-goatcounter="https://archnorm.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <title>ArchNorm — AI-ассистент</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -188,17 +199,17 @@ html,body{height:100%;font-family:'Manrope',sans-serif;background:#10140f;color:
         <div class="empty-icon">AN</div>
         <p>Задайте вопрос по нормативам — ассистент найдёт применимые требования и укажет источники</p>
         <div class="suggested">
-          <button class="sugg-btn" data-domain="fire" onclick="sendSuggested(this)">Какова минимальная ширина эвакуационного выхода для офисного здания?</button>
-          <button class="sugg-btn" data-domain="fire" onclick="sendSuggested(this)">Какой тип СОУЭ нужен для здания площадью 8000 м²?</button>
-          <button class="sugg-btn" data-domain="access" onclick="sendSuggested(this)">Требования к пандусу для доступности МГН</button>
-          <button class="sugg-btn" data-domain="sanitary" onclick="sendSuggested(this)">Нормируемая освещённость рабочих мест в офисе</button>
+          <button class="sugg-btn" data-domain="fire" data-goatcounter-click="chat-suggest-fire-exit" onclick="sendSuggested(this)">Какова минимальная ширина эвакуационного выхода для офисного здания?</button>
+          <button class="sugg-btn" data-domain="fire" data-goatcounter-click="chat-suggest-soue" onclick="sendSuggested(this)">Какой тип СОУЭ нужен для здания площадью 8000 м²?</button>
+          <button class="sugg-btn" data-domain="access" data-goatcounter-click="chat-suggest-access-ramp" onclick="sendSuggested(this)">Требования к пандусу для доступности МГН</button>
+          <button class="sugg-btn" data-domain="sanitary" data-goatcounter-click="chat-suggest-lighting" onclick="sendSuggested(this)">Нормируемая освещённость рабочих мест в офисе</button>
         </div>
       </div>
     </div>
     <div class="input-area">
       <div class="input-row">
         <textarea class="query-input" id="query-input" rows="1" placeholder="Спросите про нормативные требования к вашему проекту..."></textarea>
-        <button class="send-btn" id="send-btn" onclick="sendQuery()">
+        <button class="send-btn" id="send-btn" data-goatcounter-click="chat-send-query" onclick="sendQuery()">
           <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
         </button>
       </div>
