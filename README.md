@@ -1,42 +1,68 @@
-# ArchNorm Demo
+# ArchNorm
 
-ArchNorm is an AI assistant for the first regulatory pass in architectural design.
+**AI-система первого нормативного прохода для архитектурных бюро.**
 
-It helps architects and design teams find applicable Russian building code requirements
-with cited clauses, source fragments, and risk flags before mistakes become expensive
-at the expert review stage.
+ArchNorm помогает архитекторам, ГАП/ГИП и нормоконтролерам быстрее находить применимые требования СП/СНиП/ГОСТ, видеть точные цитаты и понимать, на какие пункты норм опирается ответ.
 
-## What this demo repo contains
+Идея простая: найти нормативные риски на ранней стадии проекта, а не тогда, когда ошибка уже всплыла на экспертизе и стала дорогой.
 
-- A static landing page for ArchNorm.
-- A deterministic screencast-style chat demo.
-- Public product positioning materials.
+## Что можно посмотреть
 
-## What is not included
+- Landing: `https://alteralto.github.io/ArchNorm-preview/`
+- Screencast-демо: `https://alteralto.github.io/ArchNorm-preview/screencast/`
 
-This repository does not contain the private RAG backend, ingestion pipeline,
-vector index, normative document corpus, prompts, evaluation data, or production code.
+## Какую проблему решаем
 
-## Demo pages
+Архитектурные бюро каждый день тратят часы на ручной поиск норм. Нужно открыть PDF, найти актуальный СП, проверить пункт, понять исключения, не перепутать требования к разным объектам и потом еще объяснить заказчику или экспертизе, откуда взялся вывод.
 
-After GitHub Pages is enabled, open:
+ArchNorm делает первый проход по нормам как AI-ассистент:
 
-- Landing: `https://alteralto.github.io/ArchNorm-demo/`
-- Screencast: `https://alteralto.github.io/ArchNorm-demo/screencast/`
+- принимает вопрос и контекст проекта;
+- ищет релевантные фрагменты нормативных документов;
+- возвращает краткий ответ с пунктом, цитатой и источником;
+- подсвечивает места, где есть риск или нужна ручная проверка специалиста.
 
-## Product status
+## Для кого
 
-ArchNorm is at MVP/pilot stage.
+- малые и средние архитектурные бюро;
+- архитекторы и проектировщики;
+- ГАП/ГИП;
+- нормоконтроль;
+- команды, которые хотят проверять проектные решения до экспертизы.
 
-The private product codebase currently includes:
+## Статус
 
-- Python/FastAPI RAG backend;
-- PDF ingestion for real SP/SNiP documents;
-- Chroma vector search;
-- LLM provider abstraction;
-- on-prem and SaaS deployment planning.
+Проект находится на стадии MVP и подготовки пилотов.
 
-For pilot access, contact:
+В приватном контуре уже тестируется RAG-пайплайн на реальных СП: PDF ingestion, чанкинг нормативных документов, векторный поиск, LLM-провайдеры и локальный on-prem запуск.
 
+## Что лежит в этом репозитории
+
+Это публичная витрина проекта, а не исходный код продукта.
+
+Здесь есть:
+
+- landing;
+- screencast-демо интерфейса;
+- публичное описание продукта.
+
+Здесь нет:
+
+- приватного RAG backend;
+- ingestion pipeline;
+- нормкорпуса и PDF-документов;
+- prompt-логики;
+- eval-датасетов;
+- производственного кода.
+
+## Пилоты
+
+Сейчас мы ищем первые архитектурные бюро для коротких пилотов на 4-6 недель.
+
+Цель пилота: проверить ArchNorm на реальных вопросах бюро, собрать корпус применимых норм и понять, сколько времени команда экономит на первом нормативном проходе.
+
+## Контакты
+
+- Telegram проекта: [@ArchNorm](https://t.me/ArchNorm)
+- Канал о технологиях в архитектуре: [@arkadez](https://t.me/arkadez)
 - Email: `xelartn75@gmail.com`
-- Telegram: `@altarch`
