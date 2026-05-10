@@ -2,96 +2,66 @@
 <html lang="ru" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ArchNorm — Приложение v2</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ArchNorm — Приложение v2.1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════
-   TOKENS
-═══════════════════════════════════════════ */
-:root {
-  --bg:          #F4F0E8;
-  --bg-panel:    #FDFBF7;
-  --bg-sidebar:  #EAE6DC;
-  --bg-input:    #FFFFFF;
-  --bg-card:     #FFFFFF;
-  --bg-hover:    #EEE9DF;
-  --bg-tag:      #E2EDD8;
-  --accent:      #2B5C2E;
-  --accent-mid:  #3D7040;
-  --accent-glow: rgba(43,92,46,0.12);
-  --amber:       #C47820;
-  --amber-bg:    #FEF3E2;
-  --text:        #1A1814;
-  --text-2:      #5A5650;
-  --text-3:      #938E88;
-  --border:      rgba(26,24,20,0.10);
-  --border-2:    rgba(26,24,20,0.05);
-  --shadow:      0 2px 16px rgba(26,24,20,0.08);
-  --shadow-lg:   0 8px 48px rgba(26,24,20,0.14);
-  --radius:      12px;
-  --radius-lg:   18px;
-  --mono:        'JetBrains Mono', ui-monospace, monospace;
-  --sans:        'Manrope', system-ui, sans-serif;
-  --hl:          rgba(255,200,60,0.40);
-  --ok-bg:#D9EDCD; --ok-tx:#1E5C22;
-  --warn-bg:#FEF3D9; --warn-tx:#8B5C00;
-  --fail-bg:#FDECEC; --fail-tx:#8B1A1A;
-  --info-bg:#E8F0FE; --info-tx:#1A3A8B;
+:root{
+  --bg:#F4F0E8;--bg-panel:#FDFBF7;--bg-sidebar:#EAE6DC;--bg-input:#FFF;
+  --bg-card:#FFF;--bg-hover:#EEE9DF;--bg-tag:#E2EDD8;
+  --accent:#2B5C2E;--accent-mid:#3D7040;--accent-glow:rgba(43,92,46,.12);
+  --amber:#C47820;--amber-bg:#FEF3E2;
+  --text:#1A1814;--text-2:#5A5650;--text-3:#938E88;
+  --border:rgba(26,24,20,.10);--border-2:rgba(26,24,20,.05);
+  --shadow:0 2px 16px rgba(26,24,20,.08);--shadow-lg:0 8px 48px rgba(26,24,20,.14);
+  --r:12px;--r-lg:18px;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --sans:'Manrope',system-ui,sans-serif;
+  --hl:rgba(255,200,60,.40);
+  --ok-bg:#D9EDCD;--ok-tx:#1E5C22;
+  --warn-bg:#FEF3D9;--warn-tx:#8B5C00;
+  --fail-bg:#FDECEC;--fail-tx:#8B1A1A;
+  --info-bg:#E8F0FE;--info-tx:#1A3A8B;
 }
-[data-theme="dark"] {
-  --bg:          #0D0F14;
-  --bg-panel:    #131620;
-  --bg-sidebar:  #0A0C10;
-  --bg-input:    #1C2030;
-  --bg-card:     #1A1E2C;
-  --bg-hover:    #1E2336;
-  --bg-tag:      #1A2A1A;
-  --accent:      #F5A623;
-  --accent-mid:  #FFB940;
-  --accent-glow: rgba(245,166,35,0.14);
-  --amber:       #F5A623;
-  --amber-bg:    rgba(245,166,35,0.10);
-  --text:        #E8E6E0;
-  --text-2:      #9A97A0;
-  --text-3:      #5A5870;
-  --border:      rgba(232,230,224,0.08);
-  --border-2:    rgba(232,230,224,0.04);
-  --shadow:      0 2px 16px rgba(0,0,0,0.44);
-  --shadow-lg:   0 8px 48px rgba(0,0,0,0.64);
-  --hl:          rgba(245,166,35,0.28);
-  --ok-bg:#0E2A14; --ok-tx:#5CDA6A;
-  --warn-bg:#2A1E00; --warn-tx:#FFD060;
-  --fail-bg:#2A0E0E; --fail-tx:#F08080;
-  --info-bg:#0E1A2A; --info-tx:#80B0F0;
+[data-theme=dark]{
+  --bg:#0D0F14;--bg-panel:#131620;--bg-sidebar:#0A0C10;--bg-input:#1C2030;
+  --bg-card:#1A1E2C;--bg-hover:#1E2336;--bg-tag:#1A2A1A;
+  --accent:#F5A623;--accent-mid:#FFB940;--accent-glow:rgba(245,166,35,.14);
+  --amber:#F5A623;--amber-bg:rgba(245,166,35,.10);
+  --text:#E8E6E0;--text-2:#9A97A0;--text-3:#5A5870;
+  --border:rgba(232,230,224,.08);--border-2:rgba(232,230,224,.04);
+  --shadow:0 2px 16px rgba(0,0,0,.44);--shadow-lg:0 8px 48px rgba(0,0,0,.64);
+  --hl:rgba(245,166,35,.28);
+  --ok-bg:#0E2A14;--ok-tx:#5CDA6A;
+  --warn-bg:#2A1E00;--warn-tx:#FFD060;
+  --fail-bg:#2A0E0E;--fail-tx:#F08080;
+  --info-bg:#0E1A2A;--info-tx:#80B0F0;
 }
-
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--sans);font-size:14px;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
 
-/* LAYOUT */
-.shell{display:grid;grid-template-columns:52px 240px 1fr 400px;height:100vh;transition:grid-template-columns .3s ease}
+/* ── LAYOUT ── */
+.shell{display:grid;grid-template-columns:52px 240px 1fr 400px;height:100vh;transition:grid-template-columns .3s}
 .shell.pdf-off{grid-template-columns:52px 240px 1fr 0px}
 .shell.hist-off{grid-template-columns:52px 0px 1fr 400px}
 
-/* ═══ ICON BAR ═══ */
+/* ── ICON BAR ── */
 .icon-bar{background:var(--bg-sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:4px;z-index:10}
 .logo{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);letter-spacing:-.5px;margin-bottom:16px;text-align:center;line-height:1.2}
-.ib{width:38px;height:38px;border-radius:10px;border:none;background:transparent;color:var(--text-3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
-.ib:hover{background:var(--bg-hover);color:var(--text)}
+.ib,.tb{width:38px;height:38px;border-radius:10px;border:none;background:transparent;color:var(--text-3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+.ib:hover,.tb:hover{background:var(--bg-hover);color:var(--text)}
 .ib.on{background:var(--accent-glow);color:var(--accent)}
+.tb:hover{color:var(--accent)}
 .ib svg,.tb svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .spacer{flex:1}
-.tb{width:38px;height:38px;border-radius:10px;border:none;background:transparent;color:var(--text-3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
-.tb:hover{background:var(--bg-hover);color:var(--accent)}
 
-/* ═══ HISTORY ═══ */
+/* ── HISTORY ── */
 .hist{background:var(--bg-panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
 .hist-hdr{padding:18px 16px 12px;border-bottom:1px solid var(--border-2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .hist-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3)}
-.new-btn{height:28px;padding:0 10px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s;white-space:nowrap}
+.new-btn{height:28px;padding:0 10px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s}
 [data-theme=dark] .new-btn{color:#0D0F14}
 .new-btn:hover{opacity:.85}
 .hist-search{padding:10px 12px;border-bottom:1px solid var(--border-2);flex-shrink:0}
@@ -107,7 +77,7 @@ body{font-family:var(--sans);font-size:14px;background:var(--bg);color:var(--tex
 .si-meta{font-size:11px;color:var(--text-3);display:flex;gap:6px;align-items:center}
 .si-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0}
 
-/* ═══ CHAT PANEL ═══ */
+/* ── CHAT ── */
 .chat{display:flex;flex-direction:column;background:var(--bg);overflow:hidden;min-width:0}
 .chat-hdr{padding:0 24px;height:56px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg-panel)}
 .chat-hdr-l{display:flex;align-items:center;gap:10px;min-width:0}
@@ -118,8 +88,6 @@ body{font-family:var(--sans);font-size:14px;background:var(--bg);color:var(--tex
 .hbtn{height:32px;padding:0 12px;background:transparent;border:1px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:12px;font-weight:500;color:var(--text-2);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;white-space:nowrap}
 .hbtn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
 .hbtn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-
-/* MESSAGES */
 .msgs{flex:1;overflow-y:auto;padding:28px 28px 16px;display:flex;flex-direction:column;gap:24px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
 
 /* empty */
@@ -131,11 +99,9 @@ body{font-family:var(--sans);font-size:14px;background:var(--bg);color:var(--tex
 .chip{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--text-2);cursor:pointer;text-align:left;font-family:var(--sans);transition:border-color .15s,background .15s;line-height:1.4}
 .chip:hover{border-color:var(--accent);background:var(--accent-glow);color:var(--text)}
 
-/* user bubble */
+/* bubbles */
 .mu{align-self:flex-end;max-width:62%;background:var(--accent);color:#fff;border-radius:14px 14px 4px 14px;padding:11px 16px;font-size:14px;line-height:1.55;word-break:break-word}
 [data-theme=dark] .mu{color:#0D0F14}
-
-/* ai message */
 .mai{align-self:flex-start;max-width:90%;display:flex;flex-direction:column;gap:10px}
 .mai-hdr{display:flex;align-items:center;gap:8px}
 .av{width:26px;height:26px;background:var(--accent-glow);border:1px solid var(--border);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:700;color:var(--accent);flex-shrink:0}
@@ -144,25 +110,40 @@ body{font-family:var(--sans);font-size:14px;background:var(--bg);color:var(--tex
 .ai-st.live{color:var(--accent);animation:pulse 1.2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* confidence meter */
-.conf-meter{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px}
-.conf-label{font-size:11px;font-weight:600;color:var(--text-3);white-space:nowrap}
-.conf-bar-wrap{flex:1;height:6px;background:var(--bg-hover);border-radius:100px;overflow:hidden}
-.conf-bar{height:100%;border-radius:100px;transition:width .6s ease}
-.conf-bar.hi{background:#3DBF5A}
-.conf-bar.mid{background:#F5A623}
-.conf-bar.lo{background:#E05555}
-.conf-pct{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text-2);white-space:nowrap}
+/* ── CONFIDENCE RING ── */
+.conf-block{
+  display:flex;align-items:center;gap:14px;
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:12px;padding:12px 16px;
+}
+.conf-ring-wrap{position:relative;width:48px;height:48px;flex-shrink:0}
+.conf-ring-wrap svg{width:48px;height:48px;transform:rotate(-90deg)}
+.conf-ring-track{fill:none;stroke:var(--border);stroke-width:4}
+.conf-ring-fill{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .8s ease,stroke .4s}
+.conf-ring-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text)}
+.conf-info{display:flex;flex-direction:column;gap:3px;flex:1}
+.conf-title{font-size:12px;font-weight:600;color:var(--text-2)}
+.conf-sub{font-size:11px;color:var(--text-3);line-height:1.4}
+.conf-bar-row{display:flex;align-items:center;gap:8px;margin-top:4px}
+.conf-bar-wrap{flex:1;height:4px;background:var(--bg-hover);border-radius:100px;overflow:hidden}
+.conf-bar{height:100%;border-radius:100px;transition:width .8s ease}
+.conf-bar.hi{background:linear-gradient(90deg,#3DBF5A,#5EE87A)}
+.conf-bar.mid{background:linear-gradient(90deg,#F5A623,#FFC94A)}
+.conf-bar.lo{background:linear-gradient(90deg,#E05555,#F07878)}
+.conf-verdict{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;white-space:nowrap}
+.conf-verdict.hi{background:var(--ok-bg);color:var(--ok-tx)}
+.conf-verdict.mid{background:var(--warn-bg);color:var(--warn-tx)}
+.conf-verdict.lo{background:var(--fail-bg);color:var(--fail-tx)}
 
-/* norm card */
-.norm-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:box-shadow .15s,border-color .15s}
+/* ── NORM CARD ── */
+.norm-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:box-shadow .15s,border-color .15s}
 .norm-card:hover{box-shadow:var(--shadow);border-color:var(--accent)}
 .norm-card.active{border-color:var(--amber);box-shadow:0 0 0 2px var(--amber-bg)}
 .nc-head{padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border-2)}
 .nc-norm{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);flex:1}
 .nc-ver{font-family:var(--mono);font-size:9px;padding:2px 6px;background:var(--bg-tag);color:var(--text-3);border-radius:4px;border:1px solid var(--border)}
 .nc-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px}
-.s-ok  {background:var(--ok-bg);  color:var(--ok-tx)}
+.s-ok{background:var(--ok-bg);color:var(--ok-tx)}
 .s-warn{background:var(--warn-bg);color:var(--warn-tx)}
 .s-fail{background:var(--fail-bg);color:var(--fail-tx)}
 .s-info{background:var(--info-bg);color:var(--info-tx)}
@@ -171,11 +152,14 @@ body{font-family:var(--sans);font-size:14px;background:var(--bg);color:var(--tex
 .nc-foot{padding:8px 14px;display:flex;align-items:center;justify-content:space-between;background:var(--bg-hover)}
 .nc-ref{font-family:var(--mono);font-size:10px;color:var(--text-3)}
 .nc-ref::before{content:'§ ';color:var(--accent)}
-.nc-hl-badge{font-family:var(--mono);font-size:10px;color:var(--text-3);display:flex;align-items:center;gap:4px}
-.hl-dot{width:7px;height:7px;border-radius:50%;background:var(--hl);border:1px solid rgba(0,0,0,.12)}
+/* relevance pill */
+.nc-rel{display:flex;align-items:center;gap:5px}
+.rel-bar-wrap{width:48px;height:4px;background:var(--border);border-radius:100px;overflow:hidden}
+.rel-bar{height:100%;border-radius:100px;background:var(--accent)}
+.rel-pct{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--text-2)}
 
-/* checklist */
-.checklist{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+/* ── CHECKLIST ── */
+.checklist{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
 .cl-head{padding:10px 14px;border-bottom:1px solid var(--border-2);display:flex;align-items:center;justify-content:space-between}
 .cl-title{font-size:12px;font-weight:700;color:var(--text-2)}
 .cl-summary{font-size:11px;font-family:var(--mono);color:var(--text-3)}
@@ -183,24 +167,22 @@ body{font-family:var(--sans);font-size:14px;background:var(--bg);color:var(--tex
 .cl-row:last-child{border-bottom:none}
 .cl-row:hover{background:var(--bg-hover)}
 .cl-icon{width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px}
-.cl-icon.ok  {background:var(--ok-bg);  color:var(--ok-tx)}
+.cl-icon.ok{background:var(--ok-bg);color:var(--ok-tx)}
 .cl-icon.warn{background:var(--warn-bg);color:var(--warn-tx)}
 .cl-icon.fail{background:var(--fail-bg);color:var(--fail-tx)}
-.cl-text{font-size:12.5px;line-height:1.55;color:var(--text);flex:1}
-.cl-norm{font-family:var(--mono);font-size:10px;color:var(--accent);white-space:nowrap;margin-top:1px}
-
-/* conclusion */
+.cl-text{font-size:12.5px;line-height:1.55;color:var(--text)}
+.cl-norm{font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:1px}
 .concl{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.55;color:var(--text-2)}
 .concl strong{color:var(--text);font-weight:600}
 
-/* thinking */
+/* dots */
 .dots{display:flex;gap:4px;align-items:center;padding:6px 0}
 .dots span{width:6px;height:6px;background:var(--text-3);border-radius:50%;animation:bounce .9s ease-in-out infinite}
 .dots span:nth-child(2){animation-delay:.15s}
 .dots span:nth-child(3){animation-delay:.3s}
 @keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
 
-/* INPUT */
+/* ── INPUT ── */
 .input-area{padding:12px 20px 18px;border-top:1px solid var(--border);background:var(--bg-panel);flex-shrink:0}
 .iw{display:flex;align-items:flex-end;gap:8px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:14px;padding:10px 12px;transition:border-color .15s,box-shadow .15s}
 .iw:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
@@ -215,17 +197,17 @@ body{font-family:var(--sans);font-size:14px;background:var(--bg);color:var(--tex
 .hint{font-size:11px;background:var(--bg-hover);color:var(--text-3);padding:3px 9px;border-radius:6px;cursor:pointer;transition:background .12s,color .12s;border:none;font-family:var(--sans)}
 .hint:hover{background:var(--accent-glow);color:var(--accent)}
 
-/* ═══ PDF PANEL ═══ */
-.pdf-panel{background:var(--bg-panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:all .3s ease;min-width:0}
+/* ── PDF PANEL ── */
+.pdf-panel{background:var(--bg-panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:all .3s;min-width:0}
 .shell.pdf-off .pdf-panel{border-left:none}
 .pdf-hdr{padding:0 16px;height:56px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0}
 .pdf-tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
 .pdf-tab{font-family:var(--mono);font-size:11px;font-weight:600;padding:5px 10px;border-radius:7px;border:none;background:transparent;color:var(--text-3);cursor:pointer;white-space:nowrap;transition:background .12s,color .12s;position:relative}
 .pdf-tab.on{background:var(--accent-glow);color:var(--accent)}
 .pdf-tab:hover:not(.on){background:var(--bg-hover);color:var(--text)}
-.pdf-tab .hl-count{position:absolute;top:2px;right:2px;width:14px;height:14px;border-radius:50%;background:var(--amber);color:#fff;font-size:8px;display:flex;align-items:center;justify-content:center;font-weight:700}
-[data-theme=dark] .pdf-tab .hl-count{color:#0D0F14}
-.pdf-x{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text-3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;font-family:var(--mono);flex-shrink:0;transition:all .12s;line-height:1}
+.pdf-tab .hl-badge{position:absolute;top:2px;right:2px;width:14px;height:14px;border-radius:50%;background:var(--amber);color:#fff;font-size:8px;display:flex;align-items:center;justify-content:center;font-weight:700}
+[data-theme=dark] .pdf-tab .hl-badge{color:#0D0F14}
+.pdf-x{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text-3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:all .12s;line-height:1}
 .pdf-x:hover{border-color:var(--accent);color:var(--accent)}
 .pdf-tb{padding:8px 14px;border-bottom:1px solid var(--border-2);display:flex;align-items:center;gap:8px;flex-shrink:0}
 .pdf-search{flex:1;background:var(--bg-input);border:1px solid var(--border);border-radius:7px;padding:5px 9px;font-family:var(--sans);font-size:12px;color:var(--text);outline:none;transition:border-color .15s}
@@ -234,8 +216,7 @@ body{font-family:var(--sans);font-size:14px;background:var(--bg);color:var(--tex
 .pdf-nav{height:28px;padding:0 10px;background:var(--bg-hover);border:1px solid var(--border);border-radius:7px;font-family:var(--sans);font-size:12px;color:var(--text-2);cursor:pointer;white-space:nowrap;transition:all .12s}
 .pdf-nav:hover{border-color:var(--accent);color:var(--accent)}
 .pdf-body{flex:1;overflow-y:auto;padding:20px 18px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
-.pdf-empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--text-3);gap:8px;padding:24px}
-.pdf-page{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow)}
+.pdf-page{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow)}
 .pp-hdr{padding:8px 14px;background:var(--bg-hover);border-bottom:1px solid var(--border-2);display:flex;align-items:center;justify-content:space-between}
 .pp-num{font-family:var(--mono);font-size:10px;color:var(--text-3)}
 .pp-doc{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent)}
@@ -245,9 +226,9 @@ body{font-family:var(--sans);font-size:14px;background:var(--bg);color:var(--tex
 .pp-body mark{background:var(--hl);border-radius:2px;padding:1px 2px;color:inherit}
 .pp-fn{font-size:11px;color:var(--text-3);border-top:1px solid var(--border-2);padding-top:8px;margin-top:8px;font-family:var(--sans)}
 
-/* ═══ ONBOARDING ═══ */
+/* ── ONBOARDING ── */
 .ob-wrap{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
-.ob-card{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:500px;padding:36px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;gap:20px}
+.ob-card{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--r-lg);width:100%;max-width:500px;padding:36px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;gap:20px}
 .ob-logo{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--accent);letter-spacing:-.5px}
 .ob-title{font-size:22px;font-weight:700;line-height:1.2}
 .ob-sub{font-size:14px;color:var(--text-2);line-height:1.55}
@@ -261,35 +242,28 @@ body{font-family:var(--sans);font-size:14px;background:var(--bg);color:var(--tex
 .ob-step-pct{font-size:11px;font-family:var(--mono);color:var(--text-3)}
 .ob-bar-wrap{background:var(--bg-hover);border-radius:100px;height:6px;overflow:hidden}
 .ob-bar{height:100%;background:var(--accent);border-radius:100px;width:0%;transition:width .4s ease}
-.ob-btn{background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:13px 24px;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;width:100%;display:none;transition:opacity .15s}
+.ob-btn{background:var(--accent);color:#fff;border:none;border-radius:var(--r);padding:13px 24px;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;width:100%;display:none;transition:opacity .15s}
 [data-theme=dark] .ob-btn{color:#0D0F14}
 .ob-btn:hover{opacity:.85}
 .ob-note{font-size:12px;color:var(--text-3);text-align:center}
 
-/* SCROLLBAR */
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
 ::-webkit-scrollbar-thumb:hover{background:var(--text-3)}
-
 @media(max-width:1000px){.shell{grid-template-columns:52px 1fr 0px}.hist,.pdf-panel{display:none}}
 </style>
 </head>
 <body>
 
-<!-- ONBOARDING -->
 <div class="ob-wrap" id="ob">
   <div class="ob-card">
     <div class="ob-logo">ArchNorm</div>
-    <div>
-      <div class="ob-title">Инициализация базы</div>
-      <p class="ob-sub">Загружаю нормативные документы в локальное векторное хранилище. Интернет не нужен.</p>
-    </div>
+    <div><div class="ob-title">Инициализация базы</div><p class="ob-sub">Загружаю нормативные документы в локальное векторное хранилище. Интернет не нужен.</p></div>
     <div class="ob-steps" id="ob-steps"></div>
     <div>
       <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);font-family:var(--mono);margin-bottom:6px">
-        <span id="ob-lbl">Подготовка…</span>
-        <span id="ob-pct">0%</span>
+        <span id="ob-lbl">Подготовка…</span><span id="ob-pct">0%</span>
       </div>
       <div class="ob-bar-wrap"><div class="ob-bar" id="ob-bar"></div></div>
     </div>
@@ -298,62 +272,34 @@ body{font-family:var(--sans);font-size:14px;background:var(--bg);color:var(--tex
   </div>
 </div>
 
-<!-- SHELL -->
 <div class="shell" id="shell">
-
-  <!-- ICON BAR -->
   <nav class="icon-bar">
     <div class="logo">AN</div>
-    <button class="ib on" onclick="navOn(this)" title="Чат">
-      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    </button>
-    <button class="ib" onclick="navOn(this)" title="База норм">
-      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-    </button>
-    <button class="ib" onclick="toggleHist();navOn(this)" title="История">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-    </button>
+    <button class="ib on" onclick="navOn(this)" title="Чат"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+    <button class="ib" onclick="navOn(this)" title="База норм"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></button>
+    <button class="ib" onclick="toggleHist();navOn(this)" title="История"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>
     <div class="spacer"></div>
-    <button class="ib" title="Настройки">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-    </button>
-    <button class="tb" onclick="toggleTheme()" title="Сменить тему">
-      <svg id="ico-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-      <svg id="ico-moon" viewBox="0 0 24 24" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
+    <button class="ib" title="Настройки"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <button class="tb" onclick="toggleTheme()" title="Тема"><svg id="ico-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><svg id="ico-moon" viewBox="0 0 24 24" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
   </nav>
 
-  <!-- HISTORY -->
   <aside class="hist" id="hist">
-    <div class="hist-hdr">
-      <span class="hist-title">Проекты</span>
-      <button class="new-btn" onclick="newSess()">+ Новый</button>
-    </div>
+    <div class="hist-hdr"><span class="hist-title">Проекты</span><button class="new-btn" onclick="newSess()">+ Новый</button></div>
     <div class="hist-search"><input type="text" placeholder="Поиск…" oninput="filterSess(this.value)"></div>
     <div class="sess-list" id="sess-list"></div>
   </aside>
 
-  <!-- CHAT -->
   <main class="chat">
     <header class="chat-hdr">
       <div class="chat-hdr-l">
         <span class="sess-name" id="sess-title">ЖК Северный — пожарная безопасность</span>
-        <div class="sp-badges" id="sp-badges">
-          <span class="spb">СП 1</span><span class="spb">СП 54</span><span class="spb">СП 59</span>
-        </div>
+        <div class="sp-badges" id="sp-badges"><span class="spb">СП 1</span><span class="spb">СП 54</span><span class="spb">СП 59</span></div>
       </div>
       <div class="chat-hdr-r">
-        <button class="hbtn" onclick="togglePdf()">
-          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          PDF
-        </button>
-        <button class="hbtn">
-          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Экспорт
-        </button>
+        <button class="hbtn" onclick="togglePdf()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>PDF</button>
+        <button class="hbtn"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Экспорт</button>
       </div>
     </header>
-
     <div class="msgs" id="msgs">
       <div class="empty" id="empty">
         <div class="empty-ico">AN</div>
@@ -366,14 +312,10 @@ body{font-family:var(--sans);font-size:14px;background:var(--bg);color:var(--tex
         </div>
       </div>
     </div>
-
     <div class="input-area">
       <div class="iw">
-        <textarea class="ta" id="ta" placeholder="Задайте вопрос по норме…" rows="1"
-          onkeydown="onKey(event)" oninput="resize(this)"></textarea>
-        <button class="send" onclick="send()">
-          <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-        </button>
+        <textarea class="ta" id="ta" placeholder="Задайте вопрос по норме…" rows="1" onkeydown="onKey(event)" oninput="resize(this)"></textarea>
+        <button class="send" onclick="send()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
       </div>
       <div class="hints">
         <button class="hint" onclick="ins('эвакуационные выходы ')">эвакуационные выходы</button>
@@ -385,13 +327,12 @@ body{font-family:var(--sans);font-size:14px;background:var(--bg);color:var(--tex
     </div>
   </main>
 
-  <!-- PDF -->
   <aside class="pdf-panel" id="pdf-panel">
     <div class="pdf-hdr">
       <div class="pdf-tabs" id="pdf-tabs">
-        <button class="pdf-tab on" data-doc="sp1">СП 1.13130<span class="hl-count">2</span></button>
-        <button class="pdf-tab" data-doc="sp54">СП 54.13330<span class="hl-count">2</span></button>
-        <button class="pdf-tab" data-doc="sp59">СП 59.13330<span class="hl-count">3</span></button>
+        <button class="pdf-tab on" data-doc="sp1">СП 1.13130<span class="hl-badge">2</span></button>
+        <button class="pdf-tab" data-doc="sp54">СП 54.13330<span class="hl-badge">2</span></button>
+        <button class="pdf-tab" data-doc="sp59">СП 59.13330<span class="hl-badge">3</span></button>
       </div>
       <button class="pdf-x" onclick="togglePdf()">×</button>
     </div>
@@ -402,324 +343,115 @@ body{font-family:var(--sans);font-size:14px;background:var(--bg);color:var(--tex
     </div>
     <div class="pdf-body" id="pdf-body"></div>
   </aside>
-
 </div>
 
 <script>
-/* ─── ONBOARDING ─── */
-const OB_STEPS = [
-  {label:'СП 1.13130.2020',   pct:12},
-  {label:'СП 2.13130.2020',   pct:24},
-  {label:'СП 4.13130.2013',   pct:36},
-  {label:'СП 54.13330.2022',  pct:52},
-  {label:'СП 59.13330.2020',  pct:64},
-  {label:'СП 52.13330.2016',  pct:76},
-  {label:'Векторный индекс',  pct:90},
-  {label:'Embeddings — готово', pct:100},
-];
-(function initOb(){
-  const wrap = document.getElementById('ob-steps');
-  wrap.innerHTML = OB_STEPS.map((s,i)=>`
-    <div class="ob-step" id="obs-${i}">
-      <div class="ob-step-ico" id="obico-${i}">○</div>
-      <span class="ob-step-label">${s.label}</span>
-      <span class="ob-step-pct" id="obpct-${i}"></span>
-    </div>`).join('');
+/* ── ONBOARDING ── */
+const OB=[{l:'СП 1.13130.2020',p:12},{l:'СП 2.13130.2020',p:24},{l:'СП 4.13130.2013',p:36},{l:'СП 54.13330.2022',p:52},{l:'СП 59.13330.2020',p:64},{l:'СП 52.13330.2016',p:76},{l:'Векторный индекс',p:90},{l:'Embeddings — готово',p:100}];
+(function(){
+  const w=document.getElementById('ob-steps');
+  w.innerHTML=OB.map((s,i)=>`<div class="ob-step" id="obs${i}"><div class="ob-step-ico" id="obico${i}">○</div><span class="ob-step-label">${s.l}</span><span class="ob-step-pct" id="obpct${i}"></span></div>`).join('');
   let i=0;
   function tick(){
-    if(i>=OB_STEPS.length){
-      document.getElementById('ob-lbl').textContent='Готово — 8 документов загружено';
-      document.getElementById('ob-btn').style.display='block';
-      return;
-    }
-    const s=OB_STEPS[i];
-    document.getElementById('ob-bar').style.width=s.pct+'%';
-    document.getElementById('ob-pct').textContent=s.pct+'%';
-    document.getElementById('ob-lbl').textContent='Читаю '+s.label+'…';
-    if(i>0){
-      const prev=i-1;
-      document.getElementById('obico-'+prev).textContent='✓';
-      document.getElementById('obico-'+prev).classList.remove('active');
-      document.getElementById('obico-'+prev).classList.add('done');
-      document.getElementById('obpct-'+prev).textContent='100%';
-    }
-    document.getElementById('obico-'+i).classList.add('active');
-    document.getElementById('obpct-'+i).textContent=s.pct+'%';
-    i++;
-    setTimeout(tick, 320+Math.random()*180);
+    if(i>=OB.length){document.getElementById('ob-lbl').textContent='Готово — 8 документов загружено';document.getElementById('ob-btn').style.display='block';return;}
+    const s=OB[i];
+    document.getElementById('ob-bar').style.width=s.p+'%';
+    document.getElementById('ob-pct').textContent=s.p+'%';
+    document.getElementById('ob-lbl').textContent='Читаю '+s.l+'…';
+    if(i>0){const p=i-1;const ico=document.getElementById('obico'+p);ico.textContent='✓';ico.classList.remove('active');ico.classList.add('done');document.getElementById('obpct'+p).textContent='100%';}
+    document.getElementById('obico'+i).classList.add('active');
+    document.getElementById('obpct'+i).textContent=s.p+'%';
+    i++;setTimeout(tick,320+Math.random()*180);
   }
   setTimeout(tick,500);
 })();
-function closeOb(){
-  document.getElementById('ob').style.display='none';
-  renderSess();
-  renderPdf('sp1');
-}
+function closeOb(){document.getElementById('ob').style.display='none';renderSess();renderPdf('sp1');}
 
-/* ─── SESSIONS ─── */
-let sessions=[
-  {id:1,name:'ЖК Северный — пожарная безопасность',date:'сегодня',msgs:4,on:true},
-  {id:2,name:'ТЦ Арена — доступность МГН',          date:'сегодня',msgs:7,on:false},
-  {id:3,name:'Офисный центр — освещённость',         date:'вчера',  msgs:2,on:false},
-  {id:4,name:'Жилой дом — высоты помещений',         date:'вчера',  msgs:9,on:false},
-  {id:5,name:'БЦ Премиум — HVAC нормы',              date:'8 мая',  msgs:3,on:false},
-];
-function renderSess(f){
-  const list=document.getElementById('sess-list');
-  const q=(f||'').toLowerCase();
-  const groups=[
-    {lbl:'Сегодня',items:sessions.filter(s=>s.date==='сегодня'&&(!q||s.name.toLowerCase().includes(q)))},
-    {lbl:'Вчера',  items:sessions.filter(s=>s.date==='вчера'  &&(!q||s.name.toLowerCase().includes(q)))},
-    {lbl:'Ранее',  items:sessions.filter(s=>s.date!=='сегодня'&&s.date!=='вчера'&&(!q||s.name.toLowerCase().includes(q)))},
-  ];
-  list.innerHTML=groups.map(g=>g.items.length?`<div class="sg-label">${g.lbl}</div>${g.items.map(siHTML).join('')}`:'').join('');
-}
-function siHTML(s){
-  return `<div class="si${s.on?' on':''}" onclick="activateSess(${s.id})">
-    <div class="si-name">${s.name}</div>
-    <div class="si-meta"><span class="si-dot"></span>${s.msgs} ответов · ${s.date}</div>
-  </div>`;
-}
-function activateSess(id){
-  sessions.forEach(s=>s.on=s.id===id);
-  document.getElementById('sess-title').textContent=sessions.find(s=>s.id===id).name;
-  renderSess();
-}
+/* ── SESSIONS ── */
+let sessions=[{id:1,name:'ЖК Северный — пожарная безопасность',date:'сегодня',msgs:4,on:true},{id:2,name:'ТЦ Арена — доступность МГН',date:'сегодня',msgs:7,on:false},{id:3,name:'Офисный центр — освещённость',date:'вчера',msgs:2,on:false},{id:4,name:'Жилой дом — высоты помещений',date:'вчера',msgs:9,on:false},{id:5,name:'БЦ Премиум — HVAC нормы',date:'8 мая',msgs:3,on:false}];
+function renderSess(f){const list=document.getElementById('sess-list');const q=(f||'').toLowerCase();const groups=[{lbl:'Сегодня',items:sessions.filter(s=>s.date==='сегодня'&&(!q||s.name.toLowerCase().includes(q)))},{lbl:'Вчера',items:sessions.filter(s=>s.date==='вчера'&&(!q||s.name.toLowerCase().includes(q)))},{lbl:'Ранее',items:sessions.filter(s=>s.date!=='сегодня'&&s.date!=='вчера'&&(!q||s.name.toLowerCase().includes(q)))}];list.innerHTML=groups.map(g=>g.items.length?`<div class="sg-label">${g.lbl}</div>${g.items.map(siHTML).join('')}`:'').join('');}
+function siHTML(s){return `<div class="si${s.on?' on':''}" onclick="activateSess(${s.id})"><div class="si-name">${s.name}</div><div class="si-meta"><span class="si-dot"></span>${s.msgs} ответов · ${s.date}</div></div>`;}
+function activateSess(id){sessions.forEach(s=>s.on=s.id===id);document.getElementById('sess-title').textContent=sessions.find(s=>s.id===id).name;renderSess();}
 function filterSess(v){renderSess(v);}
-function newSess(){
-  const id=Date.now();
-  sessions.unshift({id,name:'Новый проект',date:'сегодня',msgs:0,on:true});
-  sessions.forEach(s=>s.on=s.id===id);
-  document.getElementById('sess-title').textContent='Новый проект';
-  document.getElementById('sp-badges').innerHTML='';
-  clearMsgs(); renderSess();
-}
+function newSess(){const id=Date.now();sessions.unshift({id,name:'Новый проект',date:'сегодня',msgs:0,on:true});sessions.forEach(s=>s.on=s.id===id);document.getElementById('sess-title').textContent='Новый проект';document.getElementById('sp-badges').innerHTML='';clearMsgs();renderSess();}
 
-/* ─── DEMO RESPONSES ─── */
+/* ── DEMO DATA ── */
 const DEMO={
-  corridor:{
-    conf:87, status:'Ищу в СП 54.13330.2022, СП 59.13330.2020…',
-    cards:[
-      {norm:'СП 54.13330.2022',ver:'2022',ref:'п. 7.2.9',status:'fail',statusLbl:'Риск',
-       text:'Ширина внутриквартирных коридоров должна быть не менее <mark>0,85 м</mark>; ведущих в спальню или санузел — не менее <mark>1,0 м</mark>',hlCount:2},
-      {norm:'СП 59.13330.2020',ver:'2020',ref:'п. 5.1.4',status:'info',statusLbl:'МГН',
-       text:'Ширина коридора на путях движения МГН должна быть не менее <mark>1,2 м</mark>, при двустороннем разъезде кресел — <mark>1,8 м</mark>',hlCount:2},
-    ],
-    checklist:[
-      {ico:'ok',  text:'Ширина прохода ≥ 0,85 м соблюдена',      norm:'СП 54 п.7.2.9'},
-      {ico:'warn',text:'Проверьте коридоры к спальням (≥ 1,0 м)',  norm:'СП 54 п.7.2.9'},
-      {ico:'fail',text:'Путь МГН требует ширину ≥ 1,2 м',         norm:'СП 59 п.5.1.4'},
-    ],
-    concl:'<strong>Итог:</strong> Мин. ширина внутриквартирного коридора — 0,85 м. При МГН-доступности — 1,2 м. Скорректируйте планировку.'
-  },
-  pandus:{
-    conf:94, status:'Ищу в СП 59.13330.2020…',
-    cards:[
-      {norm:'СП 59.13330.2020',ver:'2020',ref:'п. 5.2.4',status:'fail',statusLbl:'Риск',
-       text:'Уклон пандуса при перепаде высот более <mark>0,4 м</mark> — не более <mark>1:20 (5%)</mark>; при перепаде до 0,2 м — не более 1:10',hlCount:2},
-      {norm:'СП 59.13330.2020',ver:'2020',ref:'п. 5.2.6',status:'info',statusLbl:'Уточнить',
-       text:'Горизонтальные площадки в начале и конце пандуса — не менее <mark>1,5 × 1,5 м</mark>',hlCount:1},
-      {norm:'СП 59.13330.2020',ver:'2020',ref:'п. 5.2.9',status:'ok',statusLbl:'ОК',
-       text:'Поручни пандуса устанавливаются с двух сторон на высоте <mark>0,7 м</mark> и <mark>0,9 м</mark>',hlCount:2},
-    ],
-    checklist:[
-      {ico:'fail',text:'Уклон ≤ 1:20 при перепаде > 0,4 м — проверить',norm:'СП 59 п.5.2.4'},
-      {ico:'ok',  text:'Площадки 1,5×1,5 м в начале и конце',           norm:'СП 59 п.5.2.6'},
-      {ico:'ok',  text:'Поручни с двух сторон — 0,7 м и 0,9 м',         norm:'СП 59 п.5.2.9'},
-    ],
-    concl:'<strong>Итог:</strong> Уклон ≤ 1:20, площадки ≥ 1,5×1,5 м, поручни с двух сторон на 0,7 и 0,9 м.'
-  },
-  default:{
-    conf:78, status:'Ищу в СП 1.13130.2020, СП 54.13330.2022…',
-    cards:[
-      {norm:'СП 1.13130.2020',ver:'2020',ref:'п. 4.2.1',status:'fail',statusLbl:'Риск',
-       text:'Количество эвакуационных выходов из здания и с каждого этажа должно быть не менее <mark>двух</mark>',hlCount:1},
-      {norm:'СП 1.13130.2020',ver:'2020',ref:'п. 4.2.5',status:'fail',statusLbl:'Риск',
-       text:'Ширина эвакуационного выхода из помещений при числе эвакуируемых более <mark>15 человек</mark> — не менее <mark>0,9 м</mark>',hlCount:2},
-      {norm:'СП 54.13330.2022',ver:'2022',ref:'п. 9.2.2',status:'ok',statusLbl:'ОК',
-       text:'Высота жилых комнат от пола до потолка — не менее <mark>2,7 м</mark>',hlCount:1},
-    ],
-    checklist:[
-      {ico:'fail',text:'Эвакуационных выходов ≥ 2 шт.',          norm:'СП 1 п.4.2.1'},
-      {ico:'fail',text:'Ширина эвакуационного выхода ≥ 0,9 м',   norm:'СП 1 п.4.2.5'},
-      {ico:'ok',  text:'Высота потолков ≥ 2,7 м — соответствует',norm:'СП 54 п.9.2.2'},
-    ],
-    concl:'<strong>Итог:</strong> Эвакуационных выходов ≥ 2 шт., ширина ≥ 0,9 м; высота потолков ≥ 2,7 м.'
-  },
+  corridor:{conf:87,status:'Ищу в СП 54.13330.2022, СП 59.13330.2020…',cards:[
+    {norm:'СП 54.13330.2022',ver:'2022',ref:'п. 7.2.9',status:'fail',statusLbl:'Риск',relevance:94,text:'Ширина внутриквартирных коридоров должна быть не менее <mark>0,85 м</mark>; ведущих в спальню или санузел — не менее <mark>1,0 м</mark>'},
+    {norm:'СП 59.13330.2020',ver:'2020',ref:'п. 5.1.4',status:'info',statusLbl:'МГН',relevance:71,text:'Ширина коридора на путях движения МГН должна быть не менее <mark>1,2 м</mark>, при двустороннем разъезде кресел — <mark>1,8 м</mark>'},
+  ],checklist:[{ico:'ok',text:'Ширина прохода ≥ 0,85 м соблюдена',norm:'СП 54 п.7.2.9'},{ico:'warn',text:'Проверьте коридоры к спальням (≥ 1,0 м)',norm:'СП 54 п.7.2.9'},{ico:'fail',text:'Путь МГН требует ширину ≥ 1,2 м',norm:'СП 59 п.5.1.4'}],concl:'<strong>Итог:</strong> Мин. ширина внутриквартирного коридора — 0,85 м. При МГН-доступности — 1,2 м. Скорректируйте планировку.'},
+  pandus:{conf:94,status:'Ищу в СП 59.13330.2020…',cards:[
+    {norm:'СП 59.13330.2020',ver:'2020',ref:'п. 5.2.4',status:'fail',statusLbl:'Риск',relevance:97,text:'Уклон пандуса при перепаде высот более <mark>0,4 м</mark> — не более <mark>1:20 (5%)</mark>; при перепаде до 0,2 м — не более 1:10'},
+    {norm:'СП 59.13330.2020',ver:'2020',ref:'п. 5.2.6',status:'info',statusLbl:'Уточнить',relevance:82,text:'Горизонтальные площадки в начале и конце пандуса — не менее <mark>1,5 × 1,5 м</mark>'},
+    {norm:'СП 59.13330.2020',ver:'2020',ref:'п. 5.2.9',status:'ok',statusLbl:'ОК',relevance:68,text:'Поручни пандуса устанавливаются с двух сторон на высоте <mark>0,7 м</mark> и <mark>0,9 м</mark>'},
+  ],checklist:[{ico:'fail',text:'Уклон ≤ 1:20 при перепаде > 0,4 м — проверить',norm:'СП 59 п.5.2.4'},{ico:'ok',text:'Площадки 1,5×1,5 м в начале и конце',norm:'СП 59 п.5.2.6'},{ico:'ok',text:'Поручни с двух сторон — 0,7 м и 0,9 м',norm:'СП 59 п.5.2.9'}],concl:'<strong>Итог:</strong> Уклон ≤ 1:20, площадки ≥ 1,5×1,5 м, поручни с двух сторон на 0,7 и 0,9 м.'},
+  default:{conf:78,status:'Ищу в СП 1.13130.2020, СП 54.13330.2022…',cards:[
+    {norm:'СП 1.13130.2020',ver:'2020',ref:'п. 4.2.1',status:'fail',statusLbl:'Риск',relevance:89,text:'Количество эвакуационных выходов из здания и с каждого этажа должно быть не менее <mark>двух</mark>'},
+    {norm:'СП 1.13130.2020',ver:'2020',ref:'п. 4.2.5',status:'fail',statusLbl:'Риск',relevance:83,text:'Ширина эвакуационного выхода из помещений при числе эвакуирующихся более <mark>15 человек</mark> — не менее <mark>0,9 м</mark>'},
+    {norm:'СП 54.13330.2022',ver:'2022',ref:'п. 9.2.2',status:'ok',statusLbl:'ОК',relevance:61,text:'Высота жилых комнат от пола до потолка — не менее <mark>2,7 м</mark>'},
+  ],checklist:[{ico:'fail',text:'Эвакуационных выходов ≥ 2 шт.',norm:'СП 1 п.4.2.1'},{ico:'fail',text:'Ширина эвакуационного выхода ≥ 0,9 м',norm:'СП 1 п.4.2.5'},{ico:'ok',text:'Высота потолков ≥ 2,7 м — соответствует',norm:'СП 54 п.9.2.2'}],concl:'<strong>Итог:</strong> Эвакуационных выходов ≥ 2 шт., ширина ≥ 0,9 м; высота потолков ≥ 2,7 м.'},
 };
-function pick(t){
-  const q=t.toLowerCase();
-  if(q.includes('коридор')) return DEMO.corridor;
-  if(q.includes('пандус')||q.includes('мгн')||q.includes('доступ')) return DEMO.pandus;
-  return DEMO.default;
-}
-function doc4norm(n){
-  if(n.includes('54')) return 'sp54';
-  if(n.includes('59')) return 'sp59';
-  return 'sp1';
-}
+function pick(t){const q=t.toLowerCase();if(q.includes('коридор'))return DEMO.corridor;if(q.includes('пандус')||q.includes('мгн')||q.includes('доступ'))return DEMO.pandus;return DEMO.default;}
+function doc4(n){if(n.includes('54'))return'sp54';if(n.includes('59'))return'sp59';return'sp1';}
 
-/* ─── MESSAGES ─── */
-function clearMsgs(){
-  document.getElementById('msgs').innerHTML=`
-    <div class="empty" id="empty">
-      <div class="empty-ico">AN</div>
-      <div class="empty-title">Задайте вопрос по норме</div>
-      <p class="empty-sub">Спрашивайте на живом языке — без номеров пунктов и формальностей</p>
-      <div class="chips">
-        <button class="chip" onclick="sendT(this.textContent)">Минимальная ширина коридора в жилом доме?</button>
-        <button class="chip" onclick="sendT(this.textContent)">Высота потолков в многоквартирном жилом здании по СП 54</button>
-        <button class="chip" onclick="sendT(this.textContent)">Требования к пандусам для МГН, уклон и размеры площадок</button>
-      </div>
-    </div>`;
-}
-function send(){
-  const ta=document.getElementById('ta');
-  const t=ta.value.trim(); if(!t) return;
-  ta.value=''; ta.style.height='';
-  sendT(t);
-}
+/* ── MESSAGES ── */
+function clearMsgs(){document.getElementById('msgs').innerHTML=`<div class="empty" id="empty"><div class="empty-ico">AN</div><div class="empty-title">Задайте вопрос по норме</div><p class="empty-sub">Спрашивайте на живом языке — без номеров пунктов и формальностей</p><div class="chips"><button class="chip" onclick="sendT(this.textContent)">Минимальная ширина коридора в жилом доме?</button><button class="chip" onclick="sendT(this.textContent)">Высота потолков в многоквартирном жилом здании по СП 54</button><button class="chip" onclick="sendT(this.textContent)">Требования к пандусам для МГН, уклон и размеры площадок</button></div></div>`;}
+function send(){const ta=document.getElementById('ta');const t=ta.value.trim();if(!t)return;ta.value='';ta.style.height='';sendT(t);}
 function sendT(text){
-  const m=document.getElementById('msgs');
-  document.getElementById('empty')?.remove();
-  const ub=document.createElement('div'); ub.className='mu'; ub.textContent=text; m.appendChild(ub);
+  const m=document.getElementById('msgs');document.getElementById('empty')?.remove();
+  const ub=document.createElement('div');ub.className='mu';ub.textContent=text;m.appendChild(ub);
   const resp=pick(text);
-  const ai=document.createElement('div'); ai.className='mai';
-  ai.innerHTML=`
-    <div class="mai-hdr">
-      <div class="av">AN</div>
-      <span class="ai-lbl">ArchNorm</span>
-      <span class="ai-st live" id="ai-st">${resp.status}</span>
-    </div>
-    <div class="dots"><span></span><span></span><span></span></div>`;
-  m.appendChild(ai); m.scrollTop=m.scrollHeight;
+  const ai=document.createElement('div');ai.className='mai';
+  ai.innerHTML=`<div class="mai-hdr"><div class="av">AN</div><span class="ai-lbl">ArchNorm</span><span class="ai-st live" id="ai-st">${resp.status}</span></div><div class="dots"><span></span><span></span><span></span></div>`;
+  m.appendChild(ai);m.scrollTop=m.scrollHeight;
   setTimeout(()=>{
     ai.querySelector('.dots')?.remove();
-    const st=ai.querySelector('#ai-st'); if(st){st.classList.remove('live');st.textContent='готово';}
-    // confidence meter
+    const st=ai.querySelector('#ai-st');if(st){st.classList.remove('live');st.textContent='готово';}
+    // confidence ring
     const lvl=resp.conf>=85?'hi':resp.conf>=65?'mid':'lo';
-    const cm=document.createElement('div'); cm.className='conf-meter';
-    cm.innerHTML=`<span class="conf-label">Уверенность</span>
-      <div class="conf-bar-wrap"><div class="conf-bar ${lvl}" style="width:${resp.conf}%"></div></div>
-      <span class="conf-pct">${resp.conf}%</span>`;
-    ai.appendChild(cm);
+    const r=20;const circ=2*Math.PI*r;const offset=circ*(1-resp.conf/100);
+    const ringColor=lvl==='hi'?'#3DBF5A':lvl==='mid'?'#F5A623':'#E05555';
+    const verdictTx=lvl==='hi'?'Высокая':lvl==='mid'?'Средняя':'Низкая';
+    const cb=document.createElement('div');cb.className='conf-block';
+    cb.innerHTML=`<div class="conf-ring-wrap"><svg viewBox="0 0 48 48"><circle class="conf-ring-track" cx="24" cy="24" r="${r}"/><circle class="conf-ring-fill" cx="24" cy="24" r="${r}" stroke="${ringColor}" stroke-dasharray="${circ}" stroke-dashoffset="${circ}"/></svg><div class="conf-ring-label">${resp.conf}%</div></div><div class="conf-info"><div class="conf-title">Уверенность ответа</div><div class="conf-bar-row"><div class="conf-bar-wrap"><div class="conf-bar ${lvl}" style="width:0%"></div></div><span class="conf-verdict ${lvl}">${verdictTx}</span></div><div class="conf-sub">Совпадений в базе: ${resp.cards.length} цит. · Источников: ${[...new Set(resp.cards.map(c=>c.norm))].length} СП</div></div>`;
+    ai.appendChild(cb);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      cb.querySelector('.conf-ring-fill').style.strokeDashoffset=offset;
+      cb.querySelector('.conf-bar').style.width=resp.conf+'%';
+    }));
     // norm cards
     resp.cards.forEach(c=>{
-      const nc=document.createElement('div'); nc.className='norm-card';
-      nc.innerHTML=`
-        <div class="nc-head">
-          <span class="nc-norm">${c.norm}</span>
-          <span class="nc-ver">${c.ver}</span>
-          <span class="nc-status s-${c.status}">${c.statusLbl}</span>
-        </div>
-        <div class="nc-body">${c.text}</div>
-        <div class="nc-foot">
-          <span class="nc-ref">${c.ref}</span>
-          <span class="nc-hl-badge"><span class="hl-dot"></span>${c.hlCount} совпадений</span>
-        </div>`;
-      nc.onclick=()=>activateCard(nc,c);
-      ai.appendChild(nc);
+      const nc=document.createElement('div');nc.className='norm-card';
+      nc.innerHTML=`<div class="nc-head"><span class="nc-norm">${c.norm}</span><span class="nc-ver">${c.ver}</span><span class="nc-status s-${c.status}">${c.statusLbl}</span></div><div class="nc-body">${c.text}</div><div class="nc-foot"><span class="nc-ref">${c.ref}</span><div class="nc-rel"><div class="rel-bar-wrap"><div class="rel-bar" style="width:${c.relevance}%"></div></div><span class="rel-pct">${c.relevance}%</span></div></div>`;
+      nc.onclick=()=>activateCard(nc,c);ai.appendChild(nc);
     });
     // checklist
-    const cl=document.createElement('div'); cl.className='checklist';
     const ok=resp.checklist.filter(r=>r.ico==='ok').length;
-    const total=resp.checklist.length;
-    cl.innerHTML=`<div class="cl-head"><span class="cl-title">Чеклист соответствия</span><span class="cl-summary">${ok}/${total} ОК</span></div>`
-      +resp.checklist.map(r=>`
-        <div class="cl-row">
-          <div class="cl-icon ${r.ico}">${r.ico==='ok'?'✓':r.ico==='warn'?'!':'✗'}</div>
-          <div style="flex:1">
-            <div class="cl-text">${r.text}</div>
-            <div class="cl-norm">${r.norm}</div>
-          </div>
-        </div>`).join('');
+    const cl=document.createElement('div');cl.className='checklist';
+    cl.innerHTML=`<div class="cl-head"><span class="cl-title">Чеклист соответствия</span><span class="cl-summary">${ok}/${resp.checklist.length} ОК</span></div>`+resp.checklist.map(r=>`<div class="cl-row"><div class="cl-icon ${r.ico}">${r.ico==='ok'?'✓':r.ico==='warn'?'!':'✗'}</div><div><div class="cl-text">${r.text}</div><div class="cl-norm">${r.norm}</div></div></div>`).join('');
     ai.appendChild(cl);
-    const co=document.createElement('div'); co.className='concl'; co.innerHTML=resp.concl;
-    ai.appendChild(co);
+    const co=document.createElement('div');co.className='concl';co.innerHTML=resp.concl;ai.appendChild(co);
     m.scrollTop=m.scrollHeight;
     renderPdfForResp(resp);
-    const active=sessions.find(s=>s.on); if(active){active.msgs++;renderSess();}
+    const active=sessions.find(s=>s.on);if(active){active.msgs++;renderSess();}
   },1500);
 }
-function activateCard(nc,c){
-  document.querySelectorAll('.norm-card.active').forEach(n=>n.classList.remove('active'));
-  nc.classList.add('active');
-  switchPdfTab(doc4norm(c.norm));
-}
+function activateCard(nc,c){document.querySelectorAll('.norm-card.active').forEach(n=>n.classList.remove('active'));nc.classList.add('active');switchPdfTab(doc4(c.norm));}
 
-/* ─── PDF ─── */
-const PDF={
-  sp1:{
-    title:'СП 1.13130.2020',
-    pages:[
-      {num:'Стр. 14',clause:'4.2 Эвакуационные выходы',body:`
-<p class="pp-clause">4.2.1</p>
-<p>Количество и суммарная ширина эвакуационных выходов из помещений, с этажей и из зданий определяются расчётом. Количество эвакуационных выходов из здания и с каждого этажа должно быть не менее <mark>двух</mark>.</p>`},
-      {num:'Стр. 15',clause:'4.2.5',body:`
-<p class="pp-clause">4.2.5</p>
-<p>Ширина эвакуационного выхода из помещений при числе эвакуируемых более <mark>15 человек</mark> должна быть не менее <mark>0,9 м</mark>. При расположении дверей под углом к оси коридора ширина измеряется в свету.</p>
-<p class="pp-fn">Примечание: для путей эвакуации МГН ширина принимается согласно СП 59.13330.2020.</p>`},
-    ]
-  },
-  sp54:{
-    title:'СП 54.13330.2022',
-    pages:[
-      {num:'Стр. 28',clause:'7.2 Объёмно-планировочные решения квартир',body:`
-<p class="pp-clause">7.2.9</p>
-<p>Ширина внутриквартирных коридоров должна быть не менее <mark>0,85 м</mark>; ведущих в спальню или санузел — не менее <mark>1,0 м</mark>.</p>`},
-      {num:'Стр. 31',clause:'9.2 Высота помещений',body:`
-<p class="pp-clause">9.2.2</p>
-<p>Высота жилых комнат и кухни-столовой от пола до потолка должна быть не менее <mark>2,7 м</mark>. В квартирах, расположенных в мансардном этаже, и при реконструкции допускается снижение этого показателя до <mark>2,5 м</mark>.</p>
-<p class="pp-fn">Примечание: при устройстве потолков с разноуровневыми конструкциями нормируемая высота распространяется на площадь, составляющую не менее 60 % площади помещения.</p>`},
-    ]
-  },
-  sp59:{
-    title:'СП 59.13330.2020',
-    pages:[
-      {num:'Стр. 17',clause:'5.1 Пути движения',body:`
-<p class="pp-clause">5.1.2</p>
-<p>Ширина дверных проёмов в свету на путях движения маломобильных групп населения должна быть не менее <mark>0,9 м</mark>.</p>
-<p class="pp-clause">5.1.4</p>
-<p>Ширина коридора на путях движения МГН должна быть не менее <mark>1,2 м</mark>, а при возможности встречного передвижения — не менее <mark>1,8 м</mark>.</p>`},
-      {num:'Стр. 19',clause:'5.2 Пандусы',body:`
-<p class="pp-clause">5.2.4</p>
-<p>Уклон пандуса при перепаде высот более <mark>0,4 м</mark> должен быть не более <mark>1:20 (5%)</mark>; при перепаде высот до <mark>0,2 м</mark> допускается уклон не более 1:10.</p>
-<p class="pp-clause">5.2.6</p>
-<p>В начале и конце каждого пандуса следует устраивать горизонтальные площадки размером не менее <mark>1,5 × 1,5 м</mark>.</p>`},
-    ]
-  },
-};
+/* ── PDF ── */
+const PDF={sp1:{title:'СП 1.13130.2020',pages:[{num:'Стр. 14',clause:'4.2 Эвакуационные выходы',body:`<p class="pp-clause">4.2.1</p><p>Количество эвакуационных выходов из здания и с каждого этажа должно быть не менее <mark>двух</mark>.</p>`},{num:'Стр. 15',clause:'4.2.5',body:`<p class="pp-clause">4.2.5</p><p>Ширина эвакуационного выхода из помещений при числе эвакуирующихся более <mark>15 человек</mark> должна быть не менее <mark>0,9 м</mark>.</p><p class="pp-fn">Примечание: для путей эвакуации МГН ширина принимается согласно СП 59.13330.2020.</p>`}]},sp54:{title:'СП 54.13330.2022',pages:[{num:'Стр. 28',clause:'7.2 Объёмно-планировочные решения квартир',body:`<p class="pp-clause">7.2.9</p><p>Ширина внутриквартирных коридоров должна быть не менее <mark>0,85 м</mark>; ведущих в спальню или санузел — не менее <mark>1,0 м</mark>.</p>`},{num:'Стр. 31',clause:'9.2 Высота помещений',body:`<p class="pp-clause">9.2.2</p><p>Высота жилых комнат и кухни-столовой от пола до потолка должна быть не менее <mark>2,7 м</mark>. В квартирах, расположенных в мансардном этаже, и при реконструкции допускается снижение этого показателя до <mark>2,5 м</mark>.</p><p class="pp-fn">Примечание: при устройстве потолков с разноуровневыми конструкциями нормируемая высота распространяется на площадь, составляющую не менее 60 % площади помещения.</p>`}]},sp59:{title:'СП 59.13330.2020',pages:[{num:'Стр. 17',clause:'5.1 Пути движения',body:`<p class="pp-clause">5.1.4</p><p>Ширина коридора на путях движения МГН должна быть не менее <mark>1,2 м</mark>, а при возможности встречного передвижения — не менее <mark>1,8 м</mark>.</p>`},{num:'Стр. 19',clause:'5.2 Пандусы',body:`<p class="pp-clause">5.2.4</p><p>Уклон пандуса при перепаде высот более <mark>0,4 м</mark> должен быть не более <mark>1:20 (5%)</mark>; при перепаде высот до <mark>0,2 м</mark> допускается уклон не более 1:10.</p><p class="pp-clause">5.2.6</p><p>В начале и конце каждого пандуса следует устраивать горизонтальные площадки размером не менее <mark>1,5 × 1,5 м</mark>.</p>`}]}};
 let curHL=-1;
-function renderPdf(key){
-  const d=PDF[key]; if(!d) return;
-  document.getElementById('pdf-body').innerHTML=d.pages.map(p=>`
-    <div class="pdf-page">
-      <div class="pp-hdr"><span class="pp-num">${p.num}</span><span class="pp-doc">${d.title}</span></div>
-      <div class="pp-body">
-        <p style="font-size:11px;font-weight:700;color:var(--text-2);font-family:var(--sans);margin-bottom:10px">${p.clause}</p>
-        ${p.body}
-      </div>
-    </div>`).join('');
-  curHL=-1;
-}
-function renderPdfForResp(r){
-  const first=r.cards[0]?.norm; if(first) renderPdf(doc4norm(first));
-  document.querySelectorAll('.pdf-tab').forEach(t=>{
-    const rel=r.cards.some(c=>doc4norm(c.norm)===t.dataset.doc);
-    t.style.fontWeight=rel?'700':'';
-  });
-}
-function switchPdfTab(key){
-  document.querySelectorAll('.pdf-tab').forEach(t=>t.classList.toggle('on',t.dataset.doc===key));
-  renderPdf(key);
-}
+function renderPdf(key){const d=PDF[key];if(!d)return;document.getElementById('pdf-body').innerHTML=d.pages.map(p=>`<div class="pdf-page"><div class="pp-hdr"><span class="pp-num">${p.num}</span><span class="pp-doc">${d.title}</span></div><div class="pp-body"><p style="font-size:11px;font-weight:700;color:var(--text-2);font-family:var(--sans);margin-bottom:10px">${p.clause}</p>${p.body}</div></div>`).join('');curHL=-1;}
+function renderPdfForResp(r){const first=r.cards[0]?.norm;if(first)renderPdf(doc4(first));}
+function switchPdfTab(key){document.querySelectorAll('.pdf-tab').forEach(t=>t.classList.toggle('on',t.dataset.doc===key));renderPdf(key);}
 document.querySelectorAll('.pdf-tab').forEach(t=>t.addEventListener('click',()=>switchPdfTab(t.dataset.doc)));
-function togglePdf(){const s=document.getElementById('shell');s.classList.toggle('pdf-off');}
-function prevHL(){const marks=[...document.querySelectorAll('#pdf-body mark')];if(!marks.length)return;curHL=(curHL-1+marks.length)%marks.length;marks[curHL].scrollIntoView({behavior:'smooth',block:'center'});}
-function nextHL(){const marks=[...document.querySelectorAll('#pdf-body mark')];if(!marks.length)return;curHL=(curHL+1)%marks.length;marks[curHL].scrollIntoView({behavior:'smooth',block:'center'});}
+function togglePdf(){document.getElementById('shell').classList.toggle('pdf-off');}
+function prevHL(){const m=[...document.querySelectorAll('#pdf-body mark')];if(!m.length)return;curHL=(curHL-1+m.length)%m.length;m[curHL].scrollIntoView({behavior:'smooth',block:'center'});}
+function nextHL(){const m=[...document.querySelectorAll('#pdf-body mark')];if(!m.length)return;curHL=(curHL+1)%m.length;m[curHL].scrollIntoView({behavior:'smooth',block:'center'});}
 
-/* ─── UI ─── */
-function navOn(btn){document.querySelectorAll('.ib').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
+/* ── UI ── */
+function navOn(b){document.querySelectorAll('.ib').forEach(x=>x.classList.remove('on'));b.classList.add('on');}
 function toggleHist(){const h=document.getElementById('hist');h.style.display=h.style.display==='none'?'':'none';document.getElementById('shell').classList.toggle('hist-off');}
 function toggleTheme(){const html=document.documentElement;const dark=html.dataset.theme==='dark';html.dataset.theme=dark?'light':'dark';document.getElementById('ico-sun').style.display=dark?'block':'none';document.getElementById('ico-moon').style.display=dark?'none':'block';}
 function onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
