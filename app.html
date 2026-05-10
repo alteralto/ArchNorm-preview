@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArchNorm — Приложение</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════ */
+:root {
+  /* Light — warm / green */
+  --bg:          #F4F0E8;
+  --bg-panel:    #FDFBF7;
+  --bg-sidebar:  #EAE6DC;
+  --bg-input:    #FFFFFF;
+  --bg-card:     #FFFFFF;
+  --bg-hover:    #EEE9DF;
+  --bg-tag:      #E2EDD8;
+  --accent:      #2B5C2E;
+  --accent-mid:  #3D7040;
+  --accent-glow: rgba(43,92,46,0.12);
+  --amber:       #8C4A38;
+  --amber-bg:    #F8EDEA;
+  --text:        #1A1814;
+  --text-2:      #5A5650;
+  --text-3:      #938E88;
+  --border:      rgba(26,24,20,0.10);
+  --border-2:    rgba(26,24,20,0.06);
+  --shadow:      0 2px 16px rgba(26,24,20,0.08);
+  --shadow-lg:   0 8px 48px rgba(26,24,20,0.12);
+  --radius:      12px;
+  --radius-lg:   18px;
+  --mono:        'JetBrains Mono', ui-monospace, monospace;
+  --sans:        'Manrope', system-ui, sans-serif;
+  --highlight:   rgba(255,200,60,0.38);
+  --tag-green-bg:#D9EDCD;
+  --tag-green-tx:#1E5C22;
+  --tag-red-bg:  #FDECEC;
+  --tag-red-tx:  #8B1A1A;
+  --tag-blue-bg: #E8F0FE;
+  --tag-blue-tx: #1A3A8B;
+}
+[data-theme="dark"] {
+  --bg:          #0D0F14;
+  --bg-panel:    #131620;
+  --bg-sidebar:  #0A0C10;
+  --bg-input:    #1C2030;
+  --bg-card:     #1A1E2C;
+  --bg-hover:    #1E2336;
+  --bg-tag:      #1E2A1E;
+  --accent:      #F5A623;
+  --accent-mid:  #FFB940;
+  --accent-glow: rgba(245,166,35,0.14);
+  --amber:       #F5A623;
+  --amber-bg:    rgba(245,166,35,0.12);
+  --text:        #E8E6E0;
+  --text-2:      #9A97A0;
+  --text-3:      #5A5870;
+  --border:      rgba(232,230,224,0.08);
+  --border-2:    rgba(232,230,224,0.04);
+  --shadow:      0 2px 16px rgba(0,0,0,0.4);
+  --shadow-lg:   0 8px 48px rgba(0,0,0,0.6);
+  --highlight:   rgba(245,166,35,0.28);
+  --tag-green-bg:#0E2A14;
+  --tag-green-tx:#5CDA6A;
+  --tag-red-bg:  #2A0E0E;
+  --tag-red-tx:  #F08080;
+  --tag-blue-bg: #0E1A2A;
+  --tag-blue-tx: #80B0F0;
+}
+
+/* ═══════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: var(--sans);
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  transition: background .25s, color .25s;
+}
+
+/* ═══════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════ */
+.shell {
+  display: grid;
+  grid-template-columns: 52px 240px 1fr 380px;
+  grid-template-rows: 100vh;
+  height: 100vh;
+  transition: grid-template-columns .3s ease;
+}
+.shell.pdf-collapsed {
+  grid-template-columns: 52px 240px 1fr 0px;
+}
+.shell.history-collapsed {
+  grid-template-columns: 52px 0px 1fr 380px;
+}
+
+/* ═══════════════════════════════════════════
+   ICON SIDEBAR
+═══════════════════════════════════════════ */
+.icon-bar {
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 0;
+  gap: 4px;
+  z-index: 10;
+}
+.icon-bar .logo {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+  margin-bottom: 16px;
+  padding: 0 6px;
+  text-align: center;
+  line-height: 1.2;
+}
+.icon-btn {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, color .15s;
+}
+.icon-btn:hover { background: var(--bg-hover); color: var(--text); }
+.icon-btn.active { background: var(--accent-glow); color: var(--accent); }
+.icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.icon-spacer { flex: 1; }
+.theme-btn {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, color .15s;
+}
+.theme-btn:hover { background: var(--bg-hover); color: var(--accent); }
+.theme-btn svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ═══════════════════════════════════════════
+   HISTORY PANEL
+═══════════════════════════════════════════ */
+.history-panel {
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.history-header {
+  padding: 18px 16px 12px;
+  border-bottom: 1px solid var(--border-2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.history-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.new-chat-btn {
+  height: 28px;
+  padding: 0 10px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .15s;
+  white-space: nowrap;
+}
+[data-theme="dark"] .new-chat-btn { color: #0D0F14; }
+.new-chat-btn:hover { opacity: .85; }
+.history-search {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-2);
+  flex-shrink: 0;
+}
+.history-search input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s;
+}
+.history-search input:focus { border-color: var(--accent); }
+.history-search input::placeholder { color: var(--text-3); }
+.sessions-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.session-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 12px 8px 6px;
+}
+.session-item {
+  padding: 9px 10px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background .12s;
+  margin-bottom: 2px;
+}
+.session-item:hover { background: var(--bg-hover); }
+.session-item.active { background: var(--accent-glow); }
+.session-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.session-meta {
+  font-size: 11px;
+  color: var(--text-3);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.session-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════
+   CHAT PANEL
+═══════════════════════════════════════════ */
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  overflow: hidden;
+  min-width: 0;
+}
+.chat-header {
+  padding: 0 24px;
+  height: 56px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  background: var(--bg-panel);
+}
+.chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.chat-session-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chat-sp-badges {
+  display: flex;
+  gap: 4px;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+.sp-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--bg-tag);
+  color: var(--accent);
+  padding: 2px 7px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+.chat-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.hdr-btn {
+  height: 32px;
+  padding: 0 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.hdr-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.hdr-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Messages */
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 28px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  color: var(--text-3);
+  padding: 40px;
+  margin: auto;
+}
+.empty-icon {
+  width: 56px; height: 56px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.empty-title { font-size: 16px; font-weight: 600; color: var(--text-2); }
+.empty-sub { font-size: 13px; line-height: 1.5; max-width: 280px; }
+.empty-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  width: 100%;
+  max-width: 360px;
+}
+.empty-chip {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text-2);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--sans);
+  transition: border-color .15s, background .15s;
+  line-height: 1.4;
+}
+.empty-chip:hover { border-color: var(--accent); background: var(--accent-glow); color: var(--text); }
+
+/* User message */
+.msg-user {
+  align-self: flex-end;
+  max-width: 62%;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 14px 14px 4px 14px;
+  padding: 11px 16px;
+  font-size: 14px;
+  line-height: 1.55;
+  word-break: break-word;
+}
+[data-theme="dark"] .msg-user { color: #0D0F14; }
+
+/* AI message */
+.msg-ai {
+  align-self: flex-start;
+  max-width: 88%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.msg-ai-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ai-avatar {
+  width: 26px; height: 26px;
+  background: var(--accent-glow);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.ai-label { font-size: 12px; font-weight: 600; color: var(--text-3); }
+.ai-status {
+  font-size: 11px;
+  color: var(--text-3);
+  font-family: var(--mono);
+}
+.ai-status.searching {
+  color: var(--accent);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+
+/* Citation block */
+.cite-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+}
+.cite-block:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+.cite-block.active { border-left-color: var(--amber); background: var(--amber-bg); }
+.cite-norm {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+.cite-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+  font-family: var(--mono);
+}
+.cite-text mark {
+  background: var(--highlight);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.cite-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cite-ref {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.cite-ref::before { content: '§'; color: var(--accent); font-size: 11px; }
+.cite-flag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+.flag-ok   { background: var(--tag-green-bg); color: var(--tag-green-tx); }
+.flag-risk { background: var(--tag-red-bg);   color: var(--tag-red-tx); }
+.flag-info { background: var(--tag-blue-bg);  color: var(--tag-blue-tx); }
+
+.msg-conclusion {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+.msg-conclusion strong { color: var(--text); font-weight: 600; }
+
+/* Thinking animation */
+.thinking-dots {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 6px 0;
+}
+.thinking-dots span {
+  width: 6px; height: 6px;
+  background: var(--text-3);
+  border-radius: 50%;
+  animation: bounce .9s ease-in-out infinite;
+}
+.thinking-dots span:nth-child(2) { animation-delay: .15s; }
+.thinking-dots span:nth-child(3) { animation-delay: .3s; }
+@keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
+
+/* Input area */
+.input-area {
+  padding: 12px 20px 18px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-panel);
+  flex-shrink: 0;
+}
+.input-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  background: var(--bg-input);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 12px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.input-wrap:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.chat-textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text);
+  resize: none;
+  min-height: 22px;
+  max-height: 120px;
+  line-height: 1.5;
+  scrollbar-width: none;
+}
+.chat-textarea::placeholder { color: var(--text-3); }
+.send-btn {
+  width: 34px; height: 34px;
+  background: var(--accent);
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: opacity .15s, transform .1s;
+}
+.send-btn:hover { opacity: .85; }
+.send-btn:active { transform: scale(.94); }
+.send-btn svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+[data-theme="dark"] .send-btn svg { stroke: #0D0F14; }
+.input-hints {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.input-hint {
+  font-size: 11px;
+  background: var(--bg-hover);
+  color: var(--text-3);
+  padding: 3px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .12s, color .12s;
+  border: none;
+  font-family: var(--sans);
+}
+.input-hint:hover { background: var(--accent-glow); color: var(--accent); }
+
+/* ═══════════════════════════════════════════
+   PDF PANEL
+═══════════════════════════════════════════ */
+.pdf-panel {
+  background: var(--bg-panel);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all .3s ease;
+  min-width: 0;
+}
+.shell.pdf-collapsed .pdf-panel { border-left: none; }
+.pdf-header {
+  padding: 0 16px;
+  height: 56px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.pdf-tabs {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+}
+.pdf-tab {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .12s, color .12s;
+}
+.pdf-tab.active { background: var(--accent-glow); color: var(--accent); }
+.pdf-tab:hover:not(.active) { background: var(--bg-hover); color: var(--text); }
+.pdf-close-btn {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-family: var(--mono);
+  flex-shrink: 0;
+  transition: all .12s;
+  line-height: 1;
+}
+.pdf-close-btn:hover { border-color: var(--accent); color: var(--accent); }
+.pdf-toolbar {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border-2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.pdf-search {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 5px 9px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s;
+}
+.pdf-search:focus { border-color: var(--accent); }
+.pdf-search::placeholder { color: var(--text-3); }
+.pdf-nav-btn {
+  height: 28px;
+  padding: 0 10px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--text-2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .12s;
+}
+.pdf-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+.pdf-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 18px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.pdf-empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-3);
+  gap: 8px;
+  padding: 24px;
+}
+.pdf-empty-icon {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-3);
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  width: 48px; height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+.pdf-empty p { font-size: 13px; line-height: 1.5; max-width: 200px; }
+
+/* Simulated PDF page */
+.pdf-page {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.pdf-page-header {
+  padding: 8px 14px;
+  background: var(--bg-hover);
+  border-bottom: 1px solid var(--border-2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pdf-page-num  { font-family: var(--mono); font-size: 10px; color: var(--text-3); }
+.pdf-page-doc  { font-family: var(--mono); font-size: 10px; font-weight: 700; color: var(--accent); }
+.pdf-page-body {
+  padding: 16px 18px;
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: var(--text);
+  font-family: 'Times New Roman', serif;
+}
+.pdf-page-body p { margin-bottom: 10px; }
+.pdf-clause { font-weight: 700; color: var(--text); font-family: var(--mono); font-size: 11.5px; }
+.pdf-page-body mark { background: var(--highlight); border-radius: 2px; padding: 1px 2px; color: inherit; }
+.pdf-footnote {
+  font-size: 11px; color: var(--text-3);
+  border-top: 1px solid var(--border-2);
+  padding-top: 8px; margin-top: 8px;
+  font-family: var(--sans);
+}
+
+/* ═══════════════════════════════════════════
+   ONBOARDING OVERLAY
+═══════════════════════════════════════════ */
+.onboarding {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.onboarding-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 480px;
+  padding: 36px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.ob-logo { font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+.ob-title { font-size: 22px; font-weight: 700; line-height: 1.2; }
+.ob-sub { font-size: 14px; color: var(--text-2); line-height: 1.55; }
+.ob-progress-label {
+  display: flex; justify-content: space-between;
+  font-size: 12px; color: var(--text-3);
+  font-family: var(--mono); margin-bottom: 6px;
+}
+.ob-bar-wrap { background: var(--bg-hover); border-radius: 100px; height: 6px; overflow: hidden; }
+.ob-bar { height: 100%; background: var(--accent); border-radius: 100px; width: 0%; transition: width .4s ease; }
+.ob-status { font-family: var(--mono); font-size: 12px; color: var(--text-3); min-height: 18px; margin-top: 6px; }
+.ob-btn {
+  background: var(--accent); color: #fff;
+  border: none; border-radius: var(--radius);
+  padding: 13px 24px;
+  font-family: var(--sans); font-size: 15px; font-weight: 600;
+  cursor: pointer; width: 100%; display: none;
+  transition: opacity .15s;
+}
+[data-theme="dark"] .ob-btn { color: #0D0F14; }
+.ob-btn:hover { opacity: .85; }
+.ob-note { font-size: 12px; color: var(--text-3); text-align: center; }
+
+/* ═══════════════════════════════════════════
+   SCROLLBAR UNIFORM
+═══════════════════════════════════════════ */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width: 1000px) {
+  .shell { grid-template-columns: 52px 1fr 0px; }
+  .history-panel { display: none; }
+  .pdf-panel { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ONBOARDING OVERLAY -->
+<div class="onboarding" id="onboarding">
+  <div class="onboarding-card">
+    <div class="ob-logo">ArchNorm</div>
+    <div>
+      <div class="ob-title">Инициализация локальной базы</div>
+      <p class="ob-sub">Загружаю нормативные документы в векторное хранилище. Интернет не нужен — всё работает офлайн.</p>
+    </div>
+    <div>
+      <div class="ob-progress-label">
+        <span id="ob-label">Подготовка…</span>
+        <span id="ob-pct">0%</span>
+      </div>
+      <div class="ob-bar-wrap"><div class="ob-bar" id="ob-bar"></div></div>
+      <div class="ob-status" id="ob-status"></div>
+    </div>
+    <button class="ob-btn" id="ob-btn" onclick="closeOnboarding()">Открыть ArchNorm →</button>
+    <p class="ob-note">Это займёт около 40 секунд при первом запуске</p>
+  </div>
+</div>
+
+<!-- MAIN SHELL -->
+<div class="shell" id="shell">
+
+  <!-- ICON BAR -->
+  <nav class="icon-bar">
+    <div class="logo">AN</div>
+
+    <button class="icon-btn active" title="Чат" onclick="setActiveNav(this)" id="nav-chat">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </button>
+
+    <button class="icon-btn" title="База норм" onclick="setActiveNav(this)">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    </button>
+
+    <button class="icon-btn" title="История" onclick="toggleHistory(); setActiveNav(this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </button>
+
+    <div class="icon-spacer"></div>
+
+    <button class="icon-btn" title="Настройки">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+
+    <button class="theme-btn" title="Сменить тему" onclick="toggleTheme()">
+      <svg id="theme-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <svg id="theme-moon" viewBox="0 0 24 24" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </nav>
+
+  <!-- HISTORY PANEL -->
+  <aside class="history-panel" id="history-panel">
+    <div class="history-header">
+      <span class="history-title">Проекты</span>
+      <button class="new-chat-btn" onclick="newSession()">+ Новый</button>
+    </div>
+    <div class="history-search">
+      <input type="text" placeholder="Поиск по сессиям…" oninput="filterSessions(this.value)">
+    </div>
+    <div class="sessions-list" id="sessions-list"></div>
+  </aside>
+
+  <!-- CHAT PANEL -->
+  <main class="chat-panel">
+    <header class="chat-header">
+      <div class="chat-header-left">
+        <span class="chat-session-name" id="session-title">ЖК Северный — пожарная безопасность</span>
+        <div class="chat-sp-badges" id="sp-badges">
+          <span class="sp-badge">СП 1</span>
+          <span class="sp-badge">СП 2</span>
+          <span class="sp-badge">СП 54</span>
+        </div>
+      </div>
+      <div class="chat-header-right">
+        <button class="hdr-btn" onclick="togglePdf()">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          PDF
+        </button>
+        <button class="hdr-btn">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Экспорт
+        </button>
+      </div>
+    </header>
+
+    <div class="messages" id="messages">
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">AN</div>
+        <div class="empty-title">Задайте вопрос по норме</div>
+        <p class="empty-sub">Спрашивайте на живом языке — без номеров пунктов и формальностей</p>
+        <div class="empty-chips">
+          <button class="empty-chip" onclick="sendChip(this.textContent)">Минимальная ширина коридора в жилом доме?</button>
+          <button class="empty-chip" onclick="sendChip(this.textContent)">Высота потолков в многоквартирном жилом здании по СП 54</button>
+          <button class="empty-chip" onclick="sendChip(this.textContent)">Требования к пандусам для МГН, уклон и размеры площадок</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-wrap">
+        <textarea
+          class="chat-textarea"
+          id="chat-input"
+          placeholder="Задайте вопрос по норме…"
+          rows="1"
+          onkeydown="handleKey(event)"
+          oninput="autoResize(this)"
+        ></textarea>
+        <button class="send-btn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+      <div class="input-hints">
+        <button class="input-hint" onclick="insertHint('эвакуационные выходы ')">эвакуационные выходы</button>
+        <button class="input-hint" onclick="insertHint('пожарная безопасность ')">пожарная безопасность</button>
+        <button class="input-hint" onclick="insertHint('доступность МГН ')">доступность МГН</button>
+        <button class="input-hint" onclick="insertHint('освещённость ')">освещённость</button>
+        <button class="input-hint" onclick="insertHint('инсоляция ')">инсоляция</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- PDF PANEL -->
+  <aside class="pdf-panel" id="pdf-panel">
+    <div class="pdf-header">
+      <div class="pdf-tabs" id="pdf-tabs">
+        <button class="pdf-tab active" data-doc="sp1">СП 1.13130</button>
+        <button class="pdf-tab" data-doc="sp54">СП 54.13330</button>
+        <button class="pdf-tab" data-doc="sp59">СП 59.13330</button>
+      </div>
+      <button class="pdf-close-btn" onclick="togglePdf()" title="Скрыть">×</button>
+    </div>
+    <div class="pdf-toolbar">
+      <input class="pdf-search" type="text" placeholder="Найти в документе…">
+      <button class="pdf-nav-btn" onclick="prevHighlight()">↑ пред</button>
+      <button class="pdf-nav-btn" onclick="nextHighlight()">↓ след</button>
+    </div>
+    <div class="pdf-content" id="pdf-content"></div>
+  </aside>
+
+</div><!-- /shell -->
+
+<script>
+/* ─── STATE ─── */
+let sessions = [
+  { id:1, name:'ЖК Северный — пожарная безопасность', date:'сегодня', msgs:4, active:true },
+  { id:2, name:'ТЦ Арена — доступность МГН',          date:'сегодня', msgs:7, active:false },
+  { id:3, name:'Офисный центр — освещённость',        date:'вчера',   msgs:2, active:false },
+  { id:4, name:'Жилой дом — высоты помещений',        date:'вчера',   msgs:9, active:false },
+  { id:5, name:'БЦ Премиум — HVAC нормы',             date:'8 мая',   msgs:3, active:false },
+];
+let pdfVisible = true;
+let historyVisible = true;
+let currentHighlight = -1;
+
+/* ─── ONBOARDING ─── */
+const STEPS = [
+  { pct:12,  label:'Читаю СП 1.13130.2020…' },
+  { pct:24,  label:'Читаю СП 2.13130.2020…' },
+  { pct:38,  label:'Читаю СП 4.13130.2013…' },
+  { pct:52,  label:'Читаю СП 54.13330.2022…' },
+  { pct:64,  label:'Читаю СП 59.13330.2020…' },
+  { pct:76,  label:'Читаю СП 52.13330.2016…' },
+  { pct:88,  label:'Строю векторный индекс…' },
+  { pct:96,  label:'Проверяю embeddings…' },
+  { pct:100, label:'Готово — 12 документов загружено' },
+];
+(function runOnboarding() {
+  let i = 0;
+  const bar = document.getElementById('ob-bar');
+  const status = document.getElementById('ob-status');
+  const pctEl = document.getElementById('ob-pct');
+  const labelEl = document.getElementById('ob-label');
+  const btn = document.getElementById('ob-btn');
+  function step() {
+    if (i >= STEPS.length) { labelEl.textContent = 'Готово'; btn.style.display = 'block'; return; }
+    const s = STEPS[i++];
+    bar.style.width = s.pct + '%';
+    pctEl.textContent = s.pct + '%';
+    status.textContent = s.label;
+    setTimeout(step, 300 + Math.random() * 200);
+  }
+  setTimeout(step, 600);
+})();
+
+function closeOnboarding() {
+  document.getElementById('onboarding').style.display = 'none';
+  renderSessions();
+  renderPdf('sp1');
+}
+
+/* ─── SESSIONS ─── */
+function renderSessions(filter) {
+  const list = document.getElementById('sessions-list');
+  const f = (filter || '').toLowerCase();
+  const groups = [
+    { label:'Сегодня', items: sessions.filter(s => s.date==='сегодня' && (!f || s.name.toLowerCase().includes(f))) },
+    { label:'Вчера',   items: sessions.filter(s => s.date==='вчера'   && (!f || s.name.toLowerCase().includes(f))) },
+    { label:'Ранее',   items: sessions.filter(s => s.date!=='сегодня' && s.date!=='вчера' && (!f || s.name.toLowerCase().includes(f))) },
+  ];
+  list.innerHTML = groups.map(g => g.items.length ? `
+    <div class="session-group-label">${g.label}</div>
+    ${g.items.map(sessionHTML).join('')}
+  ` : '').join('');
+}
+function sessionHTML(s) {
+  return `<div class="session-item${s.active?' active':''}" onclick="activateSession(${s.id})">
+    <div class="session-name">${s.name}</div>
+    <div class="session-meta"><span class="session-dot"></span>${s.msgs} ответов · ${s.date}</div>
+  </div>`;
+}
+function activateSession(id) {
+  sessions.forEach(s => s.active = s.id===id);
+  const s = sessions.find(s => s.id===id);
+  document.getElementById('session-title').textContent = s.name;
+  renderSessions();
+}
+function filterSessions(v) { renderSessions(v); }
+function newSession() {
+  const id = Date.now();
+  sessions.unshift({ id, name:'Новый проект', date:'сегодня', msgs:0, active:true });
+  sessions.forEach(s => s.active = s.id===id);
+  document.getElementById('session-title').textContent = 'Новый проект';
+  document.getElementById('sp-badges').innerHTML = '';
+  clearMessages();
+  renderSessions();
+}
+
+/* ─── DEMO RESPONSES ─── */
+const DEMO = {
+  corridor: {
+    status: 'Ищу в СП 54.13330.2022, СП 59.13330.2020…',
+    cites: [
+      { norm:'СП 54.13330.2022', ref:'п. 7.2.9', flag:'risk', flagLabel:'Риск',
+        text:'Ширина внутриквартирных коридоров должна быть не менее <mark>0,85 м</mark>; ведущих в спальню или санузел — не менее <mark>1,0 м</mark>' },
+      { norm:'СП 59.13330.2020', ref:'п. 5.1.4', flag:'info', flagLabel:'МГН',
+        text:'Ширина коридора на путях движения МГН должна быть не менее <mark>1,2 м</mark>, при двустороннем разъезде кресел — <mark>1,8 м</mark>' },
+    ],
+    conclusion: '<strong>Итог:</strong> Минимальная ширина внутриквартирного коридора — 0,85 м, при МГН-доступности — 1,2 м. Уточните по проекту.'
+  },
+  pandus: {
+    status: 'Ищу в СП 59.13330.2020…',
+    cites: [
+      { norm:'СП 59.13330.2020', ref:'п. 5.2.4', flag:'risk', flagLabel:'Риск',
+        text:'Уклон пандуса при перепаде высот более <mark>0,4 м</mark> — не более <mark>1:20 (5%)</mark>; при перепаде до 0,2 м — не более 1:10' },
+      { norm:'СП 59.13330.2020', ref:'п. 5.2.6', flag:'info', flagLabel:'Уточнить',
+        text:'Горизонтальные площадки в начале и конце пандуса — не менее <mark>1,5 × 1,5 м</mark>' },
+      { norm:'СП 59.13330.2020', ref:'п. 5.2.9', flag:'ok', flagLabel:'Ок',
+        text:'Поручни пандуса устанавливаются с двух сторон на высоте <mark>0,7 м</mark> и <mark>0,9 м</mark>' },
+    ],
+    conclusion: '<strong>Итог:</strong> Уклон ≤ 1:20 при перепаде >0,4 м, площадки ≥ 1,5×1,5 м, поручни с двух сторон.'
+  },
+  default: {
+    status: 'Ищу в СП 1.13130.2020, СП 54.13330.2022…',
+    cites: [
+      { norm:'СП 1.13130.2020', ref:'п. 4.2.1', flag:'risk', flagLabel:'Риск',
+        text:'Количество эвакуационных выходов из здания и с каждого этажа должно быть не менее <mark>двух</mark>' },
+      { norm:'СП 1.13130.2020', ref:'п. 4.2.5', flag:'risk', flagLabel:'Риск',
+        text:'Ширина эвакуационного выхода из помещений при числе эвакуирующихся более <mark>15 человек</mark> — не менее <mark>0,9 м</mark>' },
+      { norm:'СП 54.13330.2022', ref:'п. 9.2.2', flag:'ok', flagLabel:'Ок',
+        text:'Высота жилых комнат от пола до потолка — не менее <mark>2,7 м</mark>' },
+    ],
+    conclusion: '<strong>Итог:</strong> Эвакуационных выходов ≥ 2 шт., ширина ≥ 0,9 м; высота потолков ≥ 2,7 м.'
+  },
+};
+
+function pickResponse(text) {
+  const t = text.toLowerCase();
+  if (t.includes('коридор')) return DEMO.corridor;
+  if (t.includes('пандус') || t.includes('мгн') || t.includes('доступ')) return DEMO.pandus;
+  return DEMO.default;
+}
+
+/* ─── MESSAGES ─── */
+function clearMessages() {
+  document.getElementById('messages').innerHTML = `
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">AN</div>
+      <div class="empty-title">Задайте вопрос по норме</div>
+      <p class="empty-sub">Спрашивайте на живом языке — без номеров пунктов и формальностей</p>
+      <div class="empty-chips">
+        <button class="empty-chip" onclick="sendChip(this.textContent)">Минимальная ширина коридора в жилом доме?</button>
+        <button class="empty-chip" onclick="sendChip(this.textContent)">Высота потолков в многоквартирном жилом здании по СП 54</button>
+        <button class="empty-chip" onclick="sendChip(this.textContent)">Требования к пандусам для МГН, уклон и размеры площадок</button>
+      </div>
+    </div>`;
+}
+
+function sendChip(text) { sendMessageText(text); }
+function sendMessage() {
+  const ta = document.getElementById('chat-input');
+  const text = ta.value.trim();
+  if (!text) return;
+  ta.value = ''; ta.style.height = '';
+  sendMessageText(text);
+}
+
+function sendMessageText(text) {
+  const m = document.getElementById('messages');
+  const empty = document.getElementById('empty-state');
+  if (empty) empty.remove();
+
+  // user bubble
+  const userEl = document.createElement('div');
+  userEl.className = 'msg-user';
+  userEl.textContent = text;
+  m.appendChild(userEl);
+
+  // ai thinking
+  const resp = pickResponse(text);
+  const aiEl = document.createElement('div');
+  aiEl.className = 'msg-ai';
+  aiEl.innerHTML = `
+    <div class="msg-ai-header">
+      <div class="ai-avatar">AN</div>
+      <span class="ai-label">ArchNorm</span>
+      <span class="ai-status searching" id="ai-live">${resp.status}</span>
+    </div>
+    <div class="thinking-dots"><span></span><span></span><span></span></div>`;
+  m.appendChild(aiEl);
+  m.scrollTop = m.scrollHeight;
+
+  setTimeout(() => {
+    const statusEl = aiEl.querySelector('#ai-live');
+    if (statusEl) { statusEl.classList.remove('searching'); statusEl.textContent = 'готово'; }
+    aiEl.querySelector('.thinking-dots')?.remove();
+
+    resp.cites.forEach(c => {
+      const block = document.createElement('div');
+      block.className = 'cite-block';
+      block.innerHTML = `
+        <div class="cite-norm">${c.norm}</div>
+        <div class="cite-text">${c.text}</div>
+        <div class="cite-footer">
+          <span class="cite-ref">${c.ref}</span>
+          <span class="cite-flag flag-${c.flag}">${c.flagLabel}</span>
+        </div>`;
+      block.onclick = () => activateCite(block, c);
+      aiEl.appendChild(block);
+    });
+
+    const concl = document.createElement('div');
+    concl.className = 'msg-conclusion';
+    concl.innerHTML = resp.conclusion;
+    aiEl.appendChild(concl);
+    m.scrollTop = m.scrollHeight;
+
+    // update PDF
+    renderPdfForCites(resp.cites);
+    updatePdfTabs(resp.cites.map(c => c.norm));
+    // update session badge count
+    const active = sessions.find(s => s.active);
+    if (active) { active.msgs++; renderSessions(); }
+  }, 1400);
+}
+
+function activateCite(block, cite) {
+  document.querySelectorAll('.cite-block.active').forEach(b => b.classList.remove('active'));
+  block.classList.add('active');
+  switchPdfTab(normToDocKey(cite.norm));
+}
+
+function normToDocKey(norm) {
+  if (norm.includes('54')) return 'sp54';
+  if (norm.includes('59')) return 'sp59';
+  return 'sp1';
+}
+
+/* ─── PDF DATA ─── */
+const PDF_DATA = {
+  sp1: {
+    title: 'СП 1.13130.2020',
+    pages: [
+      { num:'Стр. 14', clause:'4.2 Общие требования к эвакуационным выходам',
+        body:`<p class="pdf-clause">4.2.1</p>
+<p>Количество и суммарная ширина эвакуационных выходов из помещений, с этажей и из зданий определяются расчётом, исходя из условия, что число эвакуирующихся через каждый выход должно быть, как правило, одинаковым. Количество эвакуационных выходов из здания и с каждого этажа должно быть не менее <mark>двух</mark>.</p>` },
+      { num:'Стр. 15', clause:'4.2.5',
+        body:`<p class="pdf-clause">4.2.5</p>
+<p>Ширина эвакуационного выхода из помещений при числе эвакуирующихся более <mark>15 человек</mark> должна быть не менее <mark>0,9 м</mark>. При расположении дверей под углом к оси коридора ширина измеряется в свету.</p>
+<p class="pdf-footnote">Примечание: для путей эвакуации МГН ширина принимается согласно СП 59.13330.2020.</p>` },
+    ]
+  },
+  sp54: {
+    title: 'СП 54.13330.2022',
+    pages: [
+      { num:'Стр. 28', clause:'7.2 Объёмно-планировочные решения квартир',
+        body:`<p class="pdf-clause">7.2.9</p>
+<p>Ширина внутриквартирных коридоров должна быть не менее <mark>0,85 м</mark>; ведущих в спальню или санузел — не менее <mark>1,0 м</mark>.</p>` },
+      { num:'Стр. 31', clause:'9.2 Высота помещений',
+        body:`<p class="pdf-clause">9.2.2</p>
+<p>Высота жилых комнат и кухни-столовой от пола до потолка должна быть не менее <mark>2,7 м</mark>. В квартирах, расположенных в мансардном этаже, и при реконструкции допускается снижение этого показателя до <mark>2,5 м</mark>.</p>
+<p class="pdf-footnote">Примечание: при устройстве потолков с разноуровневыми конструкциями нормируемая высота распространяется на площадь, составляющую не менее 60 % площади помещения.</p>` },
+    ]
+  },
+  sp59: {
+    title: 'СП 59.13330.2020',
+    pages: [
+      { num:'Стр. 17', clause:'5.1 Пути движения',
+        body:`<p class="pdf-clause">5.1.2</p>
+<p>Ширина дверных проёмов в свету на путях движения маломобильных групп населения должна быть не менее <mark>0,9 м</mark>.</p>
+<p class="pdf-clause">5.1.4</p>
+<p>Ширина коридора на путях движения МГН должна быть не менее <mark>1,2 м</mark>, а при возможности встречного передвижения — не менее <mark>1,8 м</mark>.</p>` },
+      { num:'Стр. 19', clause:'5.2 Пандусы',
+        body:`<p class="pdf-clause">5.2.4</p>
+<p>Уклон пандуса при перепаде высот более <mark>0,4 м</mark> должен быть не более <mark>1:20 (5%)</mark>; при перепаде высот до <mark>0,2 м</mark> допускается уклон не более 1:10.</p>
+<p class="pdf-clause">5.2.6</p>
+<p>В начале и конце каждого пандуса следует устраивать горизонтальные площадки размером не менее <mark>1,5 × 1,5 м</mark>.</p>` },
+    ]
+  },
+};
+
+function renderPdf(docKey) {
+  const data = PDF_DATA[docKey];
+  if (!data) return;
+  const content = document.getElementById('pdf-content');
+  content.innerHTML = data.pages.map(p => `
+    <div class="pdf-page">
+      <div class="pdf-page-header">
+        <span class="pdf-page-num">${p.num}</span>
+        <span class="pdf-page-doc">${data.title}</span>
+      </div>
+      <div class="pdf-page-body">
+        <p style="font-size:11px;font-weight:700;color:var(--text-2);font-family:var(--sans);margin-bottom:10px;">${p.clause}</p>
+        ${p.body}
+      </div>
+    </div>`).join('');
+  currentHighlight = -1;
+}
+
+function renderPdfForCites(cites) {
+  const first = cites[0]?.norm;
+  if (first) renderPdf(normToDocKey(first));
+}
+
+function updatePdfTabs(norms) {
+  document.querySelectorAll('.pdf-tab').forEach(tab => {
+    const relevant = norms.some(n => normToDocKey(n) === tab.dataset.doc);
+    tab.style.fontWeight = relevant ? '700' : '';
+  });
+}
+
+function switchPdfTab(docKey) {
+  document.querySelectorAll('.pdf-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.doc === docKey));
+  renderPdf(docKey);
+}
+
+document.querySelectorAll('.pdf-tab').forEach(tab =>
+  tab.addEventListener('click', () => switchPdfTab(tab.dataset.doc)));
+
+function togglePdf() {
+  pdfVisible = !pdfVisible;
+  document.getElementById('shell').classList.toggle('pdf-collapsed', !pdfVisible);
+}
+
+function prevHighlight() {
+  const marks = document.querySelectorAll('#pdf-content mark');
+  if (!marks.length) return;
+  currentHighlight = (currentHighlight - 1 + marks.length) % marks.length;
+  marks[currentHighlight].scrollIntoView({ behavior:'smooth', block:'center' });
+}
+function nextHighlight() {
+  const marks = document.querySelectorAll('#pdf-content mark');
+  if (!marks.length) return;
+  currentHighlight = (currentHighlight + 1) % marks.length;
+  marks[currentHighlight].scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+/* ─── UI HELPERS ─── */
+function setActiveNav(btn) {
+  document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function toggleHistory() {
+  historyVisible = !historyVisible;
+  const panel = document.getElementById('history-panel');
+  panel.style.display = historyVisible ? '' : 'none';
+  document.getElementById('shell').classList.toggle('history-collapsed', !historyVisible);
+}
+function toggleTheme() {
+  const html = document.documentElement;
+  const dark = html.dataset.theme === 'dark';
+  html.dataset.theme = dark ? 'light' : 'dark';
+  document.getElementById('theme-sun').style.display  = dark ? 'block' : 'none';
+  document.getElementById('theme-moon').style.display = dark ? 'none'  : 'block';
+}
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+function insertHint(text) {
+  const ta = document.getElementById('chat-input');
+  ta.value += text; ta.focus(); autoResize(ta);
+}
+</script>
+</body>
+</html>
