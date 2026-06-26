@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ArchNorm — нормативный AI-навигатор для архитекторов</title>
+<title>ArchNorm — поиск строительных норм за минуты, без платных переэкспертиз</title>
+<meta name="description" content="ArchNorm экономит проектным бюро десятки и сотни тысяч рублей на повторных экспертизах и переделках: находит применимые требования СП, СНиП и ГОСТ со ссылкой на пункт и работает в закрытом контуре.">
 <link rel="canonical" href="https://alteralto.github.io/ArchNorm-preview/">
 <script>
   window.goatcounter = {
@@ -656,6 +657,8 @@
   footer p { font-size: 13px; }
   footer a { color: rgba(255,255,255,0.4); text-decoration: none; }
   footer a:hover { color: rgba(255,255,255,0.7); }
+  .footer-legal { max-width: 760px; line-height: 1.55; }
+  .footer-legal small { display:block; margin-top:8px; color: rgba(255,255,255,0.32); }
 
   /* ─── SCROLL ANIMATION ─── */
   .fade-in {
@@ -690,7 +693,8 @@
   <a class="nav-logo" href="#">ArchNorm</a>
   <div class="nav-links">
     <a href="#how" class="nav-hide">Как работает</a>
-    <a href="#pricing" class="nav-hide">Тарифы</a>
+    <a href="#security" class="nav-hide">Безопасность</a>
+    <a href="#pricing" class="nav-hide">Стоимость</a>
     <a href="#pilot" class="nav-hide">Пилот</a>
     <a href="#pilot" class="btn-nav" data-goatcounter-click="cta-nav-pilot">Запросить пилот</a>
   </div>
@@ -698,27 +702,27 @@
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-label"><span></span> GenAI / RAG / Pilot-ready</div>
-  <h1>Нормативный AI-навигатор<br><em>для архитекторов и проектных бюро</em></h1>
-  <p class="hero-sub">ArchNorm помогает быстро вспомнить применимые требования СП/СНиП/ГОСТ, суммаризирует ответ из норм и показывает пункты, цитаты и источники</p>
+  <div class="hero-label"><span></span> Для архитекторов и проектных бюро · работает в закрытом контуре</div>
+  <h1>Поиск нормы — за минуты.<br><em>Переделки и платные переэкспертизы — реже.</em></h1>
+  <p class="hero-sub">ArchNorm экономит бюро десятки и сотни тысяч рублей на повторных экспертизах и переделках документации: находит применимые требования СП, СНиП и ГОСТ, показывает пункт-источник и работает в закрытом контуре. Это AI-навигатор по нормам — без тяжёлого BIM.</p>
   <div class="hero-ctas">
     <button class="btn-primary" data-goatcounter-click="cta-hero-demo" onclick="document.getElementById('demo-section').scrollIntoView({behavior:'smooth'})">
       Посмотреть демо
     </button>
-    <a href="#pilot" class="btn-secondary" data-goatcounter-click="cta-hero-pilot">Запросить пилот</a>
+    <button class="btn-secondary" data-goatcounter-click="cta-hero-consult" onclick="openSupport('Консультация и расчёт для бюро')">Бесплатная консультация</button>
   </div>
   <div class="hero-stats">
     <div class="stat">
-      <span class="stat-num">1–2ч</span>
-      <div class="stat-label">в день на поиск норм вручную</div>
+      <span class="stat-num">1–2 ч</span>
+      <div class="stat-label">в день уходит на ручной поиск норм</div>
     </div>
     <div class="stat">
-      <span class="stat-num">4–6</span>
-      <div class="stat-label">недели длится пилот</div>
+      <span class="stat-num">~5%</span>
+      <div class="stat-label">бюджета объекта — цена поздней ошибки</div>
     </div>
     <div class="stat">
       <span class="stat-num">17к+</span>
-      <div class="stat-label">бюро в беачхед-рынке</div>
+      <div class="stat-label">бюро в целевом рынке</div>
     </div>
     <div class="stat">
       <span class="stat-num">0</span>
@@ -731,23 +735,23 @@
 <section id="problem">
   <div class="container">
     <div class="section-tag">Проблема</div>
-    <h2 style="color:#fff">Одна поздняя ошибка —<br>и весь цикл заново</h2>
-    <p class="section-sub">Пока проверка ручная, ошибка всплывает на согласовании. Когда чертежи, календарь и бюджет уже приходится менять</p>
+    <h2 style="color:#fff">Поздно найденная норма<br>стоит бюро денег и сроков</h2>
+    <p class="section-sub">Пока проверка норм ручная, ошибку находят на экспертизе или на стройке — когда чертежи, календарь и бюджет уже приходится менять. С 01.03.2026 (309-ФЗ) ответственность ГИП ужесточена, и цена такой ошибки выросла</p>
     <div class="pain-grid">
       <div class="pain-card">
         <span class="pain-num">01</span>
-        <div class="pain-title">Сдвиг сроков</div>
-        <p class="pain-desc">Замечание на экспертизе возвращает команду к началу. Каждый возврат — недели потерянного времени и смещение дедлайнов</p>
+        <div class="pain-title">Платные повторные экспертизы</div>
+        <p class="pain-desc">Замечание возвращает проект на доработку, а повторная экспертиза — платная. Это десятки и сотни тысяч рублей плюс сдвиг сроков сдачи</p>
       </div>
       <div class="pain-card">
         <span class="pain-num">02</span>
-        <div class="pain-title">Late rework</div>
-        <p class="pain-desc">Переделки на поздних стадиях в разы дороже ранних. Senior-специалисты тратят время на поиск норм вместо проектной работы</p>
+        <div class="pain-title">Переделка на поздней стадии</div>
+        <p class="pain-desc">Ошибка, найденная поздно, оборачивается переделкой около 5% бюджета объекта. Ведущие специалисты тратят время на поиск норм вместо проектной работы</p>
       </div>
       <div class="pain-card">
         <span class="pain-num">03</span>
-        <div class="pain-title">Возвраты</div>
-        <p class="pain-desc">Без проверяемого обоснования каждый спорный пункт — риск замечания. Цикл: ошибка, поиск норм, правка, новая проверка</p>
+        <div class="pain-title">1–2 часа в день на поиск нормы</div>
+        <p class="pain-desc">Тысячи страниц СП и СНиП, перекрёстные ссылки, разные редакции документов. Нужную норму легко пропустить, а проверка идёт вручную</p>
       </div>
     </div>
   </div>
@@ -757,36 +761,36 @@
 <section id="how">
   <div class="container">
     <div class="section-tag">Как работает</div>
-    <h2>Четыре шага<br>от документа до обоснования</h2>
-    <p class="section-sub">Загружаете параметры проекта — получаете применимые требования со ссылками и флагами риска</p>
+    <h2>Как ArchNorm отвечает<br>на ваш вопрос по норме</h2>
+    <p class="section-sub">Опишите параметры проекта — получите применимые требования со ссылкой на пункт нормы и пометками, что стоит проверить</p>
     <div class="steps-grid">
       <div class="step">
-        <span class="step-num">01 / Контекст</span>
+        <span class="step-num">Шаг 01</span>
         <div class="step-icon">DOC</div>
         <div class="step-title">Параметры проекта</div>
-        <p class="step-desc">Тип здания, стадия, функциональное назначение, регион. Можно загрузить документ или заполнить форму</p>
-        <span class="step-badge">Document-first</span>
+        <p class="step-desc">Тип здания, стадия, назначение, регион. Можно загрузить документ или просто заполнить форму</p>
+        <span class="step-badge">По документу</span>
       </div>
       <div class="step">
-        <span class="step-num">02 / Нормативный контекст</span>
+        <span class="step-num">Шаг 02</span>
         <div class="step-icon">RAG</div>
         <div class="step-title">Применимые требования</div>
-        <p class="step-desc">Система извлекает релевантные нормы из СП, СНиП, ГОСТ по доменному контексту вашего проекта</p>
-        <span class="step-badge">RAG-контур</span>
+        <p class="step-desc">Система находит относящиеся к проекту нормы из СП, СНиП и ГОСТ по контексту вашей задачи</p>
+        <span class="step-badge">Поиск по нормам</span>
       </div>
       <div class="step">
-        <span class="step-num">03 / Evidence</span>
+        <span class="step-num">Шаг 03</span>
         <div class="step-icon">REF</div>
-        <div class="step-title">Citations + Risk flags</div>
-        <p class="step-desc">Каждое требование — с точной ссылкой на пункт нормы. Спорные позиции помечаются флагами риска автоматически</p>
-        <span class="step-badge">Traceability</span>
+        <div class="step-title">Ссылки и пометки риска</div>
+        <p class="step-desc">Каждое требование — с точной ссылкой на пункт нормы. Спорные места помечаются автоматически</p>
+        <span class="step-badge">Ссылка на пункт</span>
       </div>
       <div class="step">
-        <span class="step-num">04 / Rationale</span>
+        <span class="step-num">Шаг 04</span>
         <div class="step-icon">OUT</div>
-        <div class="step-title">Checklist + Обоснование</div>
-        <p class="step-desc">Готовый драфт обоснования и чеклист для нормоконтроля. Senior проверяет логику, а не собирает с нуля</p>
-        <span class="step-badge">Export-ready</span>
+        <div class="step-title">Чеклист и обоснование</div>
+        <p class="step-desc">Готовый черновик обоснования и чеклист для нормоконтроля. Специалист проверяет логику, а не собирает с нуля</p>
+        <span class="step-badge">Готово к выгрузке</span>
       </div>
     </div>
   </div>
@@ -853,27 +857,58 @@
   <div class="container">
     <div class="section-tag">Ценность</div>
     <h2>Что получает бюро</h2>
-    <p class="section-sub">Не новая BIM-платформа. Узкий compliance-слой, который встраивается в существующий процесс</p>
+    <p class="section-sub">Не новая BIM-платформа, а узкий слой нормоконтроля, который встраивается в ваш текущий процесс</p>
     <div class="features-grid">
       <div class="feature-card fade-in">
         <div class="feature-icon">01</div>
         <div class="feature-title">Быстрее первый проход</div>
-        <p class="feature-desc">Меньше ручного поиска и повторной сборки обоснования. Нормативная рамка — в начале проектной цепочки, не в конце</p>
+        <p class="feature-desc">Меньше ручного поиска и повторной сборки обоснования. Проверка по нормам — в начале работы над проектом, а не в конце</p>
       </div>
       <div class="feature-card fade-in">
         <div class="feature-icon">02</div>
-        <div class="feature-title">Доказуемые ссылки</div>
-        <p class="feature-desc">Citations, traceability и объяснимый rationale. Каждый тезис можно проверить по точному пункту нормативного документа</p>
+        <div class="feature-title">Ссылку можно проверить</div>
+        <p class="feature-desc">Каждый ответ сопровождается точной ссылкой на пункт нормы. Вывод можно перепроверить, а не принимать на веру</p>
       </div>
       <div class="feature-card fade-in">
         <div class="feature-icon">03</div>
-        <div class="feature-title">Меньше bottleneck</div>
-        <p class="feature-desc">Senior staff проверяет логику, а не собирает её с нуля. Нагрузка на экспертов снижается — предсказуемость растёт</p>
+        <div class="feature-title">Меньше нагрузки на экспертов</div>
+        <p class="feature-desc">Ведущие специалисты проверяют готовую логику, а не собирают её с нуля. Узкое место в процессе расшивается</p>
       </div>
       <div class="feature-card fade-in">
         <div class="feature-icon">04</div>
         <div class="feature-title">Без тяжёлого внедрения</div>
-        <p class="feature-desc">Document-first workflow. Не требует зрелого BIM-стека на входе. Пилотируется как нормативный навигатор, а не как новая платформа</p>
+        <p class="feature-desc">Работа идёт от документа. Не нужен зрелый BIM-стек — ArchNorm внедряется как навигатор по нормам, а не как новая платформа</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY / CLOSED LOOP -->
+<section id="security" style="background:var(--green-light);">
+  <div class="container">
+    <div class="section-tag">Безопасность</div>
+    <h2>Данные бюро<br>не покидают ваш контур</h2>
+    <p class="section-sub">Проектная документация — под NDA. Её нельзя отправлять в чужое облако и тем более в зарубежные сервисы. ArchNorm закрывает именно этот риск</p>
+    <div class="features-grid">
+      <div class="feature-card fade-in">
+        <div class="feature-icon">01</div>
+        <div class="feature-title">Закрытый контур / on-prem</div>
+        <p class="feature-desc">ArchNorm разворачивается внутри бюро или на вашем сервере. Запросы и документы не уходят во внешний интернет</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">02</div>
+        <div class="feature-title">Не как публичные чат-боты</div>
+        <p class="feature-desc">ChatGPT, GigaChat, Perplexity и Telegram-боты — это передача данных вовне, иногда за границу. У ArchNorm данные остаются у вас</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">03</div>
+        <div class="feature-title">Редакция чувствительных данных</div>
+        <p class="feature-desc">Имена, ИНН, ОГРН, кадастровые номера и другие реквизиты распознаются и скрываются до обработки</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">04</div>
+        <div class="feature-title">Ответ только из норм</div>
+        <p class="feature-desc">Система отвечает по индексированному нормативному корпусу и показывает источник — без выдумок и ответов «мимо базы»</p>
       </div>
     </div>
   </div>
@@ -882,70 +917,70 @@
 <!-- PRICING -->
 <section id="pricing">
   <div class="container">
-    <div class="section-tag">Тарифы</div>
-    <h2>Начните с демо,<br>масштабируйте по мере роста</h2>
-    <p class="section-sub">Гибкая модель от бесплатного демо до корпоративного контура. Пилот — фиксированная стоимость</p>
+    <div class="section-tag">Стоимость</div>
+    <h2>Тарифы под размер бюро,<br>пилот — по запросу</h2>
+    <p class="section-sub">Российский поставщик, договор от ИП/ООО, данные обрабатываются в РФ (152-ФЗ). Годовая подписка — скидка 15%</p>
     <div class="pricing-grid">
       <div class="price-card">
-        <div class="price-tier">Demo</div>
+        <div class="price-tier">Free Trial</div>
         <div class="price-amount">0 ₽</div>
-        <div class="price-period">ограниченный доступ</div>
+        <div class="price-period">14 дней · 1 место</div>
         <ul class="price-features">
-          <li>1 нормативный домен</li>
-          <li>До 3 запросов</li>
-          <li>Базовые citations</li>
-          <li class="na">Risk flags</li>
-          <li class="na">Экспорт отчёта</li>
+          <li>5 самых ходовых СП</li>
+          <li>До 100 запросов</li>
+          <li>Цитата нормы к каждому ответу</li>
+          <li>Web-версия (в браузере)</li>
+          <li class="na">Vision на чертежи</li>
         </ul>
-        <button class="btn-plan outline" data-goatcounter-click="pricing-demo-try" onclick="document.getElementById('demo-section').scrollIntoView({behavior:'smooth'})">Попробовать</button>
+        <button class="btn-plan outline" data-goatcounter-click="pricing-trial" onclick="document.getElementById('demo-section').scrollIntoView({behavior:'smooth'})">Попробовать бесплатно</button>
       </div>
 
       <div class="price-card">
-        <div class="price-tier">Individual</div>
-        <div class="price-amount">3–5к ₽</div>
-        <div class="price-period">за место / месяц</div>
+        <div class="price-tier">Team</div>
+        <div class="price-amount">20 000 ₽</div>
+        <div class="price-period">за место в месяц · бюро 5–15 чел</div>
         <ul class="price-features">
-          <li>2 нормативных домена</li>
-          <li>Неограниченные запросы</li>
-          <li>Citations + Risk flags</li>
-          <li>Экспорт в PDF</li>
-          <li class="na">Командный воркфлоу</li>
+          <li>Полная база 20 СП</li>
+          <li>До 2000 запросов / место / мес</li>
+          <li>Цитата нормы + ссылка на источник</li>
+          <li>Web-версия (в браузере)</li>
+          <li class="na">Vision и Desktop offline</li>
         </ul>
-        <button class="btn-plan outline" data-goatcounter-click="pricing-studio-contact" onclick="scrollToPilot()">Связаться</button>
+        <button class="btn-plan outline" data-goatcounter-click="pricing-team" onclick="scrollToPilot()">Запросить пилот</button>
       </div>
 
       <div class="price-card featured">
         <div class="featured-badge">Популярный</div>
-        <div class="price-tier">Team</div>
-        <div class="price-amount">12к+ ₽</div>
-        <div class="price-period">за место / месяц</div>
+        <div class="price-tier">Pro</div>
+        <div class="price-amount">50 000 ₽</div>
+        <div class="price-period">за место в месяц · бюро 30–50 чел</div>
         <ul class="price-features">
-          <li>Все нормативные домены</li>
-          <li>Командный воркфлоу</li>
-          <li>Citations + Risk flags</li>
-          <li>Rationale checklist</li>
-          <li>Приоритетная поддержка</li>
+          <li>Полная база СП / СНиП / ГОСТ</li>
+          <li>Без лимита запросов</li>
+          <li>Vision: анализ чертежей PDF / DWG</li>
+          <li>Web-версия + Desktop offline</li>
+          <li>Свои внутренние стандарты бюро</li>
         </ul>
-        <button class="btn-plan filled" data-goatcounter-click="pricing-studio-pilot" onclick="scrollToPilot()">Запросить пилот</button>
+        <button class="btn-plan filled" data-goatcounter-click="pricing-pro" onclick="scrollToPilot()">Запросить пилот</button>
       </div>
 
       <div class="price-card">
         <div class="price-tier">Enterprise</div>
-        <div class="price-amount">Custom</div>
-        <div class="price-period">on-premise / private cloud</div>
+        <div class="price-amount">от 5 М ₽</div>
+        <div class="price-period">в год · институты, госзаказ, режим</div>
         <ul class="price-features">
-          <li>Весь функционал Team</li>
-          <li>On-premise / LAN-контур</li>
-          <li>Кастомный нормкорпус</li>
-          <li>SLA и eval-отчёты</li>
-          <li>GigaChat integration</li>
+          <li>Всё из Pro, без per-seat лимитов</li>
+          <li>On-premise / закрытый контур (152-ФЗ)</li>
+          <li>Интеграции Revit / NanoCAD / Renga</li>
+          <li>SLA и поддержка инсталляции</li>
+          <li>Обучение команды</li>
         </ul>
-        <button class="btn-plan outline" data-goatcounter-click="pricing-onprem-discuss" onclick="scrollToPilot()">Обсудить</button>
+        <button class="btn-plan outline" data-goatcounter-click="pricing-enterprise" onclick="openSupport('Enterprise / on-prem')">Связаться</button>
       </div>
     </div>
 
-    <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:24px;">
-      Пилот (4–6 недель, реальные документы): 150–500k ₽ фиксированно
+    <p style="text-align:center;font-size:14px;color:var(--muted);margin-top:24px;">
+      Альтернатива подписке — разовый <strong>аудит проекта</strong> 50 000–150 000 ₽ за объект. Не уверены, что подойдёт? <a href="#" data-goatcounter-click="pricing-consult" onclick="openSupport('Консультация и расчёт для бюро');return false;" style="color:var(--green-dark);font-weight:600;">Бесплатный расчёт под ваше бюро →</a>
     </p>
   </div>
 </section>
@@ -955,38 +990,38 @@
   <div class="container">
     <div class="kit-grid">
       <div class="kit-panel fade-in">
-        <div class="section-tag">Demo kit</div>
-        <h2>Материалы для промежуточного показа</h2>
-        <p class="section-sub" style="margin-bottom:0">Лендинг, локальный чат, схема системы, скриншоты и screencast собираются в отдельный пакет для передачи</p>
+        <div class="section-tag">Материалы</div>
+        <h2>Что можно посмотреть прямо сейчас</h2>
+        <p class="section-sub" style="margin-bottom:0">Интерактивная демка, чат с разбором ответа и схема работы — можно посмотреть онлайн или запросить пакетом для команды</p>
         <ul class="kit-list">
           <li>
-            <span class="kit-code">WEB</span>
+            <span class="kit-code">01</span>
             <div>
-              <div class="kit-title">Лендинг и интерактивная демка</div>
-              <p class="kit-desc">Статический HTML без backend-зависимостей, можно открыть локально или быстро выложить на простой хостинг</p>
+              <div class="kit-title">Интерактивная демка</div>
+              <p class="kit-desc">Прямо на сайте: задаёте параметры проекта и видите, как собирается нормативный ответ со ссылками</p>
             </div>
           </li>
           <li>
-            <span class="kit-code">RAG</span>
+            <span class="kit-code">02</span>
             <div>
-              <div class="kit-title">Screencast-чат с локальным RAG API</div>
-              <p class="kit-desc">Автономный сценарий показывает принцип: вопрос, ответ ассистента, релевантные нормы и выдержки рядом</p>
+              <div class="kit-title">Чат с разбором ответа</div>
+              <p class="kit-desc">Показывает принцип работы: вопрос, ответ ассистента и выдержки из норм рядом с выводом</p>
             </div>
           </li>
           <li>
-            <span class="kit-code">SRC</span>
+            <span class="kit-code">03</span>
             <div>
-              <div class="kit-title">Схема и доказательные материалы</div>
-              <p class="kit-desc">SVG-архитектура, скриншоты, README и видео будут лежать в одной папке для Google Drive</p>
+              <div class="kit-title">Схема работы и примеры</div>
+              <p class="kit-desc">Как устроен путь от вопроса к ответу, примеры разбора и материалы, которые можно показать команде</p>
             </div>
           </li>
         </ul>
       </div>
       <div class="kit-side fade-in">
         <div>
-          <div class="section-tag" style="color:rgba(232,239,228,0.55)">Статус</div>
-          <h2 style="font-size:30px;color:#fff;letter-spacing:-0.8px;margin-bottom:0">Промежуточная версия готова к демонстрации</h2>
-          <p>Это не production-система, а аккуратный proof-of-work: видно, как будет выглядеть RAG-ответ, citations и окно норм</p>
+          <div class="section-tag" style="color:rgba(232,239,228,0.55)">Демонстрация</div>
+          <h2 style="font-size:30px;color:#fff;letter-spacing:-0.8px;margin-bottom:0">Покажем, как это работает, на ваших задачах</h2>
+          <p>На демо видно живой ответ: формулировка, ссылки на пункты норм и окно с выдержками рядом. На пилоте — то же самое уже на ваших документах</p>
         </div>
         <div class="kit-actions">
           <a href="screencast/index.html" data-goatcounter-click="open-screencast-kit">Открыть screencast-режим</a>
@@ -1030,11 +1065,16 @@
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">ArchNorm</div>
-  <p>AI-навигатор по строительным нормам для архитектурного проектирования</p>
+  <p class="footer-legal">
+    Находит нужную норму за минуты и работает в закрытом контуре бюро — AI-навигатор по СП, СНиП и ГОСТ
+    <small>Используем privacy-friendly аналитику GoatCounter без cookies. Если оставляете контакт, данные нужны только для связи по пилоту.</small>
+  </p>
   <p>
     <a href="mailto:xelartn75@gmail.com" data-goatcounter-click="contact-email-footer">xelartn75@gmail.com</a>
     &nbsp;·&nbsp;
     <a href="https://t.me/ArchNorm" data-goatcounter-click="contact-telegram-archnorm">@ArchNorm</a>
+    &nbsp;·&nbsp;
+    <a href="privacy.html" data-goatcounter-click="open-privacy-policy">Политика конфиденциальности</a>
     &nbsp;·&nbsp;
     Алексей Ткаченко, CEO
   </p>
@@ -1045,21 +1085,21 @@
   <div class="support-head">
     <div>
       <div class="support-title">Быстрый контакт</div>
-      <p class="support-sub">Выберите тему, оставьте контакт — форма работает как статический prototype для будущей интеграции</p>
+      <p class="support-sub">Выберите тему и оставьте контакт — ответим в течение 24 часов</p>
     </div>
     <button class="support-close" type="button" onclick="closeSupport()" aria-label="Закрыть">x</button>
   </div>
   <div class="support-options">
+    <button class="support-option" type="button" data-goatcounter-click="support-topic-consult" onclick="openSupport('Консультация и расчёт для бюро')">Консультация и расчёт</button>
     <button class="support-option" type="button" data-goatcounter-click="support-topic-pilot" onclick="openSupport('Пилот с бюро')">Пилот с бюро</button>
+    <button class="support-option" type="button" data-goatcounter-click="support-topic-security" onclick="openSupport('Закрытый контур и безопасность')">Закрытый контур</button>
     <button class="support-option" type="button" data-goatcounter-click="support-topic-tech" onclick="openSupport('Технический вопрос')">Технический вопрос</button>
-    <button class="support-option" type="button" data-goatcounter-click="support-topic-demo-kit" onclick="openSupport('Demo kit')">Demo kit</button>
-    <button class="support-option" type="button" data-goatcounter-click="support-topic-invest" onclick="openSupport('Инвестиции')">Инвестиции</button>
   </div>
   <input class="support-field" id="support-topic" type="text" placeholder="Тема обращения">
   <input class="support-field" id="support-contact" type="text" placeholder="Email или Telegram">
   <textarea class="support-field" id="support-message" rows="3" placeholder="Коротко опишите запрос"></textarea>
   <button class="support-submit" type="button" data-goatcounter-click="submit-support-form" onclick="submitSupport()">Сохранить заявку</button>
-  <p class="support-note" id="support-note">Сейчас это локальная форма. Для production подключим endpoint, CRM или почтовый webhook</p>
+  <p class="support-note" id="support-note">Ответим в течение 24 часов. Не отправляйте через форму конфиденциальные проектные данные — для пилота согласуем безопасный канал.</p>
 </aside>
 
 <script>
@@ -1095,6 +1135,66 @@ const demoData = {
 
 function normText(value) {
   return String(value || '').toLowerCase().replace(/ё/g, 'е');
+}
+
+function trackEvent(name, detail = '') {
+  if (!window.goatcounter || typeof window.goatcounter.count !== 'function') return;
+  const safeName = String(name || 'event').replace(/[^a-z0-9_/-]/gi, '_').slice(0, 64);
+  const safeDetail = String(detail || '').replace(/[^a-z0-9_./:-]/gi, '_').slice(0, 96);
+  window.goatcounter.count({
+    path: `/event/${safeName}${safeDetail ? `/${safeDetail}` : ''}`,
+    title: safeDetail ? `${safeName}: ${safeDetail}` : safeName,
+    event: true,
+  });
+}
+
+function lengthBucket(value) {
+  const len = String(value || '').trim().length;
+  if (len === 0) return 'empty';
+  if (len < 40) return 'short';
+  if (len < 160) return 'medium';
+  return 'long';
+}
+
+function setupLandingTracking() {
+  const sectionSeen = new Set();
+  const sectionObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      const id = entry.target.id || entry.target.className || 'unknown';
+      if (sectionSeen.has(id)) continue;
+      sectionSeen.add(id);
+      trackEvent('section_viewed', id);
+    }
+  }, { threshold: 0.45 });
+
+  document.querySelectorAll('section[id]').forEach(section => sectionObserver.observe(section));
+
+  const scrollMarks = [25, 50, 75, 90, 100];
+  const scrollSeen = new Set();
+  window.addEventListener('scroll', () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    if (max <= 0) return;
+    const percent = Math.min(100, Math.round((window.scrollY / max) * 100));
+    for (const mark of scrollMarks) {
+      if (percent >= mark && !scrollSeen.has(mark)) {
+        scrollSeen.add(mark);
+        trackEvent('scroll_depth', String(mark));
+      }
+    }
+  }, { passive: true });
+
+  for (const id of ['obj-type', 'stage', 'domain', 'pilot-size']) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    el.addEventListener('change', () => trackEvent('field_changed', `${id}_${el.value}`));
+  }
+
+  const desc = document.getElementById('desc');
+  if (desc) {
+    desc.addEventListener('focus', () => trackEvent('demo_description_focused'));
+    desc.addEventListener('blur', () => trackEvent('demo_description_blurred', lengthBucket(desc.value)));
+  }
 }
 
 function pickDemoResults(domain, objType, stage, desc) {
@@ -1139,6 +1239,8 @@ function runDemo() {
   const results = pickDemoResults(domain, objType.value, stageEl.value, desc);
   const riskCount = results.filter(r => r.risk === 'risk').length;
   const okCount = results.filter(r => r.risk === 'ok').length;
+  trackEvent('demo_run', `${domain}_${objType.value}_${stageEl.value}_${lengthBucket(desc)}`);
+  trackEvent('demo_result', `risk_${riskCount}_ok_${okCount}_sources_${results.length}`);
 
   let html = `
     <div class="result-header">
@@ -1172,7 +1274,7 @@ function runDemo() {
 
   html += `
     <div style="margin-top:16px;padding:12px;background:var(--green-light);border-radius:10px;font-size:13px;color:var(--green-dark);">
-      Локальная screencast-логика подключена к RAG API с offline fallback. Следующий шаг — заменить демо-корпус реальной индексированной базой
+      Это демонстрационный корпус для примера. На пилоте ArchNorm работает с полной базой норм и вашими документами
     </div>
   `;
 
@@ -1180,16 +1282,20 @@ function runDemo() {
 }
 
 function scrollToPilot() {
+  trackEvent('pilot_scroll_requested');
   document.getElementById('pilot').scrollIntoView({ behavior: 'smooth' });
 }
 
 function submitPilot() {
   const name = document.getElementById('pilot-name').value.trim();
   const email = document.getElementById('pilot-email').value.trim();
+  const size = document.getElementById('pilot-size').value || 'unknown';
   if (!name || !email) {
+    trackEvent('pilot_submit_failed', 'missing_required');
     alert('Заполните имя и email, пожалуйста');
     return;
   }
+  trackEvent('pilot_submit_completed', `size_${size}`);
   document.getElementById('pilot-form').style.display = 'none';
   document.getElementById('success-msg').style.display = 'block';
 }
@@ -1197,16 +1303,19 @@ function submitPilot() {
 function toggleSupport() {
   const panel = document.getElementById('support-panel');
   panel.classList.toggle('open');
+  trackEvent(panel.classList.contains('open') ? 'support_opened' : 'support_closed');
 }
 
 function openSupport(topic) {
   const panel = document.getElementById('support-panel');
   document.getElementById('support-topic').value = topic || '';
   panel.classList.add('open');
+  trackEvent('support_topic_opened', topic || 'blank');
 }
 
 function closeSupport() {
   document.getElementById('support-panel').classList.remove('open');
+  trackEvent('support_closed');
 }
 
 function submitSupport() {
@@ -1214,10 +1323,12 @@ function submitSupport() {
   const contact = document.getElementById('support-contact').value.trim();
   const note = document.getElementById('support-note');
   if (!contact) {
+    trackEvent('support_submit_failed', 'missing_contact');
     note.textContent = 'Добавьте email или Telegram, чтобы заявка была пригодна для обработки';
     return;
   }
-  note.textContent = `Заявка «${topic}» сохранена в prototype-состоянии. В production это уйдёт в endpoint или почтовый webhook`;
+  trackEvent('support_submit_completed', lengthBucket(topic));
+  note.textContent = `Заявка «${topic}» принята. Свяжемся с вами в течение 24 часов`;
 }
 
 const landingParams = new URLSearchParams(window.location.search);
@@ -1244,6 +1355,7 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
 document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+setupLandingTracking();
 </script>
 </body>
 </html>
