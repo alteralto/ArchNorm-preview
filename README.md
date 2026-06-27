@@ -10,6 +10,7 @@ ArchNorm помогает архитекторам, ГАП/ГИП и нормо�
 
 - Landing: `https://alteralto.github.io/ArchNorm-preview/`
 - Screencast-демо: `https://alteralto.github.io/ArchNorm-preview/screencast/`
+- Политика конфиденциальности: `https://alteralto.github.io/ArchNorm-preview/privacy.html`
 
 ## Какую проблему решаем
 
@@ -55,6 +56,25 @@ ArchNorm работает как нормативный навигатор:
 - prompt-логики;
 - eval-датасетов;
 - производственного кода.
+
+## Аналитика и приватность
+
+На витрине подключён GoatCounter: `https://archnorm.goatcounter.com/count`.
+
+Отслеживаются просмотры страниц, клики по ключевым CTA, глубина скролла,
+просмотр секций, запуск демо, выбор параметров проекта и результат демо
+(`risk/ok/sources`) через GoatCounter. Текстовые поля не отправляются в
+GoatCounter: для них используются только бакеты длины (`empty/short/medium/long`).
+
+Для demo backend на Hugging Face/Yandex Cloud допускается coarse server-side
+аналитика: факт вызова endpoint и HTTP-статус. Текст вопросов, контакты и
+API-ключи в GoatCounter не отправляются.
+
+Отдельно backend может вести QA-матрицу `question -> answer -> sources ->
+status/error` в локальный JSONL-файл, если включить `ARCHNORM_QA_LOG_ENABLED`.
+Это нужно для ручной валидации процента успешных ответов и матрицы ошибок;
+перед тестом пользователей нужно явно предупреждать не вводить
+конфиденциальные и чувствительные данные.
 
 ## Пилоты
 

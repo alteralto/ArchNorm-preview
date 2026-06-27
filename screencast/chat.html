@@ -213,7 +213,7 @@ html,body{height:100%;font-family:'Manrope',sans-serif;background:#10140f;color:
           <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
         </button>
       </div>
-      <div class="input-hint">Скринкаст-режим: локальный retrieval по демо-корпусу, без внешнего API · Ctrl+Enter для отправки</div>
+      <div class="input-hint">Скринкаст-режим: локальный retrieval по демо-корпусу, без внешнего API · не вводите конфиденциальные данные · <a href="../privacy.html" data-goatcounter-click="chat-open-privacy">privacy</a> · Ctrl+Enter для отправки</div>
     </div>
   </main>
 
@@ -596,6 +596,50 @@ function updateCorpusList() {
   ).join('') : '';
 }
 
+function trackEvent(name, detail = '') {
+  if (!window.goatcounter || typeof window.goatcounter.count !== 'function') return;
+  const safeName = String(name || 'event').replace(/[^a-z0-9_/-]/gi, '_').slice(0, 64);
+  const safeDetail = String(detail || '').replace(/[^a-z0-9_./:-]/gi, '_').slice(0, 96);
+  window.goatcounter.count({
+    path: `/event/${safeName}${safeDetail ? `/${safeDetail}` : ''}`,
+    title: safeDetail ? `${safeName}: ${safeDetail}` : safeName,
+    event: true,
+  });
+}
+
+function lengthBucket(value) {
+  const len = String(value || '').trim().length;
+  if (len === 0) return 'empty';
+  if (len < 40) return 'short';
+  if (len < 160) return 'medium';
+  return 'long';
+}
+
+function setupChatTracking() {
+  const messages = document.getElementById('messages');
+  const scrollMarks = [25, 50, 75, 90, 100];
+  const scrollSeen = new Set();
+  if (messages) {
+    messages.addEventListener('scroll', () => {
+      const max = messages.scrollHeight - messages.clientHeight;
+      if (max <= 0) return;
+      const percent = Math.min(100, Math.round((messages.scrollTop / max) * 100));
+      for (const mark of scrollMarks) {
+        if (percent >= mark && !scrollSeen.has(mark)) {
+          scrollSeen.add(mark);
+          trackEvent('chat_scroll_depth', String(mark));
+        }
+      }
+    }, { passive: true });
+  }
+
+  for (const id of ['obj-type', 'floors', 'area', 'domain']) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    el.addEventListener('change', () => trackEvent('chat_context_changed', `${id}_${el.value}`));
+  }
+}
+
 document.getElementById('domain').addEventListener('change', updateCorpusList);
 updateCorpusList();
 
@@ -609,6 +653,7 @@ function sendSuggested(btn) {
     document.getElementById('domain').value = btn.dataset.domain;
     updateCorpusList();
   }
+  trackEvent('chat_suggestion_used', btn.dataset.goatcounterClick || btn.dataset.domain || 'unknown');
   qi.value = btn.textContent;
   sendQuery();
 }
@@ -621,6 +666,7 @@ async function sendQuery() {
   if (!query || isLoading) return;
 
   const context = getProjectContext();
+  trackEvent('chat_query_submitted', `${context.domain}_${lengthBucket(query)}`);
 
   document.getElementById('empty-state')?.remove();
   isLoading = true;
@@ -647,14 +693,17 @@ async function sendQuery() {
     removeTyping(typingId);
     addAIMessage(parsed);
     renderNormCards(parsed.citations || [], context.domain);
+    trackEvent('chat_backend_success', `sources_${(parsed.citations || []).length}`);
     document.getElementById('status-dot').className = 'status-dot';
     document.getElementById('status-text').textContent = 'Local API · RAG + LM Studio';
   } catch (error) {
+    trackEvent('chat_backend_failed', String(error && error.message ? error.message : 'unknown'));
     window.setTimeout(() => {
       const parsed = runLocalAssistant(query, context);
       removeTyping(typingId);
       addAIMessage(parsed);
       renderNormCards(parsed.citations || [], context.domain);
+      trackEvent('chat_fallback_used', `sources_${(parsed.citations || []).length}`);
       document.getElementById('status-dot').className = 'status-dot offline';
       document.getElementById('status-text').textContent = 'Fallback · demo corpus';
       isLoading = false;
@@ -771,6 +820,7 @@ function renderNormCards(citations, domain) {
 function highlightNorm(sourceId) {
   const id = 'norm-' + sourceId.replace(/[^a-zA-Z0-9]/g, '-');
   const el = document.getElementById(id);
+  trackEvent('norm_source_highlighted', id.slice(0, 72));
   if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.style.borderColor='var(--terra)'; setTimeout(()=>el.style.borderColor='',1500); }
 }
 
@@ -835,7 +885,11 @@ function bootSceneFromUrl() {
   updateCorpusList();
 }
 
-window.addEventListener('load', bootSceneFromUrl);
+window.addEventListener('load', () => {
+  bootSceneFromUrl();
+  setupChatTracking();
+  trackEvent('chat_loaded');
+});
 </script>
 </body>
 </html>
