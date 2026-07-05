@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArchNorm — Политика конфиденциальности</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#F3F0E8;--green-dark:#18371F;--green-mid:#345D38;--green-light:#E5EEE0;
+  --text:#191B17;--muted:#6D7068;--line:rgba(25,27,23,0.11);
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+body{font-family:'Manrope',sans-serif;background:#FBFAF6;color:var(--text);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+.page{max-width:760px;margin:0 auto;padding:48px 22px 80px}
+.badge{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--green-mid)}
+h1{font-size:28px;font-weight:800;letter-spacing:-.5px;color:var(--green-dark);margin:8px 0 6px}
+.updated{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:28px}
+h2{font-size:17px;font-weight:700;color:var(--green-dark);margin:30px 0 10px}
+p,li{color:#333630;margin-bottom:10px}
+ul{padding-left:22px;margin-bottom:12px}
+li{margin-bottom:6px}
+.note{background:var(--green-light);border:1px solid rgba(52,93,56,.16);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--green-dark);margin:18px 0}
+.warn{background:#FFF8DF;border:1px solid #E9D28A;border-radius:12px;padding:14px 16px;font-size:14px;color:#6b5410;margin:18px 0}
+a{color:var(--green-mid)}
+code{font-family:var(--mono);font-size:12px;background:#F1EDE4;border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+.back{display:inline-block;margin-top:34px;font-weight:600;text-decoration:none;color:var(--green-dark);border:1px solid var(--line);border-radius:10px;padding:10px 18px;background:#F1EDE4}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="badge">ArchNorm · Пилотная версия</div>
+  <h1>Политика конфиденциальности</h1>
+  <div class="updated">Версия от 05.07.2026</div>
+
+  <p>ArchNorm — сервис предварительного нормативного анализа строительной документации.
+  Эта страница объясняет, какие данные обрабатывает пилотная версия сервиса и зачем.</p>
+
+  <div class="warn"><strong>Не вводите в чат чувствительные данные:</strong> персональные данные третьих лиц,
+  сведения ограниченного доступа, коммерческую тайну, реквизиты документов, которые нельзя передавать вовне.
+  Тексты вопросов передаются провайдеру ИИ для формирования ответа.</div>
+
+  <h2>Какие данные мы обрабатываем</h2>
+  <ul>
+    <li><strong>Email</strong> — только если вы запрашиваете вход по ссылке. Используется для отправки одноразовой ссылки
+    и учёта вашей квоты вопросов. Маркетинговых рассылок без отдельного запроса нет.</li>
+    <li><strong>Технические cookie</strong> — <code>an_device</code> (анонимная квота бесплатных вопросов)
+    и <code>an_session</code> (ваш вход). Без них квота и вход не работают; это строго необходимые cookie.</li>
+    <li><strong>Счётчики использования</strong> — сколько вопросов задано с устройства, аккаунта или пилотного кода.</li>
+    <li><strong>Обезличенная статистика посещений</strong> — только после вашего согласия в уведомлении внизу страницы
+    (GoatCounter: страница, тип устройства; без cookie и без идентификации личности).</li>
+  </ul>
+
+  <h2>Как обрабатываются вопросы</h2>
+  <ul>
+    <li>Текст вопроса отправляется провайдеру языковой модели (инфраструктура на территории РФ) для формирования ответа.</li>
+    <li>В журналах сервера не сохраняются полные тексты вопросов и email-адреса — только технические счётчики,
+    идентификаторы и временные метки.</li>
+  </ul>
+
+  <h2>Где хранятся данные</h2>
+  <p>Сервис размещён в дата-центре Yandex Cloud на территории Российской Федерации.
+  Мы стремимся соответствовать требованиям законодательства РФ о персональных данных
+  и по мере развития сервиса дорабатываем процессы вместе с юристами.</p>
+
+  <h2>Ваши права</h2>
+  <p>Вы можете запросить удаление аккаунта и связанных с ним данных, а также задать любой вопрос
+  об обработке данных: <a href="mailto:xelartn75@gmail.com">xelartn75@gmail.com</a>.</p>
+
+  <div class="note"><strong>О характере ответов.</strong> ArchNorm выполняет предварительный нормативный анализ
+  и показывает источники для самостоятельной проверки. Ответы сервиса не являются заключением эксперта,
+  нормоконтролем или гарантией соответствия документации нормативным требованиям.</div>
+
+  <a class="back" href="/chat">← Вернуться в чат</a>
+</div>
+</body>
+</html>

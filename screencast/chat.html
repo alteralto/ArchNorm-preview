@@ -3,8 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="canonical" href="https://alteralto.github.io/ArchNorm-preview/screencast/chat.html">
+<link rel="canonical" href="https://api.archnorm.ru/chat">
 <script>
+  // Продуктовый чат живёт на origin API (same-origin cookie). Любая другая
+  // публичная копия (github.io, archnorm.ru) — витрина: редиректим на
+  // канонический адрес. Локальная разработка, file: и ?demo= не трогаем.
+  (function () {
+    var h = location.hostname;
+    var local = h === 'api.archnorm.ru' || h === 'localhost' ||
+      h.startsWith('127.') || h.startsWith('192.168.') || h === '' ||
+      location.protocol === 'file:';
+    if (!local && !new URLSearchParams(location.search).has('demo')) {
+      location.replace('https://api.archnorm.ru/chat' + location.search);
+    }
+  })();
   window.goatcounter = {
     path: function() {
       const prefix = '/ArchNorm-preview';
@@ -12,8 +24,9 @@
       return path.startsWith(prefix) ? (path.slice(prefix.length) || '/') : path;
     }
   };
+  // Anonymised analytics load only after the visitor accepts the notice bar
+  // (see loadAnalytics()); required auth/quota cookies are explained there too.
 </script>
-<script data-goatcounter="https://archnorm.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <title>ArchNorm — AI-ассистент</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -101,6 +114,8 @@ html,body{height:100%;font-family:'Manrope',sans-serif;background:#10140f;color:
 .send-btn{flex-shrink:0;width:44px;height:44px;background:var(--green-dark);border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .15s;color:#fff}
 .send-btn:hover{background:var(--green-mid);transform:translateY(-1px)}
 .send-btn:disabled{background:var(--line-strong);cursor:not-allowed;transform:none}
+.send-btn.stop{background:#a34c38}
+.send-btn.stop:hover{background:#8c4130}
 .send-btn svg{width:18px;height:18px;fill:currentColor}
 .input-hint{font-family:var(--mono);font-size:10px;color:#7A7D75;margin-top:7px}
 
@@ -129,8 +144,60 @@ html,body{height:100%;font-family:'Manrope',sans-serif;background:#10140f;color:
 
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
+/* ── ACCOUNTS / QUOTA ── */
+.quota-chip{font-family:var(--mono);font-size:11px;font-weight:600;color:rgba(255,255,255,.82);background:rgba(255,255,255,.12);padding:5px 11px;border-radius:100px;letter-spacing:.01em;white-space:nowrap}
+.quota-chip.low{background:rgba(200,110,60,.30);color:#FFDCC6}
+.quota-chip.out{background:rgba(200,70,55,.34);color:#FFD2C6}
+.acct-btn{font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;color:#fff;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18);padding:6px 13px;border-radius:100px;cursor:pointer;transition:background .16s,transform .16s}
+.acct-btn:hover{background:rgba(255,255,255,.22);transform:translateY(-1px)}
+.gate-overlay{position:fixed;inset:0;background:rgba(16,20,15,.62);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+.gate-overlay.open{display:flex;animation:fade .2s ease}
+.gate-card{position:relative;background:var(--chat-bg);border:1px solid var(--line-strong);border-radius:18px;max-width:420px;width:100%;padding:28px 26px;box-shadow:0 40px 90px rgba(20,30,20,.4);animation:rise .28s ease both}
+.gate-badge{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--green-mid)}
+.gate-title{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.4px;margin:6px 0 8px}
+.gate-msg{font-size:14px;color:#4C544A;line-height:1.6;margin-bottom:18px}
+.gate-field{width:100%;background:#fff;border:1px solid var(--line-strong);border-radius:11px;padding:12px 14px;font-family:'Manrope',sans-serif;font-size:14px;color:var(--text);outline:none;margin-bottom:12px;transition:border-color .18s}
+.gate-field:focus{border-color:var(--green-mid)}
+.gate-cta{width:100%;background:var(--green-dark);color:#fff;border:none;border-radius:12px;padding:13px;font-family:'Manrope',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background .18s,transform .15s}
+.gate-cta:hover{background:var(--green-mid);transform:translateY(-1px)}
+.gate-cta:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.gate-alt{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.5;text-align:center}
+.gate-alt a{color:var(--green-mid);cursor:pointer;text-decoration:underline}
+.gate-close{position:absolute;top:12px;right:15px;background:none;border:none;font-size:24px;color:var(--muted);cursor:pointer;line-height:1}
+.gate-note{font-size:12.5px;color:var(--green-dark);background:var(--green-light);border-radius:10px;padding:11px 13px;margin-top:6px;line-height:1.5;display:none}
+.gate-note.show{display:block}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#18371F;color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 20px 50px rgba(20,40,20,.35);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:70;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:#8C2C1C}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* ── CONSENT BAR ── */
+.consent-bar{position:fixed;left:0;right:0;bottom:0;z-index:80;background:#18371F;color:rgba(255,255,255,.9);padding:12px 18px;display:none;align-items:center;gap:14px;font-size:13px;line-height:1.5;box-shadow:0 -14px 40px rgba(20,40,20,.25)}
+.consent-bar.show{display:flex;flex-wrap:wrap}
+.consent-bar a{color:#BFE3B4;text-decoration:underline}
+.consent-bar button{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);color:#fff;font-family:'Manrope',sans-serif;font-size:13px;font-weight:600;padding:8px 18px;border-radius:10px;cursor:pointer;margin-left:auto}
+.consent-bar button:hover{background:rgba(255,255,255,.24)}
+
+/* ── GATE CONSENT ── */
+.gate-consent{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:#4C544A;line-height:1.5;margin:-4px 0 12px;cursor:pointer}
+.gate-consent input{margin-top:2px;accent-color:var(--green-mid)}
+.gate-consent a{color:var(--green-mid);text-decoration:underline}
+
+/* ── MOBILE SOURCES TOGGLE ── */
+.src-toggle{display:none;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;color:#fff;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18);padding:6px 13px;border-radius:100px;cursor:pointer}
+.drawer-backdrop{display:none;position:fixed;inset:62px 0 0 0;background:rgba(16,20,15,.4);z-index:44}
+.drawer-backdrop.show{display:block}
+
 /* ── RESPONSIVE ── */
-@media(max-width:900px){.app{grid-template-columns:1fr;grid-template-rows:56px auto 1fr}.sidebar,.norm-panel{display:none}}
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .src-toggle{display:inline-flex}
+  /* Sources stay reachable on mobile: the norm panel becomes a slide-in drawer. */
+  .norm-panel{position:fixed;top:62px;right:0;bottom:0;width:min(86vw,388px);transform:translateX(102%);transition:transform .25s ease;z-index:45;box-shadow:-18px 0 44px rgba(20,28,20,.22);border-left:1px solid var(--line-strong)}
+  .norm-panel.open{transform:translateX(0)}
+  .msg-user .bubble{max-width:92%}
+}
 </style>
 </head>
 <body>
@@ -141,9 +208,12 @@ html,body{height:100%;font-family:'Manrope',sans-serif;background:#10140f;color:
     <span class="logo">ArchNorm</span>
     <span class="topbar-badge">AI-ассистент · Beta</span>
     <div class="topbar-right">
+      <button class="src-toggle" id="src-toggle" onclick="toggleSources()">Источники</button>
+      <span class="quota-chip" id="quota-chip" hidden></span>
+      <button class="acct-btn" id="acct-btn" hidden onclick="onAcctClick()"></button>
       <div class="api-status">
         <span class="status-dot" id="status-dot"></span>
-        <span id="status-text">Local API · RAG ready</span>
+        <span id="status-text">ArchNorm API</span>
       </div>
     </div>
   </header>
@@ -189,6 +259,8 @@ html,body{height:100%;font-family:'Manrope',sans-serif;background:#10140f;color:
 
     <div class="sidebar-tip">
       <strong>Как работает:</strong> ассистент отвечает строго по загруженному нормкорпусу. Если ответа нет в документах — честно скажет об этом.
+      Это предварительный анализ, он не заменяет нормоконтроль и экспертизу.
+      <br><a href="/privacy" target="_blank" style="color:var(--green-mid)">Политика конфиденциальности</a>
     </div>
   </aside>
 
@@ -213,7 +285,7 @@ html,body{height:100%;font-family:'Manrope',sans-serif;background:#10140f;color:
           <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
         </button>
       </div>
-      <div class="input-hint">Скринкаст-режим: локальный retrieval по демо-корпусу, без внешнего API · не вводите конфиденциальные данные · <a href="../privacy.html" data-goatcounter-click="chat-open-privacy">privacy</a> · Ctrl+Enter для отправки</div>
+      <div class="input-hint" id="input-hint">Предварительный нормативный анализ — проверяйте по первоисточнику · Не вводите персональные данные · Ctrl+Enter — отправка</div>
     </div>
   </main>
 
@@ -229,6 +301,33 @@ html,body{height:100%;font-family:'Manrope',sans-serif;background:#10140f;color:
       </div>
     </div>
   </aside>
+</div>
+
+<!-- REGISTRATION / PILOT GATE -->
+<div class="gate-overlay" id="gate">
+  <div class="gate-card">
+    <button class="gate-close" onclick="closeGate()" aria-label="Закрыть">&times;</button>
+    <div class="gate-badge">ArchNorm</div>
+    <div class="gate-title" id="gate-title"></div>
+    <div class="gate-msg" id="gate-msg"></div>
+    <input class="gate-field" id="gate-input" type="text" autocomplete="off" spellcheck="false">
+    <label class="gate-consent" id="gate-consent" style="display:none">
+      <input type="checkbox" id="gate-consent-cb" onchange="syncConsentCta()">
+      <span>Согласен(на) на обработку email для входа по ссылке — <a href="/privacy" target="_blank">политика конфиденциальности</a></span>
+    </label>
+    <button class="gate-cta" id="gate-cta" onclick="submitGate()"></button>
+    <div class="gate-note" id="gate-note"></div>
+    <div class="gate-alt" id="gate-alt"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleSources(false)"></div>
+
+<!-- COOKIE / ANALYTICS NOTICE -->
+<div class="consent-bar" id="consent-bar">
+  <span>Сервис использует необходимые cookie (квота вопросов и вход) и — с вашего согласия — обезличенную статистику посещений.
+  <a href="/privacy" target="_blank">Политика конфиденциальности</a></span>
+  <button onclick="acceptConsent()">Понятно</button>
 </div>
 
 <script>
@@ -524,6 +623,31 @@ function runLocalAssistant(query, context) {
   return buildAnswer(query, citations, context);
 }
 
+// The built-in demo corpus is a screencast prop. In the product it must never
+// masquerade as a real answer, so it only activates when explicitly requested
+// (?demo=1) or when the page is opened as a local file without an API.
+const DEMO_MODE = new URLSearchParams(window.location.search).has('demo')
+  || window.location.protocol === 'file:';
+
+function describeError(error) {
+  const m = /API (\d{3})/.exec(error && error.message || '');
+  const status = m ? Number(m[1]) : 0;
+  if (status === 401 || status === 403) {
+    return { status: 'API · доступ ограничен',
+      text: 'Доступ ограничен. Обновите страницу; если вы входили по ссылке из письма — запросите вход заново.' };
+  }
+  if (status === 429) {
+    return { status: 'API · слишком много запросов',
+      text: 'Слишком много запросов подряд. Подождите минуту и повторите.' };
+  }
+  if (status >= 500) {
+    return { status: 'API · сервис недоступен',
+      text: 'Сервис анализа временно недоступен (ошибка на стороне ИИ-провайдера). Попробуйте ещё раз через пару минут.' };
+  }
+  return { status: 'API · нет соединения',
+    text: 'Не удалось связаться с сервером. Проверьте соединение и повторите запрос — история на этой странице сохранится.' };
+}
+
 function getApiBase() {
   const params = new URLSearchParams(window.location.search);
   const explicit = params.get('api');
@@ -538,25 +662,150 @@ function getApiBase() {
   return 'http://127.0.0.1:8000';
 }
 
-async function askBackend(query, context) {
+function getApiKey() {
+  // The public client never carries the admin X-API-Key: not in the URL,
+  // not in localStorage. Dev/ops fallback only — set it by hand for the tab:
+  //   sessionStorage.setItem('ARCHNORM_DEV_KEY', '<key>')
+  return sessionStorage.getItem('ARCHNORM_DEV_KEY') || '';
+}
+
+function getPilotCode() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (code) { localStorage.setItem('ARCHNORM_PILOT_CODE', code); return code; }
+  return localStorage.getItem('ARCHNORM_PILOT_CODE') || '';
+}
+
+function apiHeaders() {
+  const headers = { 'Content-Type': 'application/json' };
+  const key = getApiKey();
+  if (key) headers['X-API-Key'] = key;
+  const code = getPilotCode();
+  if (code) headers['X-Pilot-Code'] = code;
+  return headers;
+}
+
+// Remember ?api= and ?code= so pilots can drop them from the URL later.
+// ?key= is intentionally NOT supported: an admin key in a URL ends up in
+// browser history and proxy logs. Legacy links get the key stripped below.
+(function persistApiParams() {
+  const params = new URLSearchParams(window.location.search);
+  const api = params.get('api');
+  const code = params.get('code');
+  if (api) localStorage.setItem('ARCHNORM_API_BASE', api.replace(/\/$/, ''));
+  if (code) localStorage.setItem('ARCHNORM_PILOT_CODE', code);
+  // Purge the legacy stored key and scrub ?key= from the address bar.
+  localStorage.removeItem('ARCHNORM_API_KEY');
+  if (params.has('key')) {
+    params.delete('key');
+    const q = params.toString();
+    history.replaceState({}, '', window.location.pathname + (q ? '?' + q : ''));
+  }
+})();
+
+// Thrown when the backend returns 402 (quota exhausted) so the caller shows
+// the registration/pilot gate instead of falling back to the demo corpus.
+class QuotaError extends Error {
+  constructor(payload) { super('quota_exceeded'); this.name = 'QuotaError'; this.payload = payload || {}; }
+}
+
+async function askBackend(query, context, signal) {
   const response = await fetch(`${getApiBase()}/rag/ask`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: apiHeaders(),
+    credentials: 'include',
     body: JSON.stringify({
       question: query,
       top_k: 5,
       project_context: context,
     }),
+    signal,
   });
 
+  if (response.status === 402) {
+    throw new QuotaError(await response.json().catch(() => ({})));
+  }
   if (!response.ok) {
     throw new Error(`API ${response.status}`);
   }
   return response.json();
 }
 
+// SSE-стриминг из POST /rag/ask/stream: onDelta получает накопленный текст,
+// финальный result-эвент имеет тот же формат, что и ответ /rag/ask.
+async function askBackendStream(query, context, onDelta, signal) {
+  const response = await fetch(`${getApiBase()}/rag/ask/stream`, {
+    method: 'POST',
+    headers: apiHeaders(),
+    credentials: 'include',
+    body: JSON.stringify({
+      question: query,
+      top_k: 5,
+      project_context: context,
+    }),
+    signal,
+  });
+
+  if (response.status === 402) {
+    throw new QuotaError(await response.json().catch(() => ({})));
+  }
+  if (!response.ok || !response.body) {
+    throw new Error(`API ${response.status}`);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let answerSoFar = '';
+  let result = null;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    let sep;
+    while ((sep = buffer.indexOf('\n\n')) !== -1) {
+      const rawEvent = buffer.slice(0, sep);
+      buffer = buffer.slice(sep + 2);
+
+      let eventName = 'message';
+      let data = '';
+      for (const line of rawEvent.split('\n')) {
+        if (line.startsWith('event:')) eventName = line.slice(6).trim();
+        else if (line.startsWith('data:')) data += line.slice(5).trim();
+      }
+      if (!data) continue;
+
+      let payload;
+      try { payload = JSON.parse(data); } catch { continue; }
+
+      if (eventName === 'delta') {
+        answerSoFar += payload.text || '';
+        onDelta(answerSoFar);
+      } else if (eventName === 'result') {
+        result = payload;
+      } else if (eventName === 'error') {
+        throw new Error(payload.detail || 'stream error');
+      }
+    }
+  }
+
+  if (!result) throw new Error('Stream ended without result');
+  return result;
+}
+
 function backendToUi(result) {
-  const citations = (result.sources || []).map((source, index) => {
+  // Deduplicate retrieval hits: the same clause can surface from overlapping
+  // chunks, and a source card must appear once.
+  const seen = new Set();
+  const uniqueSources = (result.sources || []).filter((s) => {
+    const fp = [s.doc_name || '', s.clause_number || '', String(s.text || '').slice(0, 120)].join('|');
+    if (seen.has(fp)) return false;
+    seen.add(fp);
+    return true;
+  });
+  const citations = uniqueSources.map((source, index) => {
     const text = source.text || '';
     const score = Number(source.score || 0);
     const page = source.page_hint ? `стр. ${source.page_hint}` : '';
@@ -596,50 +845,6 @@ function updateCorpusList() {
   ).join('') : '';
 }
 
-function trackEvent(name, detail = '') {
-  if (!window.goatcounter || typeof window.goatcounter.count !== 'function') return;
-  const safeName = String(name || 'event').replace(/[^a-z0-9_/-]/gi, '_').slice(0, 64);
-  const safeDetail = String(detail || '').replace(/[^a-z0-9_./:-]/gi, '_').slice(0, 96);
-  window.goatcounter.count({
-    path: `/event/${safeName}${safeDetail ? `/${safeDetail}` : ''}`,
-    title: safeDetail ? `${safeName}: ${safeDetail}` : safeName,
-    event: true,
-  });
-}
-
-function lengthBucket(value) {
-  const len = String(value || '').trim().length;
-  if (len === 0) return 'empty';
-  if (len < 40) return 'short';
-  if (len < 160) return 'medium';
-  return 'long';
-}
-
-function setupChatTracking() {
-  const messages = document.getElementById('messages');
-  const scrollMarks = [25, 50, 75, 90, 100];
-  const scrollSeen = new Set();
-  if (messages) {
-    messages.addEventListener('scroll', () => {
-      const max = messages.scrollHeight - messages.clientHeight;
-      if (max <= 0) return;
-      const percent = Math.min(100, Math.round((messages.scrollTop / max) * 100));
-      for (const mark of scrollMarks) {
-        if (percent >= mark && !scrollSeen.has(mark)) {
-          scrollSeen.add(mark);
-          trackEvent('chat_scroll_depth', String(mark));
-        }
-      }
-    }, { passive: true });
-  }
-
-  for (const id of ['obj-type', 'floors', 'area', 'domain']) {
-    const el = document.getElementById(id);
-    if (!el) continue;
-    el.addEventListener('change', () => trackEvent('chat_context_changed', `${id}_${el.value}`));
-  }
-}
-
 document.getElementById('domain').addEventListener('change', updateCorpusList);
 updateCorpusList();
 
@@ -647,30 +852,77 @@ updateCorpusList();
 const qi = document.getElementById('query-input');
 qi.addEventListener('input', () => { qi.style.height='auto'; qi.style.height=qi.scrollHeight+'px'; });
 qi.addEventListener('keydown', e => { if ((e.ctrlKey||e.metaKey) && e.key==='Enter') sendQuery(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && isLoading) stopStreaming(); });
 
 function sendSuggested(btn) {
+  // Examples only fill the input — the user sends the question themselves.
   if (btn.dataset.domain) {
     document.getElementById('domain').value = btn.dataset.domain;
     updateCorpusList();
   }
-  trackEvent('chat_suggestion_used', btn.dataset.goatcounterClick || btn.dataset.domain || 'unknown');
   qi.value = btn.textContent;
-  sendQuery();
+  qi.style.height = 'auto';
+  qi.style.height = qi.scrollHeight + 'px';
+  qi.focus();
 }
 
 // ─── SEND QUERY ───────────────────────────────────────────────────────────────
 let isLoading = false;
+let activeStream = null;
+
+const sendBtn = document.getElementById('send-btn');
+let sendIconHtml = null;
+
+function setSendMode(streaming) {
+  if (sendIconHtml === null) sendIconHtml = sendBtn.innerHTML;
+  if (streaming) {
+    sendBtn.classList.add('stop');
+    sendBtn.title = 'Остановить генерацию';
+    sendBtn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+  } else {
+    sendBtn.classList.remove('stop');
+    sendBtn.title = '';
+    sendBtn.innerHTML = sendIconHtml;
+  }
+}
+
+function stopStreaming() {
+  if (activeStream) activeStream.abort();
+}
+
+function updateStreamBubble(id, text) {
+  let div = document.getElementById(id);
+  if (!div) {
+    const msgs = document.getElementById('messages');
+    div = document.createElement('div');
+    div.className = 'msg msg-ai';
+    div.id = id;
+    div.innerHTML = `<div class="msg-label">ArchNorm</div><div class="bubble"><div class="answer-text"></div></div>`;
+    msgs.appendChild(div);
+  }
+  div.querySelector('.answer-text').textContent = text;
+  const msgs = document.getElementById('messages');
+  msgs.scrollTop = msgs.scrollHeight;
+}
 
 async function sendQuery() {
+  if (isLoading) { stopStreaming(); return; }
   const query = qi.value.trim();
-  if (!query || isLoading) return;
+  if (!query) return;
+
+  // If we already know the free quota is spent, show the gate up front
+  // instead of firing a request that will just come back 402.
+  if (ACCOUNTS_ENABLED && CURRENT_QUOTA && !CURRENT_QUOTA.unlimited
+      && (CURRENT_QUOTA.remaining || 0) <= 0) {
+    openGate(localGate(CURRENT_QUOTA));
+    return;
+  }
 
   const context = getProjectContext();
-  trackEvent('chat_query_submitted', `${context.domain}_${lengthBucket(query)}`);
 
   document.getElementById('empty-state')?.remove();
   isLoading = true;
-  document.getElementById('send-btn').disabled = true;
+  setSendMode(true);
   qi.value = '';
   qi.style.height = 'auto';
 
@@ -679,41 +931,89 @@ async function sendQuery() {
 
   // Add typing indicator
   const typingId = 'typing-' + Date.now();
+  const streamId = 'stream-' + Date.now();
   addTyping(typingId);
 
   // Clear norm panel
   document.getElementById('norm-sub').textContent = 'Поиск релевантных норм...';
   document.getElementById('norm-cards').innerHTML = '';
 
+  const finish = () => {
+    isLoading = false;
+    activeStream = null;
+    setSendMode(false);
+  };
+
   try {
     document.getElementById('status-dot').className = 'status-dot';
-    document.getElementById('status-text').textContent = 'Local API · querying RAG...';
-    const result = await askBackend(query, context);
+    document.getElementById('status-text').textContent = 'API · выполняю запрос...';
+    activeStream = new AbortController();
+
+    let result;
+    try {
+      result = await askBackendStream(query, context, (text) => {
+        removeTyping(typingId);
+        updateStreamBubble(streamId, text);
+      }, activeStream.signal);
+    } catch (streamError) {
+      // Don't fall back to the demo corpus on abort or quota — surface them.
+      if (streamError.name === 'AbortError' || streamError.name === 'QuotaError') throw streamError;
+      // Стриминг недоступен (старый API/прокси) — обычный /rag/ask.
+      document.getElementById(streamId)?.remove();
+      result = await askBackend(query, context, activeStream.signal);
+    }
+
+    document.getElementById(streamId)?.remove();
+    if (result && result.quota) updateQuotaUI(result.quota);
     const parsed = backendToUi(result);
     removeTyping(typingId);
     addAIMessage(parsed);
     renderNormCards(parsed.citations || [], context.domain);
-    trackEvent('chat_backend_success', `sources_${(parsed.citations || []).length}`);
     document.getElementById('status-dot').className = 'status-dot';
-    document.getElementById('status-text').textContent = 'Local API · RAG + LM Studio';
+    document.getElementById('status-text').textContent = 'API · RAG online';
+    finish();
   } catch (error) {
-    trackEvent('chat_backend_failed', String(error && error.message ? error.message : 'unknown'));
-    window.setTimeout(() => {
-      const parsed = runLocalAssistant(query, context);
+    if (error.name === 'QuotaError') {
+      document.getElementById(streamId)?.remove();
       removeTyping(typingId);
-      addAIMessage(parsed);
-      renderNormCards(parsed.citations || [], context.domain);
-      trackEvent('chat_fallback_used', `sources_${(parsed.citations || []).length}`);
-      document.getElementById('status-dot').className = 'status-dot offline';
-      document.getElementById('status-text').textContent = 'Fallback · demo corpus';
-      isLoading = false;
-      document.getElementById('send-btn').disabled = false;
-    }, 520);
-    return;
+      if (error.payload && error.payload.quota) updateQuotaUI(error.payload.quota);
+      openGate(error.payload);
+      document.getElementById('status-text').textContent = 'API · лимит вопросов';
+      finish();
+      return;
+    }
+    if (error.name === 'AbortError') {
+      document.getElementById(streamId)?.remove();
+      removeTyping(typingId);
+      addMessage('ai', '⏹ Генерация остановлена.');
+      document.getElementById('status-text').textContent = 'API · запрос отменён';
+      finish();
+      return;
+    }
+    if (DEMO_MODE) {
+      // Screencast prop: answer from the built-in demo corpus.
+      window.setTimeout(() => {
+        document.getElementById(streamId)?.remove();
+        const parsed = runLocalAssistant(query, context);
+        removeTyping(typingId);
+        addAIMessage(parsed);
+        renderNormCards(parsed.citations || [], context.domain);
+        document.getElementById('status-dot').className = 'status-dot offline';
+        document.getElementById('status-text').textContent = 'Демо-режим · встроенный корпус';
+        finish();
+      }, 520);
+      return;
+    }
+    // Product mode: an API failure is an error state, never a fake answer.
+    document.getElementById(streamId)?.remove();
+    removeTyping(typingId);
+    const err = describeError(error);
+    addMessage('ai', err.text);
+    document.getElementById('status-dot').className = 'status-dot offline';
+    document.getElementById('status-text').textContent = err.status;
+    document.getElementById('norm-sub').textContent = 'Запрос не выполнен';
+    finish();
   }
-
-  isLoading = false;
-  document.getElementById('send-btn').disabled = false;
 }
 
 // ─── UI HELPERS ───────────────────────────────────────────────────────────────
@@ -740,7 +1040,7 @@ function addAIMessage(parsed) {
   html += `<div class="answer-text">${escHtml(parsed.answer)}</div>`;
 
   if (parsed.not_in_corpus) {
-    html += `<div class="not-found">Ответ не найден в демо-корпусе. Попробуйте уточнить домен в настройках проекта.</div>`;
+    html += `<div class="not-found">В подключённой базе нормативов не нашлось подтверждающих фрагментов — ответ не достроен. Переформулируйте вопрос или уточните документ.</div>`;
   }
 
   if (parsed.citations?.length) {
@@ -748,7 +1048,7 @@ function addAIMessage(parsed) {
     for (const c of parsed.citations) {
       const rel = c.relevance === 'high' ? 'источник' : 'контекст';
       const label = [c.norm, c.clause, c.page].filter(Boolean).join(' · ');
-      html += `<span class="cite-tag" onclick="highlightNorm('${escHtml(c.sourceId)}')">${rel} ${escHtml(label)}</span>`;
+      html += `<span class="cite-tag" data-source-id="${escHtml(String(c.sourceId))}">${rel} ${escHtml(label)}</span>`;
     }
     html += `</div>`;
   }
@@ -785,6 +1085,8 @@ function removeTyping(id) {
 function renderNormCards(citations, domain) {
   const panel = document.getElementById('norm-cards');
   const sub = document.getElementById('norm-sub');
+  const toggle = document.getElementById('src-toggle');
+  toggle.textContent = citations.length ? `Источники (${citations.length})` : 'Источники';
 
   if (!citations.length) {
     panel.innerHTML = '<div class="norm-empty"><p>Нормы не найдены для этого запроса</p></div>';
@@ -818,10 +1120,26 @@ function renderNormCards(citations, domain) {
 }
 
 function highlightNorm(sourceId) {
+  // On mobile the sources live in a drawer — open it before scrolling.
+  if (window.matchMedia('(max-width:900px)').matches) toggleSources(true);
   const id = 'norm-' + sourceId.replace(/[^a-zA-Z0-9]/g, '-');
   const el = document.getElementById(id);
-  trackEvent('norm_source_highlighted', id.slice(0, 72));
   if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.style.borderColor='var(--terra)'; setTimeout(()=>el.style.borderColor='',1500); }
+}
+
+// Citation chips are wired via delegation so backend-provided ids never end
+// up inside inline JS handlers.
+document.getElementById('messages').addEventListener('click', (e) => {
+  const tag = e.target.closest('.cite-tag');
+  if (tag && tag.dataset.sourceId) highlightNorm(tag.dataset.sourceId);
+});
+
+function toggleSources(force) {
+  const panel = document.querySelector('.norm-panel');
+  const backdrop = document.getElementById('drawer-backdrop');
+  const open = typeof force === 'boolean' ? force : !panel.classList.contains('open');
+  panel.classList.toggle('open', open);
+  backdrop.classList.toggle('show', open);
 }
 
 function pickEvidenceHighlight(text, basis) {
@@ -885,10 +1203,231 @@ function bootSceneFromUrl() {
   updateCorpusList();
 }
 
+// ─── ACCOUNTS / QUOTA / GATE ────────────────────────────────────────────────
+let ACCOUNTS_ENABLED = false;
+let CURRENT_QUOTA = null;
+let GATE_MODE = 'register';
+
+async function refreshSession() {
+  try {
+    const res = await fetch(`${getApiBase()}/auth/session`, {
+      headers: apiHeaders(), credentials: 'include',
+    });
+    if (!res.ok) { ACCOUNTS_ENABLED = false; updateQuotaUI(null); return; }
+    ACCOUNTS_ENABLED = true;
+    updateQuotaUI(await res.json());
+  } catch (e) {
+    ACCOUNTS_ENABLED = false; updateQuotaUI(null);
+  }
+}
+
+function updateQuotaUI(q) {
+  CURRENT_QUOTA = q;
+  const chip = document.getElementById('quota-chip');
+  const acct = document.getElementById('acct-btn');
+  if (!q || q.kind === 'admin') { chip.hidden = true; acct.hidden = true; return; }
+
+  acct.hidden = false;
+  if (q.kind === 'user') acct.textContent = q.label ? q.label.split('@')[0] : 'Профиль';
+  else if (q.kind === 'pilot') acct.textContent = 'Пилот' + (q.label ? ' · ' + q.label : '');
+  else acct.textContent = 'Войти';
+
+  chip.hidden = false;
+  if (q.unlimited) { chip.textContent = 'Безлимит'; chip.className = 'quota-chip'; return; }
+  const r = q.remaining || 0;
+  chip.textContent = `Осталось ${r} из ${q.limit}`;
+  chip.className = 'quota-chip' + (r === 0 ? ' out' : (r <= 2 ? ' low' : ''));
+}
+
+function localGate(q) {
+  const kind = q ? q.kind : 'anon';
+  if (kind === 'user') return { next: 'code', quota: q,
+    message: 'Бесплатный лимит 50 вопросов исчерпан. Введите пилотный код компании или напишите нам.' };
+  if (kind === 'pilot') return { next: 'contact', quota: q,
+    message: 'Лимит пилотного доступа исчерпан. Свяжитесь с нами, чтобы расширить его.' };
+  return { next: 'register', quota: q,
+    message: 'Бесплатные вопросы закончились. Зарегистрируйтесь по email — и получите 50 вопросов.' };
+}
+
+function openGate(payload) {
+  payload = payload || {};
+  GATE_MODE = payload.next || 'register';
+  const titles = { register: 'Продолжить бесплатно', code: 'Пилотный доступ', contact: 'Лимит исчерпан' };
+  document.getElementById('gate-title').textContent = titles[GATE_MODE] || 'Продолжить';
+  document.getElementById('gate-msg').textContent = payload.message || '';
+
+  const input = document.getElementById('gate-input');
+  const cta = document.getElementById('gate-cta');
+  const alt = document.getElementById('gate-alt');
+  const note = document.getElementById('gate-note');
+  note.className = 'gate-note'; note.textContent = '';
+
+  const consent = document.getElementById('gate-consent');
+  const consentCb = document.getElementById('gate-consent-cb');
+  if (GATE_MODE === 'register') {
+    input.style.display = ''; input.type = 'email'; input.placeholder = 'you@company.ru'; input.value = '';
+    cta.style.display = ''; cta.textContent = 'Получить 50 вопросов';
+    consent.style.display = ''; consentCb.checked = false; cta.disabled = true;
+    alt.innerHTML = 'Есть пилотный код компании? <a onclick="switchGate(\'code\')">Ввести код</a>';
+  } else if (GATE_MODE === 'code') {
+    input.style.display = ''; input.type = 'text'; input.placeholder = 'PILOT-XXXXXXXX'; input.value = '';
+    cta.style.display = ''; cta.textContent = 'Активировать код';
+    consent.style.display = 'none'; cta.disabled = false;
+    alt.innerHTML = 'Нет кода? <a href="mailto:xelartn75@gmail.com">Написать нам</a>';
+  } else {
+    input.style.display = 'none'; cta.style.display = 'none';
+    consent.style.display = 'none';
+    alt.innerHTML = 'Напишите нам: <a href="mailto:xelartn75@gmail.com">xelartn75@gmail.com</a>';
+  }
+  document.getElementById('gate').classList.add('open');
+  if (input.style.display !== 'none') setTimeout(() => input.focus(), 60);
+}
+
+function switchGate(mode) {
+  openGate({ next: mode, quota: CURRENT_QUOTA,
+    message: mode === 'code' ? 'Введите пилотный код, выданный вашей компании.' : '' });
+}
+
+function closeGate() { document.getElementById('gate').classList.remove('open'); }
+
+function syncConsentCta() {
+  if (GATE_MODE !== 'register') return;
+  document.getElementById('gate-cta').disabled =
+    !document.getElementById('gate-consent-cb').checked;
+}
+
+async function submitGate() {
+  const input = document.getElementById('gate-input');
+  const cta = document.getElementById('gate-cta');
+  const note = document.getElementById('gate-note');
+  const val = input.value.trim();
+  if (!val) { input.focus(); return; }
+  if (GATE_MODE === 'register' && !document.getElementById('gate-consent-cb').checked) {
+    note.textContent = 'Для входа по email нужно согласие с политикой конфиденциальности.';
+    note.className = 'gate-note show';
+    return;
+  }
+  cta.disabled = true;
+  try {
+    if (GATE_MODE === 'register') {
+      const res = await fetch(`${getApiBase()}/auth/request-link`, {
+        method: 'POST', headers: apiHeaders(), credentials: 'include',
+        body: JSON.stringify({ email: val }),
+      });
+      if (!res.ok) { throw new Error('bad'); }
+      note.textContent = `Ссылка для входа отправлена на ${val}. Откройте письмо (проверьте «Спам») — и вернётесь сюда уже с 50 вопросами.`;
+      note.className = 'gate-note show';
+      input.style.display = 'none'; cta.style.display = 'none';
+      document.getElementById('gate-alt').innerHTML = '';
+    } else if (GATE_MODE === 'code') {
+      const res = await fetch(`${getApiBase()}/auth/redeem-code`, {
+        method: 'POST', headers: apiHeaders(), credentials: 'include',
+        body: JSON.stringify({ code: val }),
+      });
+      if (res.status === 401) {
+        // Not logged in — treat the code as a direct pilot link.
+        localStorage.setItem('ARCHNORM_PILOT_CODE', val);
+        window.location.href = '/chat?code=' + encodeURIComponent(val);
+        return;
+      }
+      if (!res.ok) {
+        note.textContent = 'Код не найден или неактивен. Проверьте написание.';
+        note.className = 'gate-note show'; cta.disabled = false; return;
+      }
+      const data = await res.json();
+      updateQuotaUI(data.quota);
+      closeGate();
+      showToast('Пилотный доступ активирован');
+    }
+  } catch (e) {
+    note.textContent = 'Не удалось выполнить запрос. Попробуйте ещё раз.';
+    note.className = 'gate-note show';
+  } finally {
+    cta.disabled = false;
+  }
+}
+
+function onAcctClick() {
+  const q = CURRENT_QUOTA;
+  if (q && q.kind === 'user') {
+    if (confirm('Выйти из аккаунта?')) logout();
+  } else if (q && q.kind === 'pilot') {
+    showToast('Активен пилотный доступ' + (q.label ? ': ' + q.label : ''));
+  } else {
+    openGate({ next: 'register', quota: q,
+      message: 'Зарегистрируйтесь по email — и получите 50 бесплатных вопросов.' });
+  }
+}
+
+async function logout() {
+  try {
+    await fetch(`${getApiBase()}/auth/logout`, { method: 'POST', headers: apiHeaders(), credentials: 'include' });
+  } catch (e) { /* ignore */ }
+  window.location.reload();
+}
+
+let toastTimer = null;
+function showToast(msg, isErr) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isErr ? ' err' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = 'toast' + (isErr ? ' err' : ''); }, 3400);
+}
+
+function handleLoginParam() {
+  const params = new URLSearchParams(window.location.search);
+  const l = params.get('login');
+  if (l === 'ok') showToast('Вход выполнен. Доступно 50 вопросов.');
+  else if (l === 'expired') showToast('Ссылка устарела. Запросите вход заново.', true);
+  if (l) {
+    params.delete('login');
+    const q = params.toString();
+    history.replaceState({}, '', window.location.pathname + (q ? '?' + q : ''));
+  }
+}
+
+document.getElementById('gate-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitGate(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGate(); });
+
+// ─── CONSENT / ANALYTICS ─────────────────────────────────────────────────────
+const CONSENT_KEY = 'ARCHNORM_CONSENT_V1';
+
+function loadAnalytics() {
+  if (document.querySelector('script[data-goatcounter]')) return;
+  const s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://gc.zgo.at/count.js';
+  s.dataset.goatcounter = 'https://archnorm.goatcounter.com/count';
+  document.head.appendChild(s);
+}
+
+function acceptConsent() {
+  localStorage.setItem(CONSENT_KEY, String(Date.now()));
+  document.getElementById('consent-bar').classList.remove('show');
+  document.querySelector('.app').style.paddingBottom = '';
+  loadAnalytics();
+}
+
+function initConsent() {
+  if (localStorage.getItem(CONSENT_KEY)) { loadAnalytics(); return; }
+  const bar = document.getElementById('consent-bar');
+  bar.classList.add('show');
+  // Бар прибит к нижнему краю — резервируем место, чтобы он не закрывал
+  // поле ввода (на узких экранах текст переносится на несколько строк).
+  const reserve = () => {
+    if (bar.classList.contains('show'))
+      document.querySelector('.app').style.paddingBottom = bar.offsetHeight + 'px';
+  };
+  reserve();
+  window.addEventListener('resize', reserve);
+}
+
 window.addEventListener('load', () => {
   bootSceneFromUrl();
-  setupChatTracking();
-  trackEvent('chat_loaded');
+  handleLoginParam();
+  refreshSession();
+  initConsent();
 });
 </script>
 </body>
