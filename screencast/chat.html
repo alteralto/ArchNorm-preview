@@ -190,8 +190,21 @@ html,body{height:100%;font-family:'Manrope',sans-serif;background:#10140f;color:
 
 /* ── RESPONSIVE ── */
 @media(max-width:900px){
-  .app{grid-template-columns:1fr}
+  /* minmax(0,1fr): plain 1fr can't shrink below the content's min-width,
+     which left the chat column at ~640px and clipped the right edge. */
+  .app{grid-template-columns:minmax(0,1fr)}
+  .chat-area{min-width:0}
+  .suggested{max-width:100%}
   .sidebar{display:none}
+  /* Топбар: на телефоне оставляем только логотип, «Источники», квоту и вход. */
+  .topbar{gap:8px;padding:0 12px}
+  .topbar-badge{display:none}
+  .api-status #status-text{display:none}
+  .topbar-right{gap:6px}
+  .logo{font-size:16px;margin-right:0}
+  .quota-chip{font-size:10px;padding:4px 8px}
+  .src-toggle{padding:6px 10px}
+  .acct-btn{padding:5px 10px}
   .src-toggle{display:inline-flex}
   /* Sources stay reachable on mobile: the norm panel becomes a slide-in drawer. */
   .norm-panel{position:fixed;top:62px;right:0;bottom:0;width:min(86vw,388px);transform:translateX(102%);transition:transform .25s ease;z-index:45;box-shadow:-18px 0 44px rgba(20,28,20,.22);border-left:1px solid var(--line-strong)}
