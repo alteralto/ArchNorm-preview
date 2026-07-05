@@ -969,7 +969,7 @@
     }
 
     /* cookie consent + analytics gating — no secrets in repo */
-    var YM_ID = 0; // ID Яндекс.Метрики при деплое (0 = выкл). Ключей здесь нет.
+    var YM_ID = 110431227; // Яндекс.Метрика (0 = выкл, снимается одной строкой). Ключей здесь нет.
     function loadAnalytics(){
       if(window.__an) return; window.__an=true; trackEvent("analytics_enabled");
       if(!YM_ID) return;
