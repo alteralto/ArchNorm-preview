@@ -529,7 +529,7 @@
     <div class="wrap nav-inner">
       <a class="brand" href="#top" aria-label="ArchNorm — наверх">ArchNorm</a>
       <div class="nav-links">
-        <a href="#product">Демо</a>
+        <a href="https://api.archnorm.ru/chat" data-track="nav-try-chat">Попробовать</a>
         <a href="#security">Контур</a>
         <a href="#price">Стоимость</a>
         <a href="#pilot">Пилот</a>
@@ -539,7 +539,7 @@
       </div>
     </div>
     <div class="wrap mobile-menu" id="mobile-menu">
-      <a href="#product" onclick="closeMenu()">Демо</a>
+      <a href="https://api.archnorm.ru/chat" onclick="closeMenu()" data-track="nav-try-chat">Попробовать</a>
       <a href="#security" onclick="closeMenu()">Закрытый контур</a>
       <a href="#price" onclick="closeMenu()">Стоимость</a>
       <a href="#pilot" onclick="closeMenu()">Пилот</a>
@@ -555,8 +555,8 @@
           <h1>Нужный пункт СП — <em>за минуты</em></h1>
           <p class="lead">ArchNorm отвечает на вопросы по строительным нормам со ссылкой на пункт и страницу, а при нехватке данных просит уточнение вместо уверенной догадки. Разворачивается <strong>в закрытом контуре бюро</strong> — проектная документация не уходит в публичное облако.</p>
           <div class="hero-actions">
-            <a class="btn btn-primary" href="#pilot" data-track="hero-pilot">Запросить пилот</a>
-            <a class="btn btn-secondary" href="#product" data-track="hero-demo">Открыть демо</a>
+            <a class="btn btn-primary" href="https://api.archnorm.ru/chat" data-track="hero-try-chat">Попробовать бесплатно</a>
+            <a class="btn btn-secondary" href="#pilot" data-track="hero-pilot">Запросить пилот</a>
           </div>
           <p class="hero-note">Инструмент-помощник: итоговое проектное решение принимает профильный специалист.</p>
         </div>
@@ -672,17 +672,17 @@
       <div class="wrap">
         <div class="section-head">
           <div class="eyebrow">Лист 03 · Пример решения · АР</div>
-          <div><h2>Основание находится рядом с выводом, а не в списке одинаковых ссылок</h2><p class="lead">Это демонстрационный сценарий. В пилоте ответы проверяются на вопросах и документах конкретного бюро.</p></div>
+          <div><h2>Основание находится рядом с выводом, а не в списке одинаковых ссылок</h2><p class="lead">Ниже — пример разбора. Свой вопрос можно задать прямо сейчас: 10 бесплатных вопросов без регистрации, по email — 50.</p></div>
         </div>
         <div class="product-shell">
-          <div class="product-top"><span>ARCHNORM / НОРМАТИВНЫЙ НАВИГАТОР</span><span>РЕЖИМ: ДЕМО-КОРПУС</span></div>
+          <div class="product-top"><span>ARCHNORM / НОРМАТИВНЫЙ НАВИГАТОР</span><span>ПРИМЕР РАЗБОРА</span></div>
           <div class="product-body">
             <div class="project-context">
               <div class="field"><label for="d-obj">Тип объекта</label><select class="field-box" id="d-obj"><option value="office">Офисное здание</option><option value="public">Общественное здание</option><option value="residential">Жилой дом</option></select></div>
               <div class="field"><label for="d-domain">Раздел норм</label><select class="field-box" id="d-domain"><option value="fire">Пожарная безопасность</option><option value="access">Доступность МГН</option><option value="sanitary">Санитарные нормы</option></select></div>
               <div class="field"><label for="d-q">Вопрос</label><textarea class="field-box" id="d-q" rows="2" placeholder="Напр.: ширина эвакуационного выхода для офисного этажа">Ширина эвакуационного выхода для офисного этажа</textarea></div>
               <button class="btn btn-primary" data-track="run-demo" onclick="runDemo()" style="width:100%;margin-bottom:9px">Найти нормы</button>
-              <a class="btn btn-secondary" href="screencast/index.html" data-track="open-demo-chat" style="width:100%">Открыть демо-чат</a>
+              <a class="btn btn-secondary" href="https://api.archnorm.ru/chat" data-track="product-try-chat" style="width:100%">Задать свой вопрос →</a>
             </div>
             <div class="evidence">
               <div class="demo-ph" id="demo-ph">
@@ -694,8 +694,8 @@
           </div>
         </div>
         <div class="demo-cta">
-          <span><b>Хотите вживую?</b> Откройте полноценный демо-чат ArchNorm — отдельным окном, как в рабочем приложении (на демо-корпусе, без подключения к вашим данным).</span>
-          <a class="btn btn-primary" href="screencast/index.html" data-track="open-demo-chat-2">Открыть демо-чат →</a>
+          <span><b>Попробуйте на своём вопросе.</b> Это не витрина — тот же ArchNorm, что работает у пилотных бюро: корпус из 20 СП, ответы с пунктом и страницей. 10 вопросов бесплатно, без регистрации.</span>
+          <a class="btn btn-primary" href="https://api.archnorm.ru/chat" data-track="product-try-chat-2">Задать вопрос по нормам →</a>
         </div>
       </div>
     </section>
@@ -856,6 +856,35 @@
       var t = event.target.closest("[data-track]");
       if (t) trackEvent(t.getAttribute("data-track"), "");
     });
+
+    /* Какие блоки реально досматривают — по этим событиям решаем,
+       что на лендинге лишнее. Одно событие на секцию за визит. */
+    (function(){
+      if(!("IntersectionObserver" in window)) return;
+      var seen={};
+      var io=new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if(en.isIntersecting && !seen[en.target.id]){
+            seen[en.target.id]=1;
+            trackEvent("section_view", en.target.id);
+            io.unobserve(en.target);
+          }
+        });
+      },{threshold:0.4});
+      document.querySelectorAll("main section[id]").forEach(function(s){ io.observe(s); });
+    })();
+
+    /* Глубина скролла: 25/50/75/100 — по одному событию за визит. */
+    (function(){
+      var marks=[25,50,75,100], fired={};
+      function onScroll(){
+        var h=document.documentElement;
+        var depth=Math.round(100*(h.scrollTop+window.innerHeight)/h.scrollHeight);
+        marks.forEach(function(m){ if(depth>=m && !fired[m]){ fired[m]=1; trackEvent("scroll_depth", String(m)); } });
+        if(fired[100]) window.removeEventListener("scroll", onScroll);
+      }
+      window.addEventListener("scroll", onScroll, {passive:true});
+    })();
 
     /* theme */
     function applyTheme(t){ document.body.classList.toggle("dark", t==="dark"); var b=document.getElementById("theme-btn"); if(b) b.textContent = t==="dark" ? "☀" : "◐"; }
