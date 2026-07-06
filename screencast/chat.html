@@ -27,165 +27,194 @@
   // Anonymised analytics load only after the visitor accepts the notice bar
   // (see loadAnalytics()); required auth/quota cookies are explained there too.
 </script>
-<title>ArchNorm — AI-ассистент</title>
+<title>ArchNorm — нормативный навигатор</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23204f35'/%3E%3Ctext x='16' y='23' font-family='Arial,sans-serif' font-size='19' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --cream:#F3F0E8;--green-dark:#18371F;--green-mid:#345D38;--green-light:#E5EEE0;
-  --terra:#8C4A38;--terra-light:#F5E8E4;--text:#191B17;--muted:#6D7068;
-  --line:rgba(25,27,23,0.11);--line-strong:rgba(25,27,23,0.18);
-  --radius:14px;--chat-bg:#FBFAF6;--mono:"JetBrains Mono",ui-monospace,monospace;
+  --paper:#e8ece9;--paper-2:#f2f4f1;--ink:#14201a;--muted:#58615a;
+  --green:#1e5a3a;--green-2:#2c764d;--green-soft:#d6e5da;
+  --terra:#c0402d;--terra-soft:#f3ded9;
+  --line:rgba(20,32,26,.15);--line-strong:rgba(20,32,26,.32);
+  --white:#fff;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --sans:"Manrope",sans-serif;
+  --display:"Archivo","Manrope",sans-serif;
 }
-html,body{height:100%;font-family:'Manrope',sans-serif;background:#10140f;color:var(--text);font-size:15px;-webkit-font-smoothing:antialiased}
+html,body{height:100%;font-family:var(--sans);background:var(--paper);color:var(--ink);font-size:15px;-webkit-font-smoothing:antialiased}
+/* Рамка чертёжного листа — фирменный элемент v8 */
+body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.22);pointer-events:none;z-index:90}
 
 /* ── LAYOUT ── */
 .app{
   display:grid;grid-template-columns:280px minmax(620px,1fr) 388px;grid-template-rows:62px 1fr;
-  height:100vh;overflow:hidden;background:var(--chat-bg);
+  height:100vh;overflow:hidden;background:var(--paper);
 }
 
-/* ── TOPBAR ── */
-.topbar{grid-column:1/-1;display:flex;align-items:center;gap:16px;padding:0 22px;background:#18371F;border-bottom:1px solid rgba(255,255,255,0.1)}
-.logo{font-size:19px;font-weight:800;color:#fff;letter-spacing:-0.45px;margin-right:8px}
-.topbar-badge{font-family:var(--mono);font-size:10px;font-weight:600;background:rgba(255,255,255,0.11);color:rgba(255,255,255,0.72);padding:4px 10px;border-radius:100px;letter-spacing:0.02em}
-.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px}
-.api-status{font-size:12px;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:6px}
-.status-dot{width:7px;height:7px;border-radius:50%;background:#74B86A;box-shadow:0 0 0 4px rgba(116,184,106,.14)}
-.status-dot.offline{background:#f44336}
+/* ── TOPBAR: штамп листа ── */
+.topbar{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:0 22px;background:var(--paper-2);border-bottom:1px solid var(--line-strong)}
+.logo{font-family:var(--display);font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-right:2px}
+.topbar-badge{font-family:var(--mono);font-size:10px;font-weight:600;background:var(--white);color:var(--green);border:1px solid var(--line);padding:4px 10px;border-radius:2px;letter-spacing:0.07em;text-transform:uppercase}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.api-status{font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.status-dot{width:8px;height:8px;background:var(--green-2);border:1px solid var(--green)}
+.status-dot.offline{background:var(--terra);border-color:var(--terra)}
 
-/* ── SIDEBAR ── */
-.sidebar{background:#F0EDE5;border-right:1px solid var(--line);padding:22px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:20px}
+/* ── SIDEBAR: задание на проект ── */
+.sidebar{background:var(--paper-2);border-right:1px solid var(--line-strong);padding:20px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:20px}
 .sidebar-section{display:flex;flex-direction:column;gap:8px}
-.sidebar-label{font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#6A6E63}
+.sidebar-label{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--green)}
+.sidebar-label::before{content:"";width:18px;height:2px;background:currentColor;opacity:.55}
 .sidebar-select,.sidebar-input{
-  width:100%;background:#FBFAF6;border:1px solid var(--line);border-radius:10px;
-  padding:10px 12px;font-family:'Manrope',sans-serif;font-size:13px;color:var(--text);
-  outline:none;transition:border-color .2s,background .2s,transform .16s;appearance:none;
+  width:100%;background:var(--white);border:1px solid var(--line-strong);border-radius:2px;
+  padding:10px 12px;font-family:var(--sans);font-size:13px;color:var(--ink);
+  outline:none;transition:border-color .15s;appearance:none;
 }
-.sidebar-select:focus,.sidebar-input:focus{border-color:var(--green-mid);background:#fff}
-.sidebar-select:active,.sidebar-input:active{transform:translateY(1px)}
-.sidebar-tip{font-size:12px;color:#4C544A;line-height:1.55;padding:12px;background:var(--green-light);border-radius:12px;border:1px solid rgba(52,93,56,.12)}
-.sidebar-tip strong{color:var(--green-dark);font-weight:600}
-.corpus-list{display:flex;flex-direction:column;gap:4px}
-.corpus-item{font-family:var(--mono);font-size:10px;color:#5F655C;padding:5px 8px;background:#FBFAF6;border-radius:8px;border:1px solid var(--line);display:flex;align-items:center;gap:7px}
-.corpus-dot{width:6px;height:6px;border-radius:50%;background:var(--green-mid);flex-shrink:0}
+.sidebar-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' stroke='%2358615a' fill='none' stroke-width='1.4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.sidebar-select:focus,.sidebar-input:focus{border-color:var(--green)}
+.sidebar-tip{font-size:12px;color:var(--muted);line-height:1.55;padding:12px;background:var(--green-soft);border-left:3px solid var(--green);border-radius:0}
+.sidebar-tip strong{color:var(--green);font-weight:700}
+.corpus-list{display:flex;flex-direction:column;gap:3px;max-height:262px;overflow-y:auto}
+.corpus-list::-webkit-scrollbar{width:3px}
+.corpus-list::-webkit-scrollbar-thumb{background:var(--line-strong)}
+.corpus-item{font-family:var(--mono);font-size:10px;color:var(--muted);padding:5px 8px;background:var(--white);border-radius:2px;border:1px solid var(--line);display:flex;align-items:center;gap:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.corpus-item b{color:var(--ink);font-weight:600;flex-shrink:0}
+.corpus-dot{width:5px;height:5px;background:var(--green-2);flex-shrink:0}
+.corpus-total{font-family:var(--mono);font-size:10px;color:var(--muted);padding:3px 2px 0;letter-spacing:.02em}
 
-/* ── CHAT ── */
-.chat-area{display:flex;flex-direction:column;background:linear-gradient(180deg,#FBFAF6 0%,#F7F4ED 100%);overflow:hidden}
-.messages{flex:1;overflow-y:auto;padding:34px 32px 96px;display:flex;flex-direction:column;gap:18px;scroll-behavior:smooth}
+/* ── CHAT: полотно листа ── */
+.chat-area{display:flex;flex-direction:column;background:var(--paper);overflow:hidden}
+.messages{flex:1;overflow-y:auto;padding:30px 32px 40px;display:flex;flex-direction:column;gap:18px;scroll-behavior:smooth}
 .messages::-webkit-scrollbar{width:4px}
-.messages::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:2px}
+.messages::-webkit-scrollbar-thumb{background:var(--line-strong)}
 
-.msg{display:flex;flex-direction:column;gap:6px}
+.msg{display:flex;flex-direction:column;gap:5px}
 .msg-user{align-items:flex-end}
-.msg-user .bubble{background:#18371F;color:#fff;padding:12px 16px;border-radius:16px 16px 5px 16px;max-width:78%;font-size:14px;line-height:1.55;box-shadow:0 14px 34px rgba(24,55,31,.16)}
-.msg-ai .bubble{background:#F1EDE4;border:1px solid var(--line-strong);padding:18px 18px;border-radius:5px 18px 18px 18px;max-width:100%;font-size:14px;line-height:1.7;box-shadow:0 18px 44px rgba(28,28,26,.06)}
-.msg-label{font-family:var(--mono);font-size:10px;font-weight:600;color:#73776F;letter-spacing:0.08em;text-transform:uppercase;padding:0 4px}
+.msg-user .bubble{background:var(--green);color:#fff;padding:12px 16px;border-radius:3px;max-width:78%;font-size:14px;line-height:1.55}
+.msg-ai .bubble{background:var(--white);border:1px solid var(--line-strong);border-left:3px solid var(--green);padding:16px 18px;border-radius:2px;max-width:100%;font-size:14px;line-height:1.7;box-shadow:0 18px 44px -30px rgba(20,40,27,.35)}
+.msg-label{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;padding:0 2px}
 .msg-user .msg-label{text-align:right}
+.msg-ctx{font-family:var(--mono);font-size:10px;color:var(--muted);text-align:right;padding:0 2px;letter-spacing:.02em}
 
-.answer-text{color:var(--text);margin-bottom:12px;white-space:pre-wrap}
-.citations-row{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
-.cite-tag{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--green-dark);background:rgba(229,238,224,.76);padding:5px 10px;border-radius:8px;cursor:pointer;transition:background .15s,transform .15s}
-.cite-tag:hover{background:#DCE9D6;transform:translateX(2px)}
-.cite-tag .clause{font-weight:400;color:var(--green-mid)}
-.risk-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.risk-badge{font-family:var(--mono);font-size:10px;font-weight:600;background:#F8E8E4;color:#8C2C1C;padding:4px 10px;border-radius:100px;display:flex;align-items:center;gap:5px}
-.risk-badge::before{content:'!';font-size:10px}
-.not-found{font-size:13px;color:var(--muted);font-style:italic;padding:9px 12px;background:#FFF8DF;border:1px solid #E9D28A;border-radius:10px;margin-top:8px}
+.answer-text{color:var(--ink);margin-bottom:12px;white-space:pre-wrap}
+.citations-row{display:flex;flex-direction:column;gap:5px;border-top:1px solid var(--line);padding-top:11px;margin-top:4px}
+.cite-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--green);background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--green);padding:6px 10px;border-radius:0;cursor:pointer;transition:background .15s,transform .15s}
+.cite-tag:hover{background:var(--green-soft);transform:translateX(2px)}
+.risk-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+.risk-badge{font-family:var(--mono);font-size:10px;font-weight:600;background:var(--terra-soft);color:var(--terra);border:1px solid rgba(192,64,45,.25);padding:4px 9px;border-radius:2px;display:flex;align-items:center;gap:6px}
+.risk-badge::before{content:'!';font-weight:700}
+.not-found{font-size:13px;color:var(--muted);padding:9px 12px;background:var(--paper-2);border:1px dashed var(--line-strong);border-radius:0;margin-top:8px}
 
-.typing-indicator{display:flex;align-items:center;gap:4px;padding:12px 16px}
-.typing-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:bounce .8s infinite}
-.typing-dot:nth-child(2){animation-delay:.15s}
-.typing-dot:nth-child(3){animation-delay:.3s}
-@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.typing-indicator{display:flex;align-items:center;gap:4px;padding:10px 14px}
+.typing-dot{width:6px;height:6px;background:var(--muted);animation:blink .9s infinite}
+.typing-dot:nth-child(2){animation-delay:.18s}
+.typing-dot:nth-child(3){animation-delay:.36s}
+@keyframes blink{0%,100%{opacity:.25}45%{opacity:1}}
 
-.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--muted);text-align:center}
-.empty-icon{width:48px;height:48px;border:1px solid var(--line);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:14px;font-weight:700;color:var(--green-dark);background:#F1EDE4}
-.empty-state p{font-size:14px;max-width:240px;line-height:1.5}
-.suggested{display:flex;flex-direction:column;gap:8px;margin-top:8px;width:100%;max-width:400px}
-.sugg-btn{background:#F1EDE4;border:1px solid var(--line);border-radius:12px;padding:11px 14px;font-size:13px;font-family:'Manrope',sans-serif;color:var(--text);cursor:pointer;text-align:left;transition:border-color .2s,background .2s,transform .16s;line-height:1.4}
-.sugg-btn:hover{border-color:var(--green-mid);background:var(--green-light);transform:translateY(-1px)}
+/* Пустой лист: штамп нового запроса */
+.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;color:var(--muted);text-align:center;padding:18px}
+.empty-sheet{width:100%;max-width:460px;border:1px dashed var(--line-strong);padding:30px 26px 0;display:flex;flex-direction:column;align-items:center;gap:12px;background:rgba(255,255,255,.4)}
+.empty-icon{width:46px;height:46px;border:1px solid var(--line-strong);border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:14px;font-weight:700;color:var(--green);background:var(--white)}
+.empty-state p{font-size:14px;max-width:300px;line-height:1.55;color:var(--muted)}
+.empty-stamp{width:calc(100% + 52px);margin:16px -26px 0;border-top:1px solid var(--line-strong);display:flex;font-family:var(--mono);font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.empty-stamp span{padding:7px 10px;flex:1;text-align:left}
+.empty-stamp span+span{border-left:1px solid var(--line);text-align:right}
+.suggested{display:flex;flex-direction:column;gap:7px;margin-top:4px;width:100%;max-width:400px}
+.sugg-btn{background:var(--white);border:1px solid var(--line);border-radius:2px;padding:10px 13px;font-size:13px;font-family:var(--sans);color:var(--ink);cursor:pointer;text-align:left;transition:border-color .15s,background .15s;line-height:1.4;display:flex;gap:9px}
+.sugg-btn::before{content:'→';font-family:var(--mono);color:var(--green);font-weight:600;flex-shrink:0}
+.sugg-btn:hover{border-color:var(--green);background:var(--green-soft)}
 
 /* ── INPUT ── */
-.input-area{padding:16px 20px;border-top:1px solid var(--line);background:rgba(251,250,246,.94);backdrop-filter:blur(10px)}
+.input-area{padding:12px 20px 14px;border-top:1px solid var(--line-strong);background:var(--paper-2)}
+.context-strip{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;letter-spacing:.03em;color:var(--muted);text-transform:uppercase;margin-bottom:9px;min-width:0}
+.context-strip .ctx-label{color:var(--green);font-weight:600;flex-shrink:0}
+.context-strip .ctx-value{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.context-strip .ctx-edit{display:none;margin-left:auto;flex-shrink:0;font-family:var(--mono);font-size:10px;color:var(--green);background:none;border:1px solid var(--line-strong);border-radius:2px;padding:3px 8px;cursor:pointer;text-transform:uppercase;letter-spacing:.03em}
 .input-row{display:flex;gap:10px;align-items:flex-end}
-.query-input{flex:1;background:#F1EDE4;border:1px solid var(--line);border-radius:14px;padding:13px 16px;font-family:'Manrope',sans-serif;font-size:14px;color:var(--text);outline:none;resize:none;max-height:120px;line-height:1.5;transition:border-color .2s,background .2s}
-.query-input:focus{border-color:var(--green-mid);background:#fff}
-.send-btn{flex-shrink:0;width:44px;height:44px;background:var(--green-dark);border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .15s;color:#fff}
-.send-btn:hover{background:var(--green-mid);transform:translateY(-1px)}
-.send-btn:disabled{background:var(--line-strong);cursor:not-allowed;transform:none}
-.send-btn.stop{background:#a34c38}
-.send-btn.stop:hover{background:#8c4130}
+.query-input{flex:1;background:var(--white);border:1px solid var(--line-strong);border-radius:2px;padding:12px 14px;font-family:var(--sans);font-size:14px;color:var(--ink);outline:none;resize:none;max-height:120px;line-height:1.5;transition:border-color .15s}
+.query-input:focus{border-color:var(--green)}
+.send-btn{flex-shrink:0;width:44px;height:44px;background:var(--green);border:none;border-radius:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;color:#fff}
+.send-btn:hover{background:var(--green-2)}
+.send-btn:disabled{background:var(--line-strong);cursor:not-allowed}
+.send-btn.stop{background:var(--terra)}
+.send-btn.stop:hover{background:#a33625}
 .send-btn svg{width:18px;height:18px;fill:currentColor}
-.input-hint{font-family:var(--mono);font-size:10px;color:#7A7D75;margin-top:7px}
+.input-hint{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:7px}
 
-/* ── NORM PANEL ── */
-.norm-panel{background:#F0EDE5;border-left:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden}
-.norm-header{padding:18px 16px 13px;border-bottom:1px solid var(--line);flex-shrink:0}
-.norm-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
-.norm-sub{font-family:var(--mono);font-size:10px;color:#73776F}
-.norm-cards{flex:1;overflow-y:auto;padding:12px 12px;display:flex;flex-direction:column;gap:10px}
+/* ── NORM PANEL: выписки ── */
+.norm-panel{background:var(--paper-2);border-left:1px solid var(--line-strong);display:flex;flex-direction:column;overflow:hidden}
+.norm-header{padding:17px 16px 12px;border-bottom:1px solid var(--line-strong);flex-shrink:0}
+.norm-title{font-family:var(--display);font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px;letter-spacing:-.01em}
+.norm-sub{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.norm-cards{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px}
 .norm-cards::-webkit-scrollbar{width:4px}
 .norm-cards::-webkit-scrollbar-thumb{background:var(--line-strong)}
 .norm-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted);text-align:center;padding:24px}
-.norm-empty p{font-size:13px;max-width:200px;line-height:1.5}
+.norm-empty p{font-size:13px;max-width:210px;line-height:1.5}
 
-.norm-card{background:#FBFAF6;border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:border-color .2s,transform .2s;animation:rise .34s ease both}
-.norm-card.active{border-color:var(--green-mid)}
-.norm-card:hover{transform:translateY(-1px)}
-.norm-card-head{padding:10px 12px;display:flex;align-items:center;gap:8px}
-.norm-name{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--green-dark);flex:1}
-.norm-rel{font-family:var(--mono);font-size:9px;font-weight:600;padding:3px 8px;border-radius:100px}
-.norm-rel.high{background:var(--green-light);color:var(--green-dark)}
-.norm-rel.medium{background:#EFF6FF;color:#1D4ED8}
-.norm-clause{font-size:11px;color:var(--muted);padding:0 12px 6px}
-.norm-excerpt{padding:8px 12px 12px;font-size:12px;color:var(--text);line-height:1.68;border-top:1px solid var(--line)}
-.norm-excerpt mark{background:#FEF3C7;color:#92400E;border-radius:2px;padding:1px 0}
+.norm-card{background:var(--white);border:1px solid var(--line);border-radius:2px;overflow:hidden;transition:border-color .2s;animation:rise .3s ease both}
+.norm-card.active{border-color:var(--green)}
+.norm-card-head{padding:10px 12px 8px;display:flex;align-items:baseline;gap:8px}
+.norm-name{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--green);flex:1}
+.norm-rel{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.norm-rel.high{color:var(--green)}
+.norm-rel.medium{color:var(--muted)}
+/* Линейка «совпадение с базой» — как в десктопной версии */
+.match-line{height:3px;background:var(--paper);margin:0 12px}
+.match-line i{display:block;height:100%;background:var(--green-2)}
+.match-line i.medium{background:var(--muted)}
+.norm-clause{font-family:var(--mono);font-size:10px;color:var(--muted);padding:7px 12px 6px}
+.norm-excerpt{padding:9px 12px 12px;font-size:12px;color:var(--ink);line-height:1.66;border-top:1px solid var(--line)}
+.norm-excerpt mark{background:var(--green-soft);color:var(--green);border-radius:0;padding:1px 0}
 
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── ACCOUNTS / QUOTA ── */
-.quota-chip{font-family:var(--mono);font-size:11px;font-weight:600;color:rgba(255,255,255,.82);background:rgba(255,255,255,.12);padding:5px 11px;border-radius:100px;letter-spacing:.01em;white-space:nowrap}
-.quota-chip.low{background:rgba(200,110,60,.30);color:#FFDCC6}
-.quota-chip.out{background:rgba(200,70,55,.34);color:#FFD2C6}
-.acct-btn{font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;color:#fff;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18);padding:6px 13px;border-radius:100px;cursor:pointer;transition:background .16s,transform .16s}
-.acct-btn:hover{background:rgba(255,255,255,.22);transform:translateY(-1px)}
-.gate-overlay{position:fixed;inset:0;background:rgba(16,20,15,.62);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+.quota-chip{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink);background:var(--white);border:1px solid var(--line-strong);padding:5px 10px;border-radius:2px;letter-spacing:.01em;white-space:nowrap}
+.quota-chip.low{color:var(--terra);border-color:rgba(192,64,45,.5)}
+.quota-chip.out{color:#fff;background:var(--terra);border-color:var(--terra)}
+.acct-btn{font-family:var(--sans);font-size:12px;font-weight:700;color:var(--green);background:var(--white);border:1px solid var(--line-strong);padding:6px 13px;border-radius:2px;cursor:pointer;transition:background .15s,border-color .15s}
+.acct-btn:hover{border-color:var(--green);background:var(--green-soft)}
+.gate-overlay{position:fixed;inset:0;background:rgba(20,32,26,.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
 .gate-overlay.open{display:flex;animation:fade .2s ease}
-.gate-card{position:relative;background:var(--chat-bg);border:1px solid var(--line-strong);border-radius:18px;max-width:420px;width:100%;padding:28px 26px;box-shadow:0 40px 90px rgba(20,30,20,.4);animation:rise .28s ease both}
-.gate-badge{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--green-mid)}
-.gate-title{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.4px;margin:6px 0 8px}
-.gate-msg{font-size:14px;color:#4C544A;line-height:1.6;margin-bottom:18px}
-.gate-field{width:100%;background:#fff;border:1px solid var(--line-strong);border-radius:11px;padding:12px 14px;font-family:'Manrope',sans-serif;font-size:14px;color:var(--text);outline:none;margin-bottom:12px;transition:border-color .18s}
-.gate-field:focus{border-color:var(--green-mid)}
-.gate-cta{width:100%;background:var(--green-dark);color:#fff;border:none;border-radius:12px;padding:13px;font-family:'Manrope',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background .18s,transform .15s}
-.gate-cta:hover{background:var(--green-mid);transform:translateY(-1px)}
-.gate-cta:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.gate-card{position:relative;background:var(--paper-2);border:1px solid var(--line-strong);border-radius:2px;max-width:420px;width:100%;padding:28px 26px;box-shadow:0 40px 90px rgba(20,32,26,.4);animation:rise .28s ease both}
+.gate-badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--green)}
+.gate-badge::before{content:"";width:18px;height:2px;background:currentColor;opacity:.55}
+.gate-title{font-family:var(--display);font-size:21px;font-weight:800;color:var(--ink);letter-spacing:-.02em;margin:8px 0 8px}
+.gate-msg{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:18px}
+.gate-field{width:100%;background:var(--white);border:1px solid var(--line-strong);border-radius:2px;padding:12px 14px;font-family:var(--sans);font-size:14px;color:var(--ink);outline:none;margin-bottom:12px;transition:border-color .15s}
+.gate-field:focus{border-color:var(--green)}
+.gate-cta{width:100%;background:var(--green);color:#fff;border:none;border-radius:2px;padding:13px;font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;transition:background .15s}
+.gate-cta:hover{background:var(--green-2)}
+.gate-cta:disabled{opacity:.55;cursor:not-allowed}
 .gate-alt{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.5;text-align:center}
-.gate-alt a{color:var(--green-mid);cursor:pointer;text-decoration:underline}
-.gate-close{position:absolute;top:12px;right:15px;background:none;border:none;font-size:24px;color:var(--muted);cursor:pointer;line-height:1}
-.gate-note{font-size:12.5px;color:var(--green-dark);background:var(--green-light);border-radius:10px;padding:11px 13px;margin-top:6px;line-height:1.5;display:none}
+.gate-alt a{color:var(--green);cursor:pointer;text-decoration:underline}
+.gate-close{position:absolute;top:10px;right:14px;background:none;border:none;font-size:24px;color:var(--muted);cursor:pointer;line-height:1}
+.gate-note{font-size:12.5px;color:var(--green);background:var(--green-soft);border-left:3px solid var(--green);border-radius:0;padding:11px 13px;margin-top:6px;line-height:1.5;display:none}
 .gate-note.show{display:block}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#18371F;color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 20px 50px rgba(20,40,20,.35);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:70;max-width:90vw;text-align:center}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:2px;font-size:13px;font-weight:600;box-shadow:0 20px 50px rgba(20,32,26,.35);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:95;max-width:90vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.err{background:#8C2C1C}
+.toast.err{background:var(--terra)}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 
 /* ── CONSENT BAR ── */
-.consent-bar{position:fixed;left:0;right:0;bottom:0;z-index:80;background:#18371F;color:rgba(255,255,255,.9);padding:12px 18px;display:none;align-items:center;gap:14px;font-size:13px;line-height:1.5;box-shadow:0 -14px 40px rgba(20,40,20,.25)}
+.consent-bar{position:fixed;left:0;right:0;bottom:0;z-index:92;background:var(--ink);color:rgba(255,255,255,.9);padding:12px 18px;display:none;align-items:center;gap:14px;font-size:13px;line-height:1.5}
 .consent-bar.show{display:flex;flex-wrap:wrap}
-.consent-bar a{color:#BFE3B4;text-decoration:underline}
-.consent-bar button{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);color:#fff;font-family:'Manrope',sans-serif;font-size:13px;font-weight:600;padding:8px 18px;border-radius:10px;cursor:pointer;margin-left:auto}
+.consent-bar a{color:#a8cdb6;text-decoration:underline}
+.consent-bar button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);color:#fff;font-family:var(--sans);font-size:13px;font-weight:600;padding:8px 18px;border-radius:2px;cursor:pointer;margin-left:auto}
 .consent-bar button:hover{background:rgba(255,255,255,.24)}
 
 /* ── GATE CONSENT ── */
-.gate-consent{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:#4C544A;line-height:1.5;margin:-4px 0 12px;cursor:pointer}
-.gate-consent input{margin-top:2px;accent-color:var(--green-mid)}
-.gate-consent a{color:var(--green-mid);text-decoration:underline}
+.gate-consent{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--muted);line-height:1.5;margin:-4px 0 12px;cursor:pointer}
+.gate-consent input{margin-top:2px;accent-color:var(--green)}
+.gate-consent a{color:var(--green);text-decoration:underline}
 
-/* ── MOBILE SOURCES TOGGLE ── */
-.src-toggle{display:none;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;color:#fff;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18);padding:6px 13px;border-radius:100px;cursor:pointer}
-.drawer-backdrop{display:none;position:fixed;inset:62px 0 0 0;background:rgba(16,20,15,.4);z-index:44}
+/* ── MOBILE TOGGLES ── */
+.src-toggle,.ctx-toggle{display:none;font-family:var(--sans);font-size:12px;font-weight:700;color:var(--green);background:var(--white);border:1px solid var(--line-strong);padding:6px 12px;border-radius:2px;cursor:pointer}
+.drawer-backdrop{display:none;position:fixed;inset:62px 0 0 0;background:rgba(20,32,26,.4);z-index:44}
 .drawer-backdrop.show{display:block}
 
 /* ── RESPONSIVE ── */
@@ -195,21 +224,26 @@ html,body{height:100%;font-family:'Manrope',sans-serif;background:#10140f;color:
   .app{grid-template-columns:minmax(0,1fr)}
   .chat-area{min-width:0}
   .suggested{max-width:100%}
-  .sidebar{display:none}
-  /* Топбар: на телефоне оставляем только логотип, «Источники», квоту и вход. */
-  .topbar{gap:8px;padding:0 12px}
+  body::after{display:none}
+  /* Контекст проекта на телефоне — выезжающая слева панель. */
+  .sidebar{position:fixed;top:62px;left:0;bottom:0;width:min(86vw,320px);transform:translateX(-102%);transition:transform .25s ease;z-index:45;box-shadow:18px 0 44px rgba(20,32,26,.22);border-right:1px solid var(--line-strong)}
+  .sidebar.open{transform:translateX(0)}
+  .context-strip .ctx-edit{display:inline-block}
+  /* Топбар: на телефоне логотип, «Контекст», «Источники», квота и вход. */
+  .topbar{gap:7px;padding:0 12px}
   .topbar-badge{display:none}
-  .api-status #status-text{display:none}
+  .api-status{display:none}
   .topbar-right{gap:6px}
   .logo{font-size:16px;margin-right:0}
   .quota-chip{font-size:10px;padding:4px 8px}
-  .src-toggle{padding:6px 10px}
+  .src-toggle,.ctx-toggle{padding:6px 10px;display:inline-flex}
   .acct-btn{padding:5px 10px}
-  .src-toggle{display:inline-flex}
   /* Sources stay reachable on mobile: the norm panel becomes a slide-in drawer. */
-  .norm-panel{position:fixed;top:62px;right:0;bottom:0;width:min(86vw,388px);transform:translateX(102%);transition:transform .25s ease;z-index:45;box-shadow:-18px 0 44px rgba(20,28,20,.22);border-left:1px solid var(--line-strong)}
+  .norm-panel{position:fixed;top:62px;right:0;bottom:0;width:min(86vw,388px);transform:translateX(102%);transition:transform .25s ease;z-index:45;box-shadow:-18px 0 44px rgba(20,32,26,.22);border-left:1px solid var(--line-strong)}
   .norm-panel.open{transform:translateX(0)}
   .msg-user .bubble{max-width:92%}
+  .messages{padding:20px 14px 30px}
+  .input-area{padding:10px 12px 12px}
 }
 </style>
 </head>
@@ -219,8 +253,9 @@ html,body{height:100%;font-family:'Manrope',sans-serif;background:#10140f;color:
   <!-- TOPBAR -->
   <header class="topbar">
     <span class="logo">ArchNorm</span>
-    <span class="topbar-badge">AI-ассистент · Beta</span>
+    <span class="topbar-badge">Нормативный навигатор · Лист Ч-01</span>
     <div class="topbar-right">
+      <button class="ctx-toggle" id="ctx-toggle" onclick="toggleContext()">Контекст</button>
       <button class="src-toggle" id="src-toggle" onclick="toggleSources()">Источники</button>
       <span class="quota-chip" id="quota-chip" hidden></span>
       <button class="acct-btn" id="acct-btn" hidden onclick="onAcctClick()"></button>
@@ -257,17 +292,23 @@ html,body{height:100%;font-family:'Manrope',sans-serif;background:#10140f;color:
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-label">Нормативный домен</div>
+      <div class="sidebar-label">Раздел норм</div>
       <select class="sidebar-select" id="domain">
         <option value="fire">Пожарная безопасность</option>
         <option value="access">Доступность (МГН)</option>
         <option value="sanitary">Санитарные нормы</option>
+        <option value="lighting">Освещение и инсоляция</option>
+        <option value="residential">Жилые здания</option>
+        <option value="hvac">Отопление и вентиляция</option>
+        <option value="structures">Конструкции и основания</option>
+        <option value="planning">Генплан и планировка</option>
       </select>
     </div>
 
     <div class="sidebar-section">
       <div class="sidebar-label">Корпус норм</div>
       <div class="corpus-list" id="corpus-list"></div>
+      <div class="corpus-total" id="corpus-total"></div>
     </div>
 
     <div class="sidebar-tip">
@@ -281,17 +322,26 @@ html,body{height:100%;font-family:'Manrope',sans-serif;background:#10140f;color:
   <main class="chat-area">
     <div class="messages" id="messages">
       <div class="empty-state" id="empty-state">
-        <div class="empty-icon">AN</div>
-        <p>Задайте вопрос по нормативам — ассистент найдёт применимые требования и укажет источники</p>
-        <div class="suggested">
-          <button class="sugg-btn" data-domain="fire" data-goatcounter-click="chat-suggest-fire-exit" onclick="sendSuggested(this)">Какова минимальная ширина эвакуационного выхода для офисного здания?</button>
-          <button class="sugg-btn" data-domain="fire" data-goatcounter-click="chat-suggest-soue" onclick="sendSuggested(this)">Какой тип СОУЭ нужен для здания площадью 8000 м²?</button>
-          <button class="sugg-btn" data-domain="access" data-goatcounter-click="chat-suggest-access-ramp" onclick="sendSuggested(this)">Требования к пандусу для доступности МГН</button>
-          <button class="sugg-btn" data-domain="sanitary" data-goatcounter-click="chat-suggest-lighting" onclick="sendSuggested(this)">Нормируемая освещённость рабочих мест в офисе</button>
+        <div class="empty-sheet">
+          <div class="empty-icon">AN</div>
+          <p>Задайте вопрос по нормам — навигатор найдёт применимые требования и покажет выписки с пунктом и страницей</p>
+          <div class="suggested">
+            <button class="sugg-btn" data-domain="fire" data-goatcounter-click="chat-suggest-fire-exit" onclick="sendSuggested(this)">Какова минимальная ширина эвакуационного выхода для офисного здания?</button>
+            <button class="sugg-btn" data-domain="fire" data-goatcounter-click="chat-suggest-soue" onclick="sendSuggested(this)">Какой тип СОУЭ нужен для здания площадью 8000 м²?</button>
+            <button class="sugg-btn" data-domain="lighting" data-goatcounter-click="chat-suggest-lighting" onclick="sendSuggested(this)">Нормируемая освещённость при работе с документами (разряд Б)</button>
+            <button class="sugg-btn" data-domain="residential" data-goatcounter-click="chat-suggest-kitchen" onclick="sendSuggested(this)">Минимальная площадь кухни в однокомнатной квартире</button>
+            <button class="sugg-btn" data-domain="access" data-goatcounter-click="chat-suggest-access-ramp" onclick="sendSuggested(this)">Требования к пандусу для доступности МГН</button>
+          </div>
+          <div class="empty-stamp"><span>ArchNorm · Нормативный навигатор</span><span id="empty-stamp-corpus">Корпус: 20 СП</span></div>
         </div>
       </div>
     </div>
     <div class="input-area">
+      <div class="context-strip" id="context-strip">
+        <span class="ctx-label">Контекст</span>
+        <span class="ctx-value" id="ctx-value"></span>
+        <button class="ctx-edit" onclick="toggleContext(true)">Изменить</button>
+      </div>
       <div class="input-row">
         <textarea class="query-input" id="query-input" rows="1" placeholder="Спросите про нормативные требования к вашему проекту..."></textarea>
         <button class="send-btn" id="send-btn" data-goatcounter-click="chat-send-query" onclick="sendQuery()">
@@ -305,12 +355,12 @@ html,body{height:100%;font-family:'Manrope',sans-serif;background:#10140f;color:
   <!-- NORM PANEL -->
   <aside class="norm-panel">
     <div class="norm-header">
-      <div class="norm-title">Нормативные источники</div>
-      <div class="norm-sub" id="norm-sub">Задайте вопрос, чтобы увидеть релевантные нормы</div>
+      <div class="norm-title">Выписки из норм</div>
+      <div class="norm-sub" id="norm-sub">Задайте вопрос — здесь появятся основания</div>
     </div>
     <div class="norm-cards" id="norm-cards">
       <div class="norm-empty">
-        <p>Здесь появятся выдержки из норм с выделенным контентом</p>
+        <p>К каждому ответу — выдержки из документов с пунктом и страницей</p>
       </div>
     </div>
   </aside>
@@ -334,7 +384,7 @@ html,body{height:100%;font-family:'Manrope',sans-serif;background:#10140f;color:
   </div>
 </div>
 <div class="toast" id="toast"></div>
-<div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleSources(false)"></div>
+<div class="drawer-backdrop" id="drawer-backdrop" onclick="closeDrawers()"></div>
 
 <!-- COOKIE / ANALYTICS NOTICE -->
 <div class="consent-bar" id="consent-bar">
@@ -496,7 +546,8 @@ function getProjectContext() {
     floorsLabel: floors.options[floors.selectedIndex].text,
     area,
     domain,
-    domainLabel: CORPUS[domain]?.label || domain,
+    domainLabel: (document.getElementById('domain').selectedOptions[0] || {}).text
+      || CORPUS[domain]?.label || domain,
     tokens: obj.tokens,
   };
 }
@@ -848,18 +899,108 @@ function backendToUi(result) {
   };
 }
 
-// Update corpus list in sidebar
+// ─── CORPUS LIST (sidebar) ────────────────────────────────────────────────────
+// In product mode the list is the REAL corpus from GET /rag/corpus; the demo
+// CORPUS above is only a fallback for ?demo=1 / file: usage.
+let REAL_CORPUS = null;
+
+const DOC_TOPICS = {
+  evacuation: 'Эвакуационные пути и выходы', fire_categories: 'Категории по пожарной опасности',
+  heat_networks: 'Тепловые сети', fire_resistance: 'Огнестойкость',
+  loads: 'Нагрузки и воздействия', foundations: 'Основания зданий',
+  warning_systems: 'СОУЭ', fire_spread: 'Ограничение распространения пожара',
+  planning: 'Планировка и застройка', thermal_protection: 'Тепловая защита',
+  lighting: 'Естественное и искусственное освещение', residential: 'Жилые многоквартирные здания',
+  hvac: 'Отопление, вентиляция, кондиционирование', concrete_structures: 'Железобетонные конструкции',
+  hvac_fire: 'Противодымная защита', fire_water_supply: 'Противопожарный водопровод',
+  internal_water_sewage: 'Внутренний водопровод и канализация', public: 'Общественные здания',
+};
+
+function formatDocId(id) {
+  const m = /SP_([0-9.]+?)_(.+)$/.exec(String(id));
+  if (!m) return { num: String(id), topic: '' };
+  return { num: 'СП ' + m[1], topic: DOC_TOPICS[m[2]] || m[2].replace(/_/g, ' ') };
+}
+
 function updateCorpusList() {
+  const list = document.getElementById('corpus-list');
+  const total = document.getElementById('corpus-total');
+  if (REAL_CORPUS && !DEMO_MODE) {
+    list.innerHTML = REAL_CORPUS.documents.map(id => {
+      const d = formatDocId(id);
+      return `<div class="corpus-item" title="${escHtml(d.num + ' — ' + d.topic)}"><span class="corpus-dot"></span><b>${escHtml(d.num)}</b> ${escHtml(d.topic)}</div>`;
+    }).join('');
+    const chunks = Number(REAL_CORPUS.total_chunks || 0).toLocaleString('ru-RU');
+    total.textContent = `${REAL_CORPUS.documents.length} документов · ${chunks} фрагментов`;
+    const stamp = document.getElementById('empty-stamp-corpus');
+    if (stamp) stamp.textContent = `Корпус: ${REAL_CORPUS.documents.length} СП · ${chunks} фрагм.`;
+    return;
+  }
   const domain = document.getElementById('domain').value;
   const d = CORPUS[domain];
-  const list = document.getElementById('corpus-list');
   list.innerHTML = d ? d.docs.map(doc =>
-    `<div class="corpus-item"><span class="corpus-dot"></span>${doc.name}</div>`
+    `<div class="corpus-item"><span class="corpus-dot"></span><b>${escHtml(doc.name)}</b></div>`
   ).join('') : '';
+  total.textContent = d ? 'Демо-набор раздела' : '';
+}
+
+async function loadCorpus() {
+  if (DEMO_MODE) return;
+  try {
+    const res = await fetch(`${getApiBase()}/rag/corpus`, { credentials: 'include' });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (Array.isArray(data.documents) && data.documents.length) {
+      REAL_CORPUS = data;
+      updateCorpusList();
+    }
+  } catch (e) { /* сайдбар не критичен — остаётся демо-список */ }
 }
 
 document.getElementById('domain').addEventListener('change', updateCorpusList);
 updateCorpusList();
+
+// ─── PROJECT CONTEXT STRIP ────────────────────────────────────────────────────
+// Контекст из сайдбара реально уходит на сервер с каждым вопросом
+// (project_context → добавка к промпту). Полоса делает это видимым.
+function contextSummary() {
+  const c = getProjectContext();
+  return [
+    c.objLabel,
+    'Стадия ' + c.stageValue,
+    c.floorsLabel,
+    c.area ? c.area.toLocaleString('ru-RU') + ' м²' : null,
+    c.domainLabel,
+  ].filter(Boolean).join(' · ');
+}
+
+function updateContextStrip() {
+  const el = document.getElementById('ctx-value');
+  if (el) el.textContent = contextSummary();
+}
+
+['obj-type', 'stage', 'floors', 'area', 'domain'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('change', updateContextStrip);
+  if (el.tagName === 'INPUT') el.addEventListener('input', updateContextStrip);
+});
+updateContextStrip();
+
+// Мобильный дровер контекста (сайдбар скрыт за пределами десктопа).
+function toggleContext(force) {
+  const panel = document.querySelector('.sidebar');
+  const backdrop = document.getElementById('drawer-backdrop');
+  const open = typeof force === 'boolean' ? force : !panel.classList.contains('open');
+  if (open) { document.querySelector('.norm-panel').classList.remove('open'); track('chat-context-open'); }
+  panel.classList.toggle('open', open);
+  backdrop.classList.toggle('show', open || document.querySelector('.norm-panel').classList.contains('open'));
+}
+
+function closeDrawers() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.querySelector('.norm-panel').classList.remove('open');
+  document.getElementById('drawer-backdrop').classList.remove('show');
+}
 
 // Auto-resize textarea
 const qi = document.getElementById('query-input');
@@ -869,6 +1010,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && isLoading)
 
 function sendSuggested(btn) {
   // Examples only fill the input — the user sends the question themselves.
+  track('chat-suggested-click');
   if (btn.dataset.domain) {
     document.getElementById('domain').value = btn.dataset.domain;
     updateCorpusList();
@@ -919,9 +1061,10 @@ function updateStreamBubble(id, text) {
 }
 
 async function sendQuery() {
-  if (isLoading) { stopStreaming(); return; }
+  if (isLoading) { stopStreaming(); track('chat-stop-generation'); return; }
   const query = qi.value.trim();
   if (!query) return;
+  track('chat-question-sent');
 
   // If we already know the free quota is spent, show the gate up front
   // instead of firing a request that will just come back 402.
@@ -939,8 +1082,8 @@ async function sendQuery() {
   qi.value = '';
   qi.style.height = 'auto';
 
-  // Add user message
-  addMessage('user', query);
+  // Add user message + echo of the project context actually sent with it
+  addMessage('user', query, contextSummary());
 
   // Add typing indicator
   const typingId = 'typing-' + Date.now();
@@ -1030,12 +1173,13 @@ async function sendQuery() {
 }
 
 // ─── UI HELPERS ───────────────────────────────────────────────────────────────
-function addMessage(type, text) {
+function addMessage(type, text, ctx) {
   const msgs = document.getElementById('messages');
   const div = document.createElement('div');
   if (type === 'user') {
     div.className = 'msg msg-user';
-    div.innerHTML = `<div class="msg-label">Вы</div><div class="bubble">${escHtml(text)}</div>`;
+    div.innerHTML = `<div class="msg-label">Запрос</div><div class="bubble">${escHtml(text)}</div>`
+      + (ctx ? `<div class="msg-ctx">${escHtml(ctx)}</div>` : '');
   } else {
     div.className = 'msg msg-ai';
     div.innerHTML = `<div class="msg-label">ArchNorm</div><div class="bubble"><div class="answer-text">${escHtml(text)}</div></div>`;
@@ -1059,7 +1203,7 @@ function addAIMessage(parsed) {
   if (parsed.citations?.length) {
     html += `<div class="citations-row">`;
     for (const c of parsed.citations) {
-      const rel = c.relevance === 'high' ? 'источник' : 'контекст';
+      const rel = c.relevance === 'high' ? 'выписка' : 'контекст';
       const label = [c.norm, c.clause, c.page].filter(Boolean).join(' · ');
       html += `<span class="cite-tag" data-source-id="${escHtml(String(c.sourceId))}">${rel} ${escHtml(label)}</span>`;
     }
@@ -1107,7 +1251,7 @@ function renderNormCards(citations, domain) {
     return;
   }
 
-  sub.textContent = `${citations.length} источник${citations.length > 1 ? 'а' : ''} · click для перехода`;
+  sub.textContent = `${ruPlural(citations.length, 'источник', 'источника', 'источников')} · клик по выписке в ответе`;
   panel.innerHTML = '';
 
   for (const c of citations) {
@@ -1120,19 +1264,29 @@ function renderNormCards(citations, domain) {
       ? escHtml(c.excerpt).replace(escHtml(c.highlight), `<mark>${escHtml(c.highlight)}</mark>`)
       : escHtml(c.excerpt);
 
+    const pct = Math.round((c.score || 0.5) * 100);
     card.innerHTML = `
       <div class="norm-card-head">
         <span class="norm-name">${escHtml(c.norm)}</span>
-        <span class="norm-rel ${c.relevance}">${c.relevance === 'high' ? 'Ключевой' : 'Доп.'} · ${Math.round((c.score || 0.5) * 100)}%</span>
+        <span class="norm-rel ${c.relevance}">${c.relevance === 'high' ? 'Ключевой' : 'Доп.'}</span>
       </div>
-      <div class="norm-clause">${escHtml([c.clause, c.page].filter(Boolean).join(' · '))}</div>
+      <div class="match-line" title="Совпадение с базой: ${pct}%"><i class="${c.relevance === 'high' ? '' : 'medium'}" style="width:${pct}%"></i></div>
+      <div class="norm-clause">${escHtml([c.clause, c.page].filter(Boolean).join(' · ') || 'фрагмент документа')}</div>
       <div class="norm-excerpt">${excerptHtml}</div>
     `;
     panel.appendChild(card);
   }
 }
 
+function ruPlural(n, one, few, many) {
+  const m10 = n % 10, m100 = n % 100;
+  const word = (m10 === 1 && m100 !== 11) ? one
+    : (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) ? few : many;
+  return `${n} ${word}`;
+}
+
 function highlightNorm(sourceId) {
+  track('chat-citation-click');
   // On mobile the sources live in a drawer — open it before scrolling.
   if (window.matchMedia('(max-width:900px)').matches) toggleSources(true);
   const id = 'norm-' + sourceId.replace(/[^a-zA-Z0-9]/g, '-');
@@ -1151,6 +1305,8 @@ function toggleSources(force) {
   const panel = document.querySelector('.norm-panel');
   const backdrop = document.getElementById('drawer-backdrop');
   const open = typeof force === 'boolean' ? force : !panel.classList.contains('open');
+  if (open && !panel.classList.contains('open')) track('chat-sources-open');
+  if (open) document.querySelector('.sidebar').classList.remove('open');
   panel.classList.toggle('open', open);
   backdrop.classList.toggle('show', open);
 }
@@ -1179,8 +1335,35 @@ function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+function applyUrlContext(params) {
+  // Лендинг передаёт выбранный контекст (?obj=&domain=), чтобы селекты
+  // «Тип объекта / Раздел норм» реально переносились в чат.
+  const setIfValid = (id, value) => {
+    if (!value) return false;
+    const el = document.getElementById(id);
+    if ([...el.options].some(o => o.value === value)) { el.value = value; return true; }
+    return false;
+  };
+  const applied = [
+    setIfValid('obj-type', params.get('obj')),
+    setIfValid('domain', params.get('domain')),
+    setIfValid('floors', params.get('floors')),
+  ].some(Boolean);
+  const area = params.get('area');
+  if (area && /^\d{2,7}$/.test(area)) { document.getElementById('area').value = area; }
+  const q = params.get('q');
+  if (q && q.length <= 500) {
+    const input = document.getElementById('query-input');
+    input.value = q;
+    input.style.height = 'auto';
+    input.style.height = input.scrollHeight + 'px';
+  }
+  if (applied || area || q) { updateCorpusList(); updateContextStrip(); }
+}
+
 function bootSceneFromUrl() {
   const params = new URLSearchParams(window.location.search);
+  applyUrlContext(params);
   const scene = params.get('scene');
   if (!scene) return;
 
@@ -1214,6 +1397,7 @@ function bootSceneFromUrl() {
   document.getElementById('floors').value = selected.floors;
   document.getElementById('area').value = selected.area;
   updateCorpusList();
+  updateContextStrip();
 }
 
 // ─── ACCOUNTS / QUOTA / GATE ────────────────────────────────────────────────
@@ -1265,6 +1449,7 @@ function localGate(q) {
 function openGate(payload) {
   payload = payload || {};
   GATE_MODE = payload.next || 'register';
+  track('gate-shown-' + GATE_MODE);
   const titles = { register: 'Продолжить бесплатно', code: 'Пилотный доступ', contact: 'Лимит исчерпан' };
   document.getElementById('gate-title').textContent = titles[GATE_MODE] || 'Продолжить';
   document.getElementById('gate-msg').textContent = payload.message || '';
@@ -1323,6 +1508,7 @@ async function submitGate() {
   cta.disabled = true;
   try {
     if (GATE_MODE === 'register') {
+      track('gate-email-submitted');
       const res = await fetch(`${getApiBase()}/auth/request-link`, {
         method: 'POST', headers: apiHeaders(), credentials: 'include',
         body: JSON.stringify({ email: val }),
@@ -1333,6 +1519,7 @@ async function submitGate() {
       input.style.display = 'none'; cta.style.display = 'none';
       document.getElementById('gate-alt').innerHTML = '';
     } else if (GATE_MODE === 'code') {
+      track('gate-code-submitted');
       const res = await fetch(`${getApiBase()}/auth/redeem-code`, {
         method: 'POST', headers: apiHeaders(), credentials: 'include',
         body: JSON.stringify({ code: val }),
@@ -1406,6 +1593,15 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGate();
 // ─── CONSENT / ANALYTICS ─────────────────────────────────────────────────────
 const CONSENT_KEY = 'ARCHNORM_CONSENT_V1';
 
+function track(name) {
+  // Продуктовые события в GoatCounter (только после согласия — до него
+  // счётчик просто не загружен и вызов молча уходит в никуда).
+  try {
+    if (window.goatcounter && typeof goatcounter.count === 'function')
+      goatcounter.count({ path: name, event: true });
+  } catch (e) { /* аналитика никогда не ломает продукт */ }
+}
+
 function loadAnalytics() {
   if (document.querySelector('script[data-goatcounter]')) return;
   const s = document.createElement('script');
@@ -1440,6 +1636,7 @@ window.addEventListener('load', () => {
   bootSceneFromUrl();
   handleLoginParam();
   refreshSession();
+  loadCorpus();
   initConsent();
 });
 </script>
