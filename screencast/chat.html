@@ -76,6 +76,11 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
 .sidebar-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' stroke='%2358615a' fill='none' stroke-width='1.4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
 .sidebar-select:focus,.sidebar-input:focus{border-color:var(--green)}
 .sidebar-note{font-family:var(--mono);font-size:9.5px;color:var(--muted);line-height:1.5;letter-spacing:.02em;padding:0 2px}
+/* «В разработке»: штриховка + выключенные контролы, чтобы не обещать лишнего */
+.sidebar-section.wip{position:relative;opacity:.78}
+.sidebar-section.wip::before{content:"";position:absolute;inset:-6px -4px;background:repeating-linear-gradient(135deg,rgba(20,32,26,.055) 0 1px,transparent 1px 9px);pointer-events:none}
+.sidebar-section.wip .sidebar-select,.sidebar-section.wip .sidebar-input{background:var(--paper);color:var(--muted);cursor:not-allowed}
+.wip-badge{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--terra);border:1px dashed rgba(192,64,45,.55);padding:2px 7px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;margin-left:auto}
 .sidebar-tip{font-size:12px;color:var(--muted);line-height:1.55;padding:12px;background:var(--green-soft);border-left:3px solid var(--green);border-radius:0}
 .sidebar-tip strong{color:var(--green);font-weight:700}
 .corpus-list{display:flex;flex-direction:column;gap:3px;max-height:262px;overflow-y:auto}
@@ -104,6 +109,15 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
 .citations-row{display:flex;flex-direction:column;gap:5px;border-top:1px solid var(--line);padding-top:11px;margin-top:4px}
 .cite-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--green);background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--green);padding:6px 10px;border-radius:0;cursor:pointer;transition:background .15s,transform .15s}
 .cite-tag:hover{background:var(--green-soft);transform:translateX(2px)}
+/* Совпадение с базой (как в десктопе) + порог доверия */
+.conf-row{display:flex;align-items:center;gap:10px;margin-top:11px;padding-top:10px;border-top:1px solid var(--line)}
+.conf-label{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;flex-shrink:0}
+.conf-line{flex:1;height:4px;background:var(--paper);max-width:220px}
+.conf-line i{display:block;height:100%;background:var(--green-2)}
+.conf-line i.low{background:var(--terra)}
+.conf-val{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--green)}
+.conf-val.low{color:var(--terra)}
+.low-conf{font-size:12.5px;color:var(--terra);background:var(--terra-soft);border:1px dashed rgba(192,64,45,.45);border-radius:0;padding:10px 12px;margin-top:9px;line-height:1.5}
 .risk-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
 .risk-badge{font-family:var(--mono);font-size:10px;font-weight:600;background:var(--terra-soft);color:var(--terra);border:1px solid rgba(192,64,45,.25);padding:4px 9px;border-radius:2px;display:flex;align-items:center;gap:6px}
 .risk-badge::before{content:'!';font-weight:700}
@@ -166,6 +180,9 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
 .norm-rel{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 .norm-rel.high{color:var(--green)}
 .norm-rel.medium{color:var(--muted)}
+/* Ключевая выписка визуально главнее поддерживающих */
+.norm-card.key{border-color:var(--green);border-left:3px solid var(--green);background:#fdfffe}
+.norm-card.key .norm-name{font-size:12px}
 /* Линейка «совпадение с базой» — как в десктопной версии */
 .match-line{height:3px;background:var(--paper);margin:0 12px}
 .match-line i{display:block;height:100%;background:var(--green-2)}
@@ -173,6 +190,10 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
 .norm-clause{font-family:var(--mono);font-size:10px;color:var(--muted);padding:7px 12px 6px}
 .norm-excerpt{padding:9px 12px 12px;font-size:12px;color:var(--ink);line-height:1.66;border-top:1px solid var(--line)}
 .norm-excerpt mark{background:var(--green-soft);color:var(--green);border-radius:0;padding:1px 0}
+/* Длинные чанки не превращают карточку в простыню: 6 строк + «развернуть» */
+.norm-card:not(.expanded) .norm-excerpt.clamp{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.norm-more{font-family:var(--mono);font-size:9.5px;font-weight:600;color:var(--green);padding:7px 12px 10px;cursor:pointer;text-transform:uppercase;letter-spacing:.05em;border-top:1px dashed var(--line)}
+.norm-more:hover{color:var(--green-2)}
 
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
@@ -292,7 +313,7 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="sidebar-section">
+    <div class="sidebar-section js-ctx-section">
       <div class="sidebar-label">Контекст проекта</div>
       <select class="sidebar-select" id="obj-type">
         <option value="office">Офисное здание</option>
@@ -313,10 +334,10 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
         <option value="25">Выше 17 этажей</option>
       </select>
       <input class="sidebar-input" id="area" type="text" placeholder="Площадь, м² (напр. 8000)">
-      <div class="sidebar-note">Подставляется в каждый вопрос и влияет на поиск и ответ. Текущий контекст виден над полем ввода.</div>
+      <div class="sidebar-note js-ctx-note">Подставляется в каждый вопрос и влияет на поиск и ответ.</div>
     </div>
 
-    <div class="sidebar-section">
+    <div class="sidebar-section js-ctx-section">
       <div class="sidebar-label">Раздел норм</div>
       <select class="sidebar-select" id="domain">
         <option value="fire">Пожарная безопасность</option>
@@ -328,7 +349,7 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
         <option value="structures">Конструкции и основания</option>
         <option value="planning">Генплан и планировка</option>
       </select>
-      <div class="sidebar-note">Уточняет тему поиска по корпусу.</div>
+      <div class="sidebar-note js-ctx-note">Уточняет тему поиска по корпусу.</div>
     </div>
 
     <div class="sidebar-section">
@@ -420,7 +441,7 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
     <div class="intro-title">Как это работает</div>
     <div class="intro-sub">Вы спрашиваете по-человечески — система ищет по смыслу в корпусе из 20 СП и отвечает с доказательством, которое можно проверить за секунды.</div>
     <div class="intro-steps">
-      <div class="intro-step"><div class="num">01 · ВОПРОС</div><div class="t">Вопрос + контекст</div><div class="d">Тип объекта, стадия и раздел норм из левой панели уходят вместе с каждым вопросом.</div></div>
+      <div class="intro-step"><div class="num">01 · ВОПРОС</div><div class="t">Вопрос своими словами</div><div class="d">Спрашивайте как коллегу; параметры (тип объекта, площадь) укажите прямо в вопросе.</div></div>
       <div class="intro-step"><div class="num">02 · ПОИСК</div><div class="t">Поиск по корпусу</div><div class="d">Семантический поиск по 9 001 фрагменту 20 сводов правил — по смыслу, а не по словам.</div></div>
       <div class="intro-step"><div class="num">03 · ОТВЕТ</div><div class="t">Ответ с выпиской</div><div class="d">Документ · пункт · страница · дословная цитата. Выписки — в панели справа.</div></div>
     </div>
@@ -710,6 +731,7 @@ function buildAnswer(query, citations, context) {
     answer: `${lead}\n\n${bullets.join('\n')}\n\nПроверить условия применения: ${caveats.join('; ')}. ${nextStep}`,
     citations,
     risk_flags: buildRiskFlags(citations, context),
+    confidence: matchConfidence(citations),
     not_in_corpus: false,
   };
 }
@@ -951,8 +973,22 @@ function backendToUi(result) {
     citations,
     risk_flags: [],
     model_badge: backend,
+    confidence: matchConfidence(citations),
     not_in_corpus: citations.length === 0,
   };
+}
+
+// Порог доверия: ниже — предлагаем перепроверить (ошибки проектирования дороги).
+const CONF_THRESHOLD = 72;
+
+function matchConfidence(citations) {
+  // «Совпадение с базой» из retrieval-скоров: топ-1 решает, топ-3 сглаживают.
+  // Это мера похожести найденного, НЕ вероятность правильности ответа.
+  if (!citations || !citations.length) return null;
+  const scores = citations.slice(0, 3).map(c => Number(c.score) || 0);
+  const top = scores[0];
+  const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+  return Math.round(100 * Math.min(0.99, 0.75 * top + 0.25 * avg));
 }
 
 function humanDocName(id) {
@@ -1033,9 +1069,34 @@ async function loadCorpus() {
 document.getElementById('domain').addEventListener('change', updateCorpusList);
 updateCorpusList();
 
-// ─── PROJECT CONTEXT STRIP ────────────────────────────────────────────────────
-// Контекст из сайдбара реально уходит на сервер с каждым вопросом
-// (project_context → добавка к промпту). Полоса делает это видимым.
+// ─── PROJECT CONTEXT: помечен «в разработке» в продукте ──────────────────────
+// Влияние параметров на ответ пока ненадёжное (это prompt-hint, не фильтр),
+// поэтому в продукте панель выключена и контекст НЕ отправляется — интерфейс
+// не обещает того, что не гарантирует. В demo-режиме панель остаётся живой:
+// там она управляет встроенным корпусом скринкаста.
+function markContextWip() {
+  if (DEMO_MODE) return;
+  ['obj-type', 'stage', 'floors', 'area', 'domain'].forEach(id => {
+    document.getElementById(id).disabled = true;
+  });
+  document.querySelectorAll('.js-ctx-section').forEach(sec => {
+    sec.classList.add('wip');
+    const label = sec.querySelector('.sidebar-label');
+    if (label && !label.querySelector('.wip-badge')) {
+      const b = document.createElement('span');
+      b.className = 'wip-badge';
+      b.textContent = 'в разработке';
+      label.appendChild(b);
+    }
+  });
+  document.querySelectorAll('.js-ctx-note').forEach(n => {
+    n.textContent = 'Пока не влияет на ответ: параметры проекта включим после калибровки на пилоте. Укажите площадь и тип объекта прямо в тексте вопроса.';
+  });
+  const strip = document.getElementById('context-strip');
+  if (strip) strip.style.display = 'none';
+}
+
+// ─── PROJECT CONTEXT STRIP (активна только в demo) ───────────────────────────
 function contextSummary() {
   const c = getProjectContext();
   return [
@@ -1158,7 +1219,9 @@ async function sendQuery() {
     return;
   }
 
-  const context = getProjectContext();
+  // Продукт: панель контекста «в разработке» — контекст не отправляется,
+  // чтобы поведение совпадало с интерфейсом. Demo: контекст двигает ответы.
+  const context = DEMO_MODE ? getProjectContext() : {};
 
   document.getElementById('empty-state')?.remove();
   isLoading = true;
@@ -1167,7 +1230,7 @@ async function sendQuery() {
   qi.style.height = 'auto';
 
   // Add user message + echo of the project context actually sent with it
-  addMessage('user', query, contextSummary());
+  addMessage('user', query, DEMO_MODE ? contextSummary() : '');
 
   // Add typing indicator
   const typingId = 'typing-' + Date.now();
@@ -1286,12 +1349,23 @@ function addAIMessage(parsed) {
 
   if (parsed.citations?.length) {
     html += `<div class="citations-row">`;
-    for (const c of parsed.citations) {
-      const rel = c.relevance === 'high' ? 'выписка' : 'контекст';
-      const label = [c.norm, c.clause, c.page].filter(Boolean).join(' · ');
+    parsed.citations.forEach((c, i) => {
+      const rel = i === 0 ? 'основание' : 'в поддержку';
+      const label = [c.norm, humanClause(c.clause), c.page].filter(Boolean).join(' · ');
       html += `<span class="cite-tag" data-source-id="${escHtml(String(c.sourceId))}">${rel} ${escHtml(label)}</span>`;
-    }
+    });
     html += `</div>`;
+  }
+
+  if (parsed.confidence != null && parsed.citations?.length) {
+    const low = parsed.confidence < CONF_THRESHOLD;
+    html += `<div class="conf-row"><span class="conf-label">Совпадение с базой</span>`
+      + `<div class="conf-line"><i class="${low ? 'low' : ''}" style="width:${parsed.confidence}%"></i></div>`
+      + `<span class="conf-val ${low ? 'low' : ''}">${parsed.confidence}/100</span></div>`;
+    if (low) {
+      html += `<div class="low-conf">Совпадение с базой ниже порога ${CONF_THRESHOLD} — в корпусе может не хватать данных по этому вопросу. Проверьте ответ по первоисточнику или переформулируйте запрос.</div>`;
+      track('answer-low-confidence');
+    }
   }
 
   if (parsed.risk_flags?.length) {
@@ -1342,9 +1416,9 @@ function renderNormCards(citations, domain) {
   sub.textContent = `${ruPlural(citations.length, 'источник', 'источника', 'источников')} · клик по выписке в ответе`;
   panel.innerHTML = '';
 
-  for (const c of citations) {
+  citations.forEach((c, i) => {
     const card = document.createElement('div');
-    card.className = 'norm-card' + (c.relevance === 'high' ? ' active' : '');
+    card.className = 'norm-card' + (i === 0 ? ' key' : '');
     const sourceId = c.sourceId || `${c.norm}:${c.clause}`;
     card.id = 'norm-' + sourceId.replace(/[^a-zA-Z0-9]/g, '-');
 
@@ -1353,17 +1427,31 @@ function renderNormCards(citations, domain) {
       : escHtml(c.excerpt);
 
     const pct = Math.round((c.score || 0.5) * 100);
+    const longExcerpt = String(c.excerpt || '').length > 340;
     card.innerHTML = `
       <div class="norm-card-head">
         <span class="norm-name">${escHtml(c.norm)}</span>
-        <span class="norm-rel ${c.relevance}">${c.relevance === 'high' ? 'Ключевой' : 'Доп.'}</span>
+        <span class="norm-rel ${i === 0 ? 'high' : 'medium'}">${i === 0 ? 'Ключевая' : 'В поддержку'}</span>
       </div>
       <div class="match-line" title="Совпадение с базой: ${pct}%"><i class="${c.relevance === 'high' ? '' : 'medium'}" style="width:${pct}%"></i></div>
-      <div class="norm-clause">${escHtml([c.clause, c.page].filter(Boolean).join(' · ') || 'фрагмент документа')}</div>
-      <div class="norm-excerpt">${excerptHtml}</div>
+      <div class="norm-clause">${escHtml([humanClause(c.clause), c.page].filter(Boolean).join(' · ') || 'фрагмент документа')}</div>
+      <div class="norm-excerpt${longExcerpt ? ' clamp' : ''}">${excerptHtml}</div>
+      ${longExcerpt ? '<div class="norm-more">развернуть</div>' : ''}
     `;
+    const more = card.querySelector('.norm-more');
+    if (more) more.addEventListener('click', () => {
+      const open = card.classList.toggle('expanded');
+      more.textContent = open ? 'свернуть' : 'развернуть';
+    });
     panel.appendChild(card);
-  }
+  });
+}
+
+function humanClause(clause) {
+  // «Таблица_5.1» → «Таблица 5.1»; голый артефакт парсинга («2») не показываем.
+  const c = String(clause || '').replace(/_/g, ' ').trim();
+  if (/^\d{1,2}$/.test(c)) return '';
+  return c;
 }
 
 function ruPlural(n, one, few, many) {
@@ -1750,6 +1838,7 @@ window.addEventListener('load', () => {
   handleLoginParam();
   refreshSession();
   loadCorpus();
+  markContextWip();
   initConsent();
   initIntro();
 });
