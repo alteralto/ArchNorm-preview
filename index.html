@@ -507,7 +507,7 @@
         "description": "AI-ассистент для архитектурных и проектных бюро: поиск и проверка строительных норм (СП, СНиП, ГОСТ) с цитатой и ссылкой на пункт. Разворачивается в закрытом контуре бюро (on-prem) — проектная документация не уходит в публичные AI-сервисы.",
         "featureList": ["Поиск нормы со ссылкой на пункт и страницу", "Закрытый контур / on-prem без публичного облака", "Цитата-источник у каждого вывода"],
         "offers": [
-          {"@type": "Offer", "name": "Пилот", "price": "100000", "priceCurrency": "RUB", "description": "Разовый пилот 4–6 недель на одном домене"},
+          {"@type": "Offer", "name": "Пилот", "price": "0", "priceCurrency": "RUB", "description": "Бесплатный пилот 4–6 недель на одном домене"},
           {"@type": "Offer", "name": "Лицензия для бюро", "price": "145000", "priceCurrency": "RUB", "description": "Лицензия на всю фирму, в месяц"}
         ]
       },
@@ -517,7 +517,7 @@
           {"@type": "Question", "name": "ArchNorm заменяет ГАПа или нормоконтролёра?", "acceptedAnswer": {"@type": "Answer", "text": "Нет. ArchNorm ускоряет поиск и сбор оснований, но не принимает проектное решение и не снимает ответственность со специалиста."}},
           {"@type": "Question", "name": "Можно ли не передавать документы в облако?", "acceptedAnswer": {"@type": "Answer", "text": "Да. Для чувствительной документации предусмотрен локальный (on-prem) контур — данные не уходят в публичные AI-сервисы. Это ключевое отличие ArchNorm от облачных ассистентов по нормам."}},
           {"@type": "Question", "name": "Какие нормы уже есть в MVP?", "acceptedAnswer": {"@type": "Answer", "text": "Текущий тестовый корпус включает 20 ключевых СП и расширяется под домен пилота. Это не «полная база всех норм»."}},
-          {"@type": "Question", "name": "Сколько стоит ArchNorm?", "acceptedAnswer": {"@type": "Answer", "text": "Пилот — 100 000 ₽ разово (4–6 недель). Лицензия на бюро — 145 000 ₽/мес. On-prem для проектного института — 275 000 ₽/мес. Тариф на всю фирму, не за каждое место."}}
+          {"@type": "Question", "name": "Сколько стоит ArchNorm?", "acceptedAnswer": {"@type": "Answer", "text": "Пилот — бесплатно (4–6 недель, по пилот-коду). Лицензия на бюро — 145 000 ₽/мес. On-prem для проектного института — 275 000 ₽/мес. Тариф на всю фирму, не за каждое место."}}
         ]
       }
     ]
@@ -609,7 +609,7 @@
     <div class="proof" aria-label="Проверенные показатели MVP">
       <div class="wrap proof-grid">
         <div class="proof-item"><span class="proof-value">20 СП</span><span class="proof-label">в текущем корпусе MVP</span></div>
-        <div class="proof-item"><span class="proof-value">8 901</span><span class="proof-label">структурный фрагмент норм</span></div>
+        <div class="proof-item"><span class="proof-value">9 001</span><span class="proof-label">структурный фрагмент норм</span></div>
         <div class="proof-item"><span class="proof-value">94,7%</span><span class="proof-label">Hit@3 на наборе из 132 вопросов</span></div>
         <div class="proof-item"><span class="proof-value">ON-PREM</span><span class="proof-label">локальный режим без публичного облака</span></div>
       </div>
@@ -723,15 +723,15 @@
         <div class="price-grid">
           <aside class="pilot-card">
             <span class="eyebrow">Пилот</span>
-            <div class="pilot-price">100 000 ₽</div>
-            <div class="pilot-term">разово · 4–6 недель · один домен</div>
+            <div class="pilot-price">Бесплатно</div>
+            <div class="pilot-term">4–6 недель · один домен · по пилот-коду</div>
             <ul>
               <li>Согласованный нормативный домен</li>
               <li>Ваши реальные вопросы и документы</li>
               <li>Измеримый результат против ручного процесса</li>
               <li>Облачный демо-контур или локальный запуск</li>
             </ul>
-            <a class="btn btn-secondary" href="#pilot" data-track="price-pilot">Запросить пилот</a>
+            <a class="btn btn-secondary" href="#pilot" data-track="price-pilot">Получить пилот-код</a>
           </aside>
           <aside class="pilot-card feat hatch-tr hatch-red">
             <span class="price-tag">Оптимально для бюро</span>
@@ -916,6 +916,8 @@
     function escapeHtml(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
     function runDemo(silent){
       var domain=document.getElementById("d-domain").value;
+      var objSel=document.getElementById("d-obj");
+      var objLabel=objSel.options[objSel.selectedIndex].text;
       var q=document.getElementById("d-q").value;
       var list=demoData[domain]||demoData.fire;
       var ph=document.getElementById("demo-ph"), out=document.getElementById("demo-out");
@@ -925,7 +927,7 @@
       if(!silent) trackEvent("demo_run", domain);
       var html='<div class="demo-resline"><span class="eyebrow" style="padding-top:0">Применимые пункты</span><span class="badge">'+list.length+' источника</span></div>';
       html+='<div class="demo-chips"><span class="chip r">'+risk+' проверить</span><span class="chip o">'+ok+' учесть</span><span class="chip i">'+info+' уточнить</span></div>';
-      if(q.trim()) html+='<p style="font-size:12.5px;color:var(--muted);margin:0 0 4px">Контекст: '+escapeHtml(q)+'</p>';
+      html+='<p style="font-size:12.5px;color:var(--muted);margin:0 0 4px">Контекст: '+escapeHtml(objLabel)+(q.trim()?' · '+escapeHtml(q):'')+'</p>';
       list.forEach(function(r){
         var fc=r.risk==="risk"?"f-risk":r.risk==="ok"?"f-ok":"f-info";
         html+='<div class="req"><div class="req-top"><span class="req-norm">'+r.norm+'</span><span class="req-flag '+fc+'">'+r.flag+'</span></div><p>'+r.text+'</p><div class="src">источник · '+r.cite+'</div></div>';
@@ -933,6 +935,20 @@
       html+='<div class="demo-foot">Демо-корпус для примера. ArchNorm показывает основание; значения и редакции проверяйте в полном тексте действующего документа — решение принимает специалист.</div>';
       out.innerHTML=html;
     }
+
+    /* Выбранный в примере контекст (объект/раздел/вопрос) уезжает в чат
+       вместе с кликом — там он предзаполнит «Контекст проекта». */
+    function chatUrl(){
+      var obj=document.getElementById("d-obj").value;
+      var dom=document.getElementById("d-domain").value;
+      var q=(document.getElementById("d-q").value||"").trim().slice(0,300);
+      var u="https://api.archnorm.ru/chat?obj="+enc(obj)+"&domain="+enc(dom);
+      if(q) u+="&q="+enc(q);
+      return u;
+    }
+    document.querySelectorAll('a[data-track^="product-try-chat"]').forEach(function(a){
+      a.addEventListener("click",function(){ this.href=chatUrl(); });
+    });
 
     /* pilot form → real endpoint when configured, honest mailto fallback (no secrets in repo) */
     var FORM_ENDPOINT = ""; // публичный POST-endpoint при деплое (напр. Formspree "https://formspree.io/f/xxxx"). Пусто = mailto-fallback. Секретов здесь нет.
