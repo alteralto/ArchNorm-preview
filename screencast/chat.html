@@ -75,6 +75,7 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
 }
 .sidebar-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' stroke='%2358615a' fill='none' stroke-width='1.4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
 .sidebar-select:focus,.sidebar-input:focus{border-color:var(--green)}
+.sidebar-note{font-family:var(--mono);font-size:9.5px;color:var(--muted);line-height:1.5;letter-spacing:.02em;padding:0 2px}
 .sidebar-tip{font-size:12px;color:var(--muted);line-height:1.55;padding:12px;background:var(--green-soft);border-left:3px solid var(--green);border-radius:0}
 .sidebar-tip strong{color:var(--green);font-weight:700}
 .corpus-list{display:flex;flex-direction:column;gap:3px;max-height:262px;overflow-y:auto}
@@ -134,6 +135,8 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
 .context-strip .ctx-label{color:var(--green);font-weight:600;flex-shrink:0}
 .context-strip .ctx-value{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .context-strip .ctx-edit{display:none;margin-left:auto;flex-shrink:0;font-family:var(--mono);font-size:10px;color:var(--green);background:none;border:1px solid var(--line-strong);border-radius:2px;padding:3px 8px;cursor:pointer;text-transform:uppercase;letter-spacing:.03em}
+.context-strip.flash .ctx-value{animation:ctxflash 1.2s ease}
+@keyframes ctxflash{0%{background:var(--green-soft);color:var(--green)}100%{background:transparent}}
 .input-row{display:flex;gap:10px;align-items:flex-end}
 .query-input{flex:1;background:var(--white);border:1px solid var(--line-strong);border-radius:2px;padding:12px 14px;font-family:var(--sans);font-size:14px;color:var(--ink);outline:none;resize:none;max-height:120px;line-height:1.5;transition:border-color .15s}
 .query-input:focus{border-color:var(--green)}
@@ -290,6 +293,7 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
         <option value="25">Выше 17 этажей</option>
       </select>
       <input class="sidebar-input" id="area" type="text" placeholder="Площадь, м² (напр. 8000)">
+      <div class="sidebar-note">Подставляется в каждый вопрос и влияет на поиск и ответ. Текущий контекст виден над полем ввода.</div>
     </div>
 
     <div class="sidebar-section">
@@ -304,6 +308,7 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
         <option value="structures">Конструкции и основания</option>
         <option value="planning">Генплан и планировка</option>
       </select>
+      <div class="sidebar-note">Уточняет тему поиска по корпусу.</div>
     </div>
 
     <div class="sidebar-section">
@@ -349,7 +354,7 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
           <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
         </button>
       </div>
-      <div class="input-hint" id="input-hint">Предварительный нормативный анализ — проверяйте по первоисточнику · Не вводите персональные данные · Ctrl+Enter — отправка</div>
+      <div class="input-hint" id="input-hint">Предварительный нормативный анализ — проверяйте по первоисточнику · Не вводите персональные данные · Enter — отправка</div>
     </div>
   </main>
 
@@ -993,15 +998,22 @@ function contextSummary() {
   ].filter(Boolean).join(' · ');
 }
 
-function updateContextStrip() {
+function updateContextStrip(flash) {
   const el = document.getElementById('ctx-value');
   if (el) el.textContent = contextSummary();
+  if (flash) {
+    // Мигаем полосой, чтобы связь «панель слева → контекст вопроса» была видна.
+    const strip = document.getElementById('context-strip');
+    strip.classList.remove('flash');
+    void strip.offsetWidth;
+    strip.classList.add('flash');
+  }
 }
 
 ['obj-type', 'stage', 'floors', 'area', 'domain'].forEach(id => {
   const el = document.getElementById(id);
-  el.addEventListener('change', updateContextStrip);
-  if (el.tagName === 'INPUT') el.addEventListener('input', updateContextStrip);
+  el.addEventListener('change', () => updateContextStrip(true));
+  if (el.tagName === 'INPUT') el.addEventListener('input', () => updateContextStrip(true));
 });
 updateContextStrip();
 
@@ -1024,21 +1036,24 @@ function closeDrawers() {
 // Auto-resize textarea
 const qi = document.getElementById('query-input');
 qi.addEventListener('input', () => { qi.style.height='auto'; qi.style.height=qi.scrollHeight+'px'; });
-qi.addEventListener('keydown', e => { if ((e.ctrlKey||e.metaKey) && e.key==='Enter') sendQuery(); });
+qi.addEventListener('keydown', e => {
+  // Enter отправляет (как во всех чатах), Shift+Enter — перенос строки.
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendQuery(); }
+});
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && isLoading) stopStreaming(); });
 
 function sendSuggested(btn) {
-  // Examples only fill the input — the user sends the question themselves.
+  // Клик по примеру = «спросить это»: раньше кнопка только заполняла поле,
+  // и для пользователя это выглядело как «ничего не произошло».
+  if (isLoading) return;
   track('chat-suggested-click');
   if (btn.dataset.domain) {
     document.getElementById('domain').value = btn.dataset.domain;
     updateCorpusList();
-    updateContextStrip();
+    updateContextStrip(true);
   }
   qi.value = btn.textContent;
-  qi.style.height = 'auto';
-  qi.style.height = qi.scrollHeight + 'px';
-  qi.focus();
+  sendQuery();
 }
 
 // ─── SEND QUERY ───────────────────────────────────────────────────────────────
