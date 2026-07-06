@@ -199,6 +199,26 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
 .gate-close{position:absolute;top:10px;right:14px;background:none;border:none;font-size:24px;color:var(--muted);cursor:pointer;line-height:1}
 .gate-note{font-size:12.5px;color:var(--green);background:var(--green-soft);border-left:3px solid var(--green);border-radius:0;padding:11px 13px;margin-top:6px;line-height:1.5;display:none}
 .gate-note.show{display:block}
+
+/* ── INTRO «Как работает» ── */
+.intro-card{position:relative;background:var(--paper-2);border:1px solid var(--line-strong);border-radius:2px;max-width:600px;width:100%;padding:28px 28px 24px;box-shadow:0 40px 90px rgba(20,32,26,.4);animation:rise .28s ease both;max-height:88vh;overflow-y:auto}
+.intro-title{font-family:var(--display);font-size:22px;font-weight:800;color:var(--ink);letter-spacing:-.02em;margin:8px 0 6px}
+.intro-sub{font-size:13.5px;color:var(--muted);line-height:1.55;margin-bottom:18px}
+.intro-steps{display:flex;gap:0;align-items:stretch;margin-bottom:18px}
+.intro-step{flex:1;background:var(--white);border:1px solid var(--line-strong);border-top:3px solid var(--green);padding:12px 12px 11px;min-width:0}
+.intro-step+.intro-step{margin-left:-1px}
+.intro-step .num{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--green);letter-spacing:.08em}
+.intro-step .t{font-size:13px;font-weight:700;color:var(--ink);margin:4px 0 3px}
+.intro-step .d{font-size:11.5px;color:var(--muted);line-height:1.45}
+.intro-risks{border:1px dashed var(--line-strong);background:rgba(255,255,255,.5);padding:12px 14px;margin-bottom:18px}
+.intro-risks .cap{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--terra);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
+.intro-risks ul{margin:0;padding-left:18px;font-size:12.5px;color:var(--muted);line-height:1.55}
+.intro-risks li{margin:3px 0}
+.intro-risks b{color:var(--ink)}
+.intro-foot{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.intro-foot .gate-cta{width:auto;padding:12px 26px}
+.intro-foot a{font-size:12.5px;color:var(--green);text-decoration:underline}
+@media(max-width:640px){.intro-steps{flex-direction:column}.intro-step+.intro-step{margin-left:0;margin-top:-1px}}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:2px;font-size:13px;font-weight:600;box-shadow:0 20px 50px rgba(20,32,26,.35);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:95;max-width:90vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.err{background:var(--terra)}
@@ -256,7 +276,7 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
 
   <!-- TOPBAR -->
   <header class="topbar">
-    <span class="logo">ArchNorm</span>
+    <a class="logo" href="https://archnorm.ru" title="ArchNorm — о продукте" style="text-decoration:none">ArchNorm</a>
     <span class="topbar-badge">Нормативный навигатор · Лист Ч-01</span>
     <div class="topbar-right">
       <button class="ctx-toggle" id="ctx-toggle" onclick="toggleContext()">Контекст</button>
@@ -320,7 +340,9 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
     <div class="sidebar-tip">
       <strong>Как работает:</strong> ассистент отвечает строго по загруженному нормкорпусу. Если ответа нет в документах — честно скажет об этом.
       Это предварительный анализ, он не заменяет нормоконтроль и экспертизу.
-      <br><a href="/privacy" target="_blank" style="color:var(--green-mid)">Политика конфиденциальности</a>
+      <br><a href="#" onclick="openIntro();return false" style="color:var(--green)">Схема работы</a>
+      · <a href="https://archnorm.ru" style="color:var(--green)">О продукте</a>
+      · <a href="/privacy" target="_blank" style="color:var(--green)">Конфиденциальность</a>
     </div>
   </aside>
 
@@ -389,6 +411,32 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
     <div class="gate-alt" id="gate-alt"></div>
   </div>
 </div>
+<!-- INTRO: как работает + риски (первый визит) -->
+<div class="gate-overlay" id="intro">
+  <div class="intro-card">
+    <button class="gate-close" onclick="closeIntro()" aria-label="Закрыть">&times;</button>
+    <div class="gate-badge">ArchNorm · Нормативный навигатор</div>
+    <div class="intro-title">Как это работает</div>
+    <div class="intro-sub">Вы спрашиваете по-человечески — система ищет по смыслу в корпусе из 20 СП и отвечает с доказательством, которое можно проверить за секунды.</div>
+    <div class="intro-steps">
+      <div class="intro-step"><div class="num">01 · ВОПРОС</div><div class="t">Вопрос + контекст</div><div class="d">Тип объекта, стадия и раздел норм из левой панели уходят вместе с каждым вопросом.</div></div>
+      <div class="intro-step"><div class="num">02 · ПОИСК</div><div class="t">Поиск по корпусу</div><div class="d">Семантический поиск по 9 001 фрагменту 20 сводов правил — по смыслу, а не по словам.</div></div>
+      <div class="intro-step"><div class="num">03 · ОТВЕТ</div><div class="t">Ответ с выпиской</div><div class="d">Документ · пункт · страница · дословная цитата. Выписки — в панели справа.</div></div>
+    </div>
+    <div class="intro-risks">
+      <div class="cap">Что важно знать</div>
+      <ul>
+        <li>Ассистент отвечает <b>строго по загруженному корпусу</b>. Если ответа нет в документах — честно откажет, а не придумает.</li>
+        <li>Это <b>предварительный анализ</b>: каждый ответ проверяйте по цитате и первоисточнику. Система не заменяет нормоконтроль и экспертизу.</li>
+        <li><b>10 вопросов</b> — бесплатно без регистрации, <b>50</b> — по email, дальше — пилотный код для бюро.</li>
+      </ul>
+    </div>
+    <div class="intro-foot">
+      <button class="gate-cta" onclick="closeIntro()">Понятно, начать</button>
+      <a href="https://archnorm.ru">О продукте — archnorm.ru</a>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 <div class="drawer-backdrop" id="drawer-backdrop" onclick="closeDrawers()"></div>
 
@@ -396,7 +444,7 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
 <div class="consent-bar" id="consent-bar">
   <span>Сервис использует необходимые cookie (квота вопросов и вход) и — с вашего согласия — обезличенную статистику посещений.
   <a href="/privacy" target="_blank">Политика конфиденциальности</a></span>
-  <button onclick="acceptConsent()">Понятно</button>
+  <button onclick="acceptConsent()">Принять</button>
 </div>
 
 <script>
@@ -1505,16 +1553,19 @@ function openGate(payload) {
     input.style.display = ''; input.type = 'email'; input.placeholder = 'you@company.ru'; input.value = '';
     cta.style.display = ''; cta.textContent = 'Получить 50 вопросов';
     consent.style.display = ''; consentCb.checked = false; cta.disabled = true;
-    alt.innerHTML = 'Есть пилотный код компании? <a onclick="switchGate(\'code\')">Ввести код</a>';
+    alt.innerHTML = 'Есть пилотный код компании? <a onclick="switchGate(\'code\')">Ввести код</a><br>'
+      + 'Нужен пилот для бюро? <a href="https://archnorm.ru/#pilot" target="_blank">Запросить пилот бесплатно</a>';
   } else if (GATE_MODE === 'code') {
     input.style.display = ''; input.type = 'text'; input.placeholder = 'PILOT-XXXXXXXX'; input.value = '';
     cta.style.display = ''; cta.textContent = 'Активировать код';
     consent.style.display = 'none'; cta.disabled = false;
-    alt.innerHTML = 'Нет кода? <a href="mailto:xelartn75@gmail.com">Написать нам</a>';
+    alt.innerHTML = 'Нет кода? <a href="https://archnorm.ru/#pilot" target="_blank">Запросить пилот для бюро</a>'
+      + ' · <a href="mailto:xelartn75@gmail.com">Написать нам</a>';
   } else {
     input.style.display = 'none'; cta.style.display = 'none';
     consent.style.display = 'none';
-    alt.innerHTML = 'Напишите нам: <a href="mailto:xelartn75@gmail.com">xelartn75@gmail.com</a>';
+    alt.innerHTML = '<a href="https://archnorm.ru/#pilot" target="_blank">Запросить расширенный пилот</a>'
+      + ' · <a href="mailto:xelartn75@gmail.com">xelartn75@gmail.com</a>';
   }
   document.getElementById('gate').classList.add('open');
   if (input.style.display !== 'none') setTimeout(() => input.focus(), 60);
@@ -1627,7 +1678,29 @@ function handleLoginParam() {
 }
 
 document.getElementById('gate-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitGate(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGate(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeGate(); closeIntro(); } });
+
+// ─── INTRO «Как работает» ────────────────────────────────────────────────────
+const INTRO_KEY = 'ARCHNORM_INTRO_V1';
+
+function openIntro() {
+  document.getElementById('intro').classList.add('open');
+  track('intro-opened');
+}
+
+function closeIntro() {
+  document.getElementById('intro').classList.remove('open');
+  try { localStorage.setItem(INTRO_KEY, String(Date.now())); } catch (e) { /* приватный режим */ }
+}
+
+function initIntro() {
+  // Первый визит: объясняем механику и границы ДО первого вопроса.
+  // В demo-режиме (скринкаст/iframe) не показываем.
+  if (DEMO_MODE) return;
+  let seen = null;
+  try { seen = localStorage.getItem(INTRO_KEY); } catch (e) { /* ignore */ }
+  if (!seen) document.getElementById('intro').classList.add('open');
+}
 
 // ─── CONSENT / ANALYTICS ─────────────────────────────────────────────────────
 const CONSENT_KEY = 'ARCHNORM_CONSENT_V1';
@@ -1677,6 +1750,7 @@ window.addEventListener('load', () => {
   refreshSession();
   loadCorpus();
   initConsent();
+  initIntro();
 });
 </script>
 </body>
