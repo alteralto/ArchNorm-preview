@@ -411,8 +411,9 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
     <div class="gate-alt" id="gate-alt"></div>
   </div>
 </div>
-<!-- INTRO: как работает + риски (первый визит) -->
-<div class="gate-overlay" id="intro">
+<!-- INTRO: как работает + риски (первый визит).
+     z-index выше consent-бара: на телефоне многострочный бар перекрывал CTA. -->
+<div class="gate-overlay" id="intro" style="z-index:93">
   <div class="intro-card">
     <button class="gate-close" onclick="closeIntro()" aria-label="Закрыть">&times;</button>
     <div class="gate-badge">ArchNorm · Нормативный навигатор</div>
