@@ -179,6 +179,7 @@ a.corpus-item:hover::after{opacity:1}
 .send-btn.stop:hover{background:#a33625}
 .send-btn svg{width:18px;height:18px;fill:currentColor}
 .input-hint{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:7px}
+.input-hint.followup{color:var(--terra);font-weight:600}
 
 /* ── NORM PANEL: выписки ── */
 .norm-panel{background:var(--paper-2);border-left:1px solid var(--line-strong);display:flex;flex-direction:column;overflow:hidden}
@@ -499,6 +500,7 @@ a.corpus-item:hover::after{opacity:1}
       <div class="cap">Что важно знать</div>
       <ul>
         <li>Ассистент отвечает <b>строго по загруженному корпусу</b>. Если ответа нет в документах — честно откажет, а не придумает.</li>
+        <li><b>Каждый вопрос — самостоятельный</b>: истории диалога пока нет. Уточняете предыдущий ответ — повторите детали (объект, конструкция, документ) в новом вопросе.</li>
         <li>Это <b>предварительный анализ</b>: каждый ответ проверяйте по цитате и первоисточнику. Система не заменяет нормоконтроль и экспертизу.</li>
         <li><b>10 вопросов</b> — бесплатно без регистрации, <b>50</b> — по email, дальше — пилотный код для бюро.</li>
       </ul>
@@ -1233,6 +1235,26 @@ function closeDrawers() {
 // Auto-resize textarea
 const qi = document.getElementById('query-input');
 qi.addEventListener('input', () => { qi.style.height='auto'; qi.style.height=qi.scrollHeight+'px'; });
+
+// Диалоговой памяти пока нет — короткий вопрос-уточнение («а если…») уйдёт в
+// retrieval без контекста и вернёт нерелевантное. Ловим паттерн на вводе и
+// честно подсказываем повторить детали, пока conversational RAG не реализован.
+const HINT_DEFAULT = document.getElementById('input-hint').textContent;
+function updateFollowupHint() {
+  const v = qi.value.trim();
+  const looksFollowup = v && v.length < 80
+    && /^(а|и|но)[\s,]|^(а если|если|тогда|а сколько|а какая|а какое|а какой|а что)\b/i.test(v)
+    && document.querySelector('.msg-user');
+  const el = document.getElementById('input-hint');
+  if (looksFollowup) {
+    el.textContent = 'Похоже на уточнение. Система отвечает на каждый вопрос отдельно — повторите ключевые детали (объект, конструкция, документ) прямо в этом вопросе.';
+    el.classList.add('followup');
+  } else {
+    el.textContent = HINT_DEFAULT;
+    el.classList.remove('followup');
+  }
+}
+qi.addEventListener('input', updateFollowupHint);
 qi.addEventListener('keydown', e => {
   // Enter отправляет (как во всех чатах), Shift+Enter — перенос строки.
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendQuery(); }
