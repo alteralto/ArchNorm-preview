@@ -1033,6 +1033,7 @@ function sendSuggested(btn) {
   if (btn.dataset.domain) {
     document.getElementById('domain').value = btn.dataset.domain;
     updateCorpusList();
+    updateContextStrip();
   }
   qi.value = btn.textContent;
   qi.style.height = 'auto';
