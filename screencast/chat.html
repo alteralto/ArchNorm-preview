@@ -469,39 +469,14 @@ a.corpus-item:hover::after{opacity:1}
     <div class="gate-alt" id="gate-alt"></div>
   </div>
 </div>
-<!-- SURVEY: 5 коротких вопросов на 60% бесплатной квоты -->
+<!-- SURVEY: короткий для бесплатных тарифов, глубокий для пилотных кодов -->
 <div class="gate-overlay" id="survey">
   <div class="gate-card survey-card">
     <button class="gate-close" onclick="closeSurvey()" aria-label="Закрыть">&times;</button>
-    <div class="gate-badge">ArchNorm · 20 секунд</div>
-    <div class="gate-title">Как вам навигатор?</div>
-    <div class="gate-msg">Четыре клика и одно поле — это напрямую влияет на то, что мы добавим следующим.</div>
-    <div class="survey-q">
-      <div class="survey-label">Ваша роль</div>
-      <div class="survey-chips" data-key="role">
-        <button type="button">Архитектор</button><button type="button">Инженер-проектировщик</button><button type="button">ГИП / руководитель</button><button type="button">Нормоконтролёр</button><button type="button">Другое</button>
-      </div>
-    </div>
-    <div class="survey-q">
-      <div class="survey-label">Ответы по вашим вопросам</div>
-      <div class="survey-chips" data-key="accuracy">
-        <button type="button">Точные</button><button type="button">Частично точные</button><button type="button">Были ошибки</button>
-      </div>
-    </div>
-    <div class="survey-q">
-      <div class="survey-label">Сколько времени экономит один такой ответ</div>
-      <div class="survey-chips" data-key="time_saved">
-        <button type="button">До 5 минут</button><button type="button">15–30 минут</button><button type="button">Час и более</button><button type="button">Не экономит</button>
-      </div>
-    </div>
-    <div class="survey-q">
-      <div class="survey-label">Порекомендовали бы коллегам?</div>
-      <div class="survey-chips" data-key="recommend">
-        <button type="button">Да</button><button type="button">Возможно</button><button type="button">Нет</button>
-      </div>
-    </div>
-    <input class="gate-field" id="survey-missing" type="text" maxlength="300" autocomplete="off"
-           placeholder="Чего не хватило? Документы, разделы, функции (необязательно)">
+    <div class="gate-badge" id="survey-badge"></div>
+    <div class="gate-title" id="survey-title"></div>
+    <div class="gate-msg" id="survey-msg"></div>
+    <div id="survey-body"></div>
     <button class="gate-cta" onclick="submitSurvey()">Отправить</button>
     <div class="gate-note" id="survey-note"></div>
     <div class="gate-alt"><a onclick="closeSurvey()">Позже</a></div>
@@ -1962,27 +1937,78 @@ function initIntro() {
   if (!seen) document.getElementById('intro').classList.add('open');
 }
 
-// ─── SURVEY: 5 вопросов на 60% бесплатной квоты ─────────────────────────────
-// Показываем один раз бесплатным тарифам (anon 10 / email 50), когда человек
-// уже распробовал продукт, но ещё не упёрся в лимит. «Позже» — второй и
-// последний показ на 90%. Пилотные коды не трогаем: у бюро свой канал.
-const SURVEY_KEY = 'ARCHNORM_SURVEY_V1';
+// ─── SURVEY: короткий для бесплатных, глубокий для пилотных ─────────────────
+// Free (anon 10 / email 50): 5 пунктов на 60% квоты, «Позже» → 90%.
+// Pilot (личные 70 / бюро 200): 9 пунктов на 30% квоты (человек уже наработал
+// мнение), «Позже» → 70%. Ответы уходят в POST /feedback с меткой кода —
+// кто ответил, видно по карте меток без вопроса «кто вы из какого бюро».
+const SURVEY_DEFS = {
+  free: {
+    id: 'free-v1', store: 'ARCHNORM_SURVEY_V1', at: 0.6, laterAt: 0.9,
+    badge: 'ArchNorm · 20 секунд', title: 'Как вам навигатор?',
+    msg: 'Четыре клика и одно поле — это напрямую влияет на то, что мы добавим следующим.',
+    items: [
+      { key: 'role', label: 'Ваша роль', chips: ['Архитектор', 'Инженер-проектировщик', 'ГИП / руководитель', 'Нормоконтролёр', 'Другое'] },
+      { key: 'accuracy', label: 'Ответы по вашим вопросам', chips: ['Точные', 'Частично точные', 'Были ошибки'] },
+      { key: 'time_saved', label: 'Сколько времени экономит один такой ответ', chips: ['До 5 минут', '15–30 минут', 'Час и более', 'Не экономит'] },
+      { key: 'recommend', label: 'Порекомендовали бы коллегам?', chips: ['Да', 'Возможно', 'Нет'] },
+      { key: 'missing', input: 'Чего не хватило? Документы, разделы, функции (необязательно)' },
+    ],
+  },
+  pilot: {
+    id: 'pilot-v1', store: 'ARCHNORM_SURVEY_PILOT_V1', at: 0.3, laterAt: 0.7,
+    badge: 'ArchNorm · пилот · 1 минута', title: 'Опыт вашего бюро важен',
+    msg: 'Вы на пилотном доступе — эти ответы определяют, что попадёт в продукт до конца пилота.',
+    items: [
+      { key: 'role', label: 'Ваша роль', chips: ['Архитектор', 'Инженер-проектировщик', 'ГИП / руководитель', 'Нормоконтролёр', 'Другое'] },
+      { key: 'frequency', label: 'Как часто пользуетесь', chips: ['Каждый день', 'Несколько раз в неделю', 'Пару раз', 'Разово попробовал(а)'] },
+      { key: 'accuracy', label: 'Точность ответов', chips: ['Точные', 'Частично точные', 'Были ошибки'] },
+      { key: 'errors', input: 'Если были ошибки или спорные ответы — на каком вопросе? (необязательно)' },
+      { key: 'features', label: 'Что нужно в первую очередь — можно несколько', multi: true, chips: ['Проверка PDF-документации', 'Загрузка своих документов', 'Учёт контекста проекта', 'Экспорт выписок в записку', 'Оффлайн-версия для бюро', 'Больше СП и ГОСТ в базе'] },
+      { key: 'time_saved_week', label: 'Экономия времени в неделю', chips: ['До часа', '2–4 часа', 'Рабочий день и больше', 'Пока не экономит'] },
+      { key: 'pay', label: 'Если сервис станет платным для бюро', chips: ['Купим', 'Обсудим с руководством', 'Только бесплатный', 'Не я решаю'] },
+      { key: 'call', label: 'Готовы на 15-минутный созвон об опыте?', chips: ['Да', 'Нет'] },
+      { key: 'missing', input: 'Каких документов или разделов не хватает? (необязательно)' },
+    ],
+  },
+};
+
+let SURVEY_DEF = null;
+
+function buildSurvey(def) {
+  SURVEY_DEF = def;
+  document.getElementById('survey-badge').textContent = def.badge;
+  document.getElementById('survey-title').textContent = def.title;
+  document.getElementById('survey-msg').textContent = def.msg;
+  document.getElementById('survey-body').innerHTML = def.items.map(it => {
+    if (it.input) return `<input class="gate-field survey-input" type="text" maxlength="300" autocomplete="off" data-key="${it.key}" placeholder="${escHtml(it.input)}">`;
+    return `<div class="survey-q"><div class="survey-label">${escHtml(it.label)}</div>`
+      + `<div class="survey-chips" data-key="${it.key}"${it.multi ? ' data-multi="1"' : ''}>`
+      + it.chips.map(c => `<button type="button">${escHtml(c)}</button>`).join('')
+      + `</div></div>`;
+  }).join('');
+  const note = document.getElementById('survey-note');
+  note.className = 'gate-note'; note.textContent = '';
+}
 
 function maybeShowSurvey(q) {
   if (DEMO_MODE || !q || q.unlimited || !q.limit) return;
-  if (q.kind !== 'anon' && q.kind !== 'user') return;
+  const def = q.kind === 'pilot' ? SURVEY_DEFS.pilot
+    : (q.kind === 'anon' || q.kind === 'user') ? SURVEY_DEFS.free : null;
+  if (!def) return;
   let state = null;
-  try { state = localStorage.getItem(SURVEY_KEY); } catch (e) { return; }
+  try { state = localStorage.getItem(def.store); } catch (e) { return; }
   if (state === 'done') return;
   const used = (q.limit - (q.remaining || 0)) / q.limit;
-  if (used < (state === 'later' ? 0.9 : 0.6)) return;
+  if (used < (state === 'later' ? def.laterAt : def.at)) return;
   if (document.getElementById('gate').classList.contains('open')) return;
   if (document.getElementById('survey').classList.contains('open')) return;
+  buildSurvey(def);
   // Пауза, чтобы окно не выскакивало поверх дочитываемого ответа.
   setTimeout(() => {
     if (!document.getElementById('gate').classList.contains('open')) {
       document.getElementById('survey').classList.add('open');
-      track('survey-shown');
+      track('survey-shown-' + def.id);
     }
   }, 1200);
 }
@@ -1991,28 +2017,35 @@ function closeSurvey() {
   const el = document.getElementById('survey');
   if (!el.classList.contains('open')) return;
   el.classList.remove('open');
-  try { localStorage.setItem(SURVEY_KEY, 'later'); } catch (e) { /* ignore */ }
-  track('survey-later');
+  if (SURVEY_DEF) {
+    try { localStorage.setItem(SURVEY_DEF.store, 'later'); } catch (e) { /* ignore */ }
+    track('survey-later-' + SURVEY_DEF.id);
+  }
 }
 
-document.querySelectorAll('.survey-chips').forEach(row => {
-  row.addEventListener('click', (e) => {
-    const btn = e.target.closest('button');
-    if (!btn) return;
-    row.querySelectorAll('button').forEach(b => b.classList.toggle('sel', b === btn && !b.classList.contains('sel')));
-  });
+// Чипы: одиночный выбор по умолчанию, независимые переключатели при data-multi.
+document.getElementById('survey-body').addEventListener('click', (e) => {
+  const btn = e.target.closest('.survey-chips button');
+  if (!btn) return;
+  const row = btn.closest('.survey-chips');
+  if (row.dataset.multi) btn.classList.toggle('sel');
+  else row.querySelectorAll('button').forEach(b =>
+    b.classList.toggle('sel', b === btn && !b.classList.contains('sel')));
 });
 
 async function submitSurvey() {
-  const answers = {};
-  document.querySelectorAll('.survey-chips').forEach(row => {
-    const sel = row.querySelector('button.sel');
-    if (sel) answers[row.dataset.key] = sel.textContent;
+  if (!SURVEY_DEF) return;
+  const answers = { _survey: SURVEY_DEF.id };
+  document.querySelectorAll('#survey-body .survey-chips').forEach(row => {
+    const sel = [...row.querySelectorAll('button.sel')].map(b => b.textContent);
+    if (sel.length) answers[row.dataset.key] = sel.join(', ');
   });
-  const missing = document.getElementById('survey-missing').value.trim();
-  if (missing) answers.missing = missing.slice(0, 300);
+  document.querySelectorAll('#survey-body .survey-input').forEach(inp => {
+    const v = inp.value.trim();
+    if (v) answers[inp.dataset.key] = v.slice(0, 300);
+  });
   const note = document.getElementById('survey-note');
-  if (!Object.keys(answers).length) {
+  if (Object.keys(answers).length <= 1) {
     note.textContent = 'Отметьте хотя бы один пункт — или нажмите «Позже».';
     note.className = 'gate-note show';
     return;
@@ -2023,10 +2056,10 @@ async function submitSurvey() {
       body: JSON.stringify({ answers }),
     });
     if (!res.ok) throw new Error('bad');
-    try { localStorage.setItem(SURVEY_KEY, 'done'); } catch (e) { /* ignore */ }
+    try { localStorage.setItem(SURVEY_DEF.store, 'done'); } catch (e) { /* ignore */ }
     document.getElementById('survey').classList.remove('open');
     showToast('Спасибо! Это напрямую влияет на продукт.');
-    track('survey-submitted');
+    track('survey-submitted-' + SURVEY_DEF.id);
   } catch (e) {
     note.textContent = 'Не удалось отправить. Попробуйте ещё раз или нажмите «Позже».';
     note.className = 'gate-note show';
