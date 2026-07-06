@@ -106,6 +106,7 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
 .risk-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
 .risk-badge{font-family:var(--mono);font-size:10px;font-weight:600;background:var(--terra-soft);color:var(--terra);border:1px solid rgba(192,64,45,.25);padding:4px 9px;border-radius:2px;display:flex;align-items:center;gap:6px}
 .risk-badge::before{content:'!';font-weight:700}
+.model-badge{font-family:var(--mono);font-size:9px;color:var(--muted);border:1px solid var(--line);padding:3px 8px;border-radius:2px;letter-spacing:.05em;text-transform:uppercase;display:inline-block;margin-top:10px}
 .not-found{font-size:13px;color:var(--muted);padding:9px 12px;background:var(--paper-2);border:1px dashed var(--line-strong);border-radius:0;margin-top:8px}
 
 .typing-indicator{display:flex;align-items:center;gap:4px;padding:10px 14px}
@@ -876,7 +877,7 @@ function backendToUi(result) {
     const sourceId = source.source_id || source.chunk_id || `${source.doc_name || 'source'}:${source.clause_number || index}`;
     return {
       sourceId,
-      norm: source.doc_name || 'Источник',
+      norm: humanDocName(source.doc_name) || 'Источник',
       clause: source.clause_number || '',
       page,
       excerpt: text,
@@ -894,9 +895,27 @@ function backendToUi(result) {
   return {
     answer: result.answer || 'Ответ от локального RAG не вернул текст.',
     citations,
-    risk_flags: backend ? [`RAG: ${backend}`] : [],
+    risk_flags: [],
+    model_badge: backend,
     not_in_corpus: citations.length === 0,
   };
+}
+
+function humanDocName(id) {
+  // «STROYINF_SP_1.13130.2020_evacuation» → «СП 1.13130.2020» для чипов и карточек.
+  if (!id) return '';
+  const d = formatDocId(id);
+  return /^СП /.test(d.num) ? d.num : String(id);
+}
+
+function cleanAnswerText(t) {
+  // Модель цитирует doc_id из метаданных контекста — показываем человеку «СП N».
+  return String(t || '').replace(/[A-Z]+_SP_([0-9][0-9.]*)_[a-z0-9_]+/g, 'СП $1');
+}
+
+function answerHtml(t) {
+  // Ответы приходят с markdown-жирным (**Ответ:**) — рендерим только его, безопасно.
+  return escHtml(cleanAnswerText(t)).replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>');
 }
 
 // ─── CORPUS LIST (sidebar) ────────────────────────────────────────────────────
@@ -1055,7 +1074,7 @@ function updateStreamBubble(id, text) {
     div.innerHTML = `<div class="msg-label">ArchNorm</div><div class="bubble"><div class="answer-text"></div></div>`;
     msgs.appendChild(div);
   }
-  div.querySelector('.answer-text').textContent = text;
+  div.querySelector('.answer-text').innerHTML = answerHtml(text);
   const msgs = document.getElementById('messages');
   msgs.scrollTop = msgs.scrollHeight;
 }
@@ -1194,7 +1213,7 @@ function addAIMessage(parsed) {
   div.className = 'msg msg-ai';
 
   let html = `<div class="msg-label">ArchNorm</div><div class="bubble">`;
-  html += `<div class="answer-text">${escHtml(parsed.answer)}</div>`;
+  html += `<div class="answer-text">${answerHtml(parsed.answer)}</div>`;
 
   if (parsed.not_in_corpus) {
     html += `<div class="not-found">В подключённой базе нормативов не нашлось подтверждающих фрагментов — ответ не достроен. Переформулируйте вопрос или уточните документ.</div>`;
@@ -1216,6 +1235,10 @@ function addAIMessage(parsed) {
       html += `<span class="risk-badge">${escHtml(r)}</span>`;
     }
     html += `</div>`;
+  }
+
+  if (parsed.model_badge) {
+    html += `<span class="model-badge">${escHtml(parsed.model_badge)}</span>`;
   }
 
   html += `</div>`;
