@@ -1009,6 +1009,22 @@ function backendToUi(result) {
 // Порог доверия: ниже — предлагаем перепроверить (ошибки проектирования дороги).
 const CONF_THRESHOLD = 72;
 
+function calibrateScore(r) {
+  // Косинусные скоры живут в узкой полосе: фон ~0.59 у случайной строки,
+  // ~0.85–0.93 у связного русского оффтопа, >0.93 у настоящих попаданий
+  // (замерено на проде 07.07). Растягиваем в честные 0–100, иначе спам
+  // показывал бы «60–92/100». Калибровка предварительная — уточним по пилоту.
+  const pts = [[0, 0], [0.60, 10], [0.85, 45], [0.93, 72], [1.0, 99]];
+  const v = Math.max(0, Math.min(1, Number(r) || 0));
+  for (let i = 1; i < pts.length; i++) {
+    if (v <= pts[i][0]) {
+      const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+      return y0 + (v - x0) / (x1 - x0) * (y1 - y0);
+    }
+  }
+  return 99;
+}
+
 function matchConfidence(citations) {
   // «Совпадение с базой» из retrieval-скоров: топ-1 решает, топ-3 сглаживают.
   // Это мера похожести найденного, НЕ вероятность правильности ответа.
@@ -1016,7 +1032,14 @@ function matchConfidence(citations) {
   const scores = citations.slice(0, 3).map(c => Number(c.score) || 0);
   const top = scores[0];
   const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
-  return Math.round(100 * Math.min(0.99, 0.75 * top + 0.25 * avg));
+  return Math.round(calibrateScore(0.75 * top + 0.25 * avg));
+}
+
+function isRefusal(answer) {
+  // Отказ модели («в фрагментах нет ответа») — сигнал сильнее любого скора:
+  // ретривер всегда что-то находит, а отказ значит, что найденное не про вопрос.
+  return /не содерж\w+ (информаци|данн|ответ)|нет (информации|данных|ответа)|информация отсутствует|отсутству\w+ (информаци|данн)|нет относящихся|не могу ответить|невозможно ответить|не позволяют ответить|не относ\w+ к (вопросу|запросу)/i
+    .test(String(answer || ''));
 }
 
 function humanDocName(id) {
@@ -1410,11 +1433,20 @@ function addAIMessage(parsed) {
     html += `</div>`;
   }
 
-  if (parsed.confidence != null && parsed.citations?.length) {
-    const low = parsed.confidence < CONF_THRESHOLD;
+  // Уверенность и отказ пересчитываем из содержимого (а не берём сохранённое):
+  // так восстановленная из localStorage история автоматически перекалибруется.
+  const refusal = isRefusal(parsed.answer);
+  const conf = refusal ? null
+    : (parsed.citations?.length ? matchConfidence(parsed.citations) : null);
+
+  if (refusal && parsed.citations?.length) {
+    html += `<div class="low-conf">Ответ не подтверждён корпусом: модель не нашла оснований в найденных фрагментах. Показатель совпадения не применим — переформулируйте вопрос или проверьте по первоисточнику.</div>`;
+    track('answer-refusal');
+  } else if (conf != null) {
+    const low = conf < CONF_THRESHOLD;
     html += `<div class="conf-row"><span class="conf-label">Совпадение с базой</span>`
-      + `<div class="conf-line"><i class="${low ? 'low' : ''}" style="width:${parsed.confidence}%"></i></div>`
-      + `<span class="conf-val ${low ? 'low' : ''}">${parsed.confidence}/100</span></div>`;
+      + `<div class="conf-line"><i class="${low ? 'low' : ''}" style="width:${conf}%"></i></div>`
+      + `<span class="conf-val ${low ? 'low' : ''}">${conf}/100</span></div>`;
     if (low) {
       html += `<div class="low-conf">Совпадение с базой ниже порога ${CONF_THRESHOLD} — в корпусе может не хватать данных по этому вопросу. Проверьте ответ по первоисточнику или переформулируйте запрос.</div>`;
       track('answer-low-confidence');
@@ -1485,7 +1517,7 @@ function renderNormCards(citations, domain, msgId) {
       ? escHtml(c.excerpt).replace(escHtml(c.highlight), `<mark>${escHtml(c.highlight)}</mark>`)
       : escHtml(c.excerpt);
 
-    const pct = Math.round((c.score || 0.5) * 100);
+    const pct = Math.round(calibrateScore(c.score || 0.5));
     const longExcerpt = String(c.excerpt || '').length > 340;
     const extUrl = spExternalUrl(c.norm);
     card.innerHTML = `
@@ -1493,7 +1525,7 @@ function renderNormCards(citations, domain, msgId) {
         <span class="norm-name">${escHtml(c.norm)}</span>
         <span class="norm-rel ${i === 0 ? 'high' : 'medium'}">${i === 0 ? 'Ключевая' : 'В поддержку'}</span>
       </div>
-      <div class="match-line" title="Совпадение с базой: ${pct}%"><i class="${c.relevance === 'high' ? '' : 'medium'}" style="width:${pct}%"></i></div>
+      <div class="match-line" title="Совпадение с базой: ${pct}/100"><i class="${c.relevance === 'high' ? '' : 'medium'}" style="width:${pct}%"></i></div>
       <div class="norm-clause">${escHtml([humanClause(c.clause), c.page].filter(Boolean).join(' · ') || 'фрагмент документа')}</div>
       <div class="norm-excerpt${longExcerpt ? ' clamp' : ''}">${excerptHtml}</div>
       <div class="norm-actions">
