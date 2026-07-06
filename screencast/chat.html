@@ -88,6 +88,22 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
 .corpus-list::-webkit-scrollbar-thumb{background:var(--line-strong)}
 .corpus-item{font-family:var(--mono);font-size:10px;color:var(--muted);padding:5px 8px;background:var(--white);border-radius:2px;border:1px solid var(--line);display:flex;align-items:center;gap:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .corpus-item b{color:var(--ink);font-weight:600;flex-shrink:0}
+a.corpus-item{text-decoration:none;cursor:pointer;transition:border-color .15s,background .15s}
+a.corpus-item:hover{border-color:var(--green);background:var(--green-soft)}
+a.corpus-item::after{content:'\2197';margin-left:auto;color:var(--green);opacity:0;transition:opacity .15s;flex-shrink:0}
+a.corpus-item:hover::after{opacity:1}
+.chat-new{margin-left:auto;font-family:var(--mono);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--green);background:var(--white);border:1px solid var(--line);border-radius:2px;padding:3px 8px;cursor:pointer;transition:border-color .15s,background .15s}
+.chat-new:hover{border-color:var(--green);background:var(--green-soft)}
+.chat-list{display:flex;flex-direction:column;gap:5px;max-height:168px;overflow-y:auto}
+.chat-list::-webkit-scrollbar{width:4px}
+.chat-list::-webkit-scrollbar-thumb{background:var(--line-strong)}
+.chat-item{font-family:var(--mono);font-size:10.5px;color:var(--muted);padding:6px 8px;background:var(--white);border:1px solid var(--line);border-radius:2px;display:flex;align-items:center;gap:7px;cursor:pointer;transition:border-color .15s,background .15s}
+.chat-item:hover{border-color:var(--green)}
+.chat-item.active{border-left:3px solid var(--green);border-color:var(--green);color:var(--ink)}
+.chat-item-title{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-item-del{color:var(--muted);font-size:13px;line-height:1;padding:0 2px;opacity:0;transition:opacity .15s;flex-shrink:0}
+.chat-item:hover .chat-item-del{opacity:1}
+.chat-item-del:hover{color:var(--terra)}
 .corpus-dot{width:5px;height:5px;background:var(--green-2);flex-shrink:0}
 .corpus-total{font-family:var(--mono);font-size:10px;color:var(--muted);padding:3px 2px 0;letter-spacing:.02em}
 
@@ -109,6 +125,8 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
 .citations-row{display:flex;flex-direction:column;gap:5px;border-top:1px solid var(--line);padding-top:11px;margin-top:4px}
 .cite-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--green);background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--green);padding:6px 10px;border-radius:0;cursor:pointer;transition:background .15s,transform .15s}
 .cite-tag:hover{background:var(--green-soft);transform:translateX(2px)}
+.sp-ref{color:var(--green);font-weight:600;border-bottom:1px dashed var(--green);cursor:pointer}
+.sp-ref:hover{color:var(--green-2);border-bottom-style:solid}
 /* Совпадение с базой (как в десктопе) + порог доверия */
 .conf-row{display:flex;align-items:center;gap:10px;margin-top:11px;padding-top:10px;border-top:1px solid var(--line)}
 .conf-label{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;flex-shrink:0}
@@ -192,7 +210,10 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
 .norm-excerpt mark{background:var(--green-soft);color:var(--green);border-radius:0;padding:1px 0}
 /* Длинные чанки не превращают карточку в простыню: 6 строк + «развернуть» */
 .norm-card:not(.expanded) .norm-excerpt.clamp{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
-.norm-more{font-family:var(--mono);font-size:9.5px;font-weight:600;color:var(--green);padding:7px 12px 10px;cursor:pointer;text-transform:uppercase;letter-spacing:.05em;border-top:1px dashed var(--line)}
+.norm-actions{display:flex;gap:14px;padding:7px 12px 10px;border-top:1px dashed var(--line);font-family:var(--mono);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.norm-actions .norm-act{color:var(--green);cursor:pointer;text-decoration:none}
+.norm-actions .norm-act:hover{color:var(--green-2)}
+.norm-more{font-family:var(--mono);font-size:9.5px;font-weight:600;color:var(--green);cursor:pointer;text-transform:uppercase;letter-spacing:.05em}
 .norm-more:hover{color:var(--green-2)}
 
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -313,6 +334,13 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Чаты
+        <button class="chat-new" onclick="newChat()" title="Начать новый чат">+ новый</button>
+      </div>
+      <div class="chat-list" id="chat-list"></div>
+    </div>
+
     <div class="sidebar-section js-ctx-section">
       <div class="sidebar-label">Контекст проекта</div>
       <select class="sidebar-select" id="obj-type">
@@ -1003,9 +1031,18 @@ function cleanAnswerText(t) {
   return String(t || '').replace(/[A-Z]+_SP_([0-9][0-9.]*)_[a-z0-9_]+/g, 'СП $1');
 }
 
+function spExternalUrl(norm) {
+  // Официальный текст СП — поиск в Техэксперте (docs.cntd.ru).
+  const m = /^СП\s+\S+/.exec(String(norm || '').trim());
+  return m ? 'https://docs.cntd.ru/search?q=' + encodeURIComponent(m[0]) : '';
+}
+
 function answerHtml(t) {
   // Ответы приходят с markdown-жирным (**Ответ:**) — рендерим только его, безопасно.
-  return escHtml(cleanAnswerText(t)).replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>');
+  // Упоминания «СП N» в тексте кликабельны: ведут на карточку источника справа.
+  return escHtml(cleanAnswerText(t))
+    .replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>')
+    .replace(/СП\s(\d[\d.]*\d)/g, '<span class="sp-ref" data-sp="СП $1" title="Показать источник">СП $1</span>');
 }
 
 // ─── CORPUS LIST (sidebar) ────────────────────────────────────────────────────
@@ -1037,7 +1074,12 @@ function updateCorpusList() {
   if (REAL_CORPUS && !DEMO_MODE) {
     list.innerHTML = REAL_CORPUS.documents.map(id => {
       const d = formatDocId(id);
-      return `<div class="corpus-item" title="${escHtml(d.num + ' — ' + d.topic)}"><span class="corpus-dot"></span><b>${escHtml(d.num)}</b> ${escHtml(d.topic)}</div>`;
+      const url = spExternalUrl(d.num);
+      const inner = `<span class="corpus-dot"></span><b>${escHtml(d.num)}</b> ${escHtml(d.topic)}`;
+      // СП кликабелен: официальный текст в новой вкладке (Техэксперт).
+      return url
+        ? `<a class="corpus-item" href="${url}" target="_blank" rel="noopener" title="${escHtml(d.num + ' — ' + d.topic + ' · открыть текст СП')}">${inner}</a>`
+        : `<div class="corpus-item" title="${escHtml(d.num + ' — ' + d.topic)}">${inner}</div>`;
     }).join('');
     const chunks = Number(REAL_CORPUS.total_chunks || 0).toLocaleString('ru-RU');
     total.textContent = `${REAL_CORPUS.documents.length} документов · ${chunks} фрагментов`;
@@ -1230,7 +1272,9 @@ async function sendQuery() {
   qi.style.height = 'auto';
 
   // Add user message + echo of the project context actually sent with it
-  addMessage('user', query, DEMO_MODE ? contextSummary() : '');
+  const userCtx = DEMO_MODE ? contextSummary() : '';
+  addMessage('user', query, userCtx);
+  chatRecord({ role: 'user', text: query, ctx: userCtx });
 
   // Add typing indicator
   const typingId = 'typing-' + Date.now();
@@ -1270,8 +1314,9 @@ async function sendQuery() {
     if (result && result.quota) updateQuotaUI(result.quota);
     const parsed = backendToUi(result);
     removeTyping(typingId);
-    addAIMessage(parsed);
-    renderNormCards(parsed.citations || [], context.domain);
+    const mid = addAIMessage(parsed);
+    chatRecord({ role: 'ai', parsed });
+    renderNormCards(parsed.citations || [], context.domain, mid);
     document.getElementById('status-dot').className = 'status-dot';
     document.getElementById('status-text').textContent = 'API · RAG online';
     finish();
@@ -1299,8 +1344,9 @@ async function sendQuery() {
         document.getElementById(streamId)?.remove();
         const parsed = runLocalAssistant(query, context);
         removeTyping(typingId);
-        addAIMessage(parsed);
-        renderNormCards(parsed.citations || [], context.domain);
+        const mid = addAIMessage(parsed);
+        chatRecord({ role: 'ai', parsed });
+        renderNormCards(parsed.citations || [], context.domain, mid);
         document.getElementById('status-dot').className = 'status-dot offline';
         document.getElementById('status-text').textContent = 'Демо-режим · встроенный корпус';
         finish();
@@ -1335,10 +1381,17 @@ function addMessage(type, text, ctx) {
   msgs.scrollTop = msgs.scrollHeight;
 }
 
+// Источники каждого ответа живут, пока жив чат: клик по чипу/«СП N» в любом
+// старом сообщении перерисовывает правую панель под ЕГО выписку.
+const MSG_SOURCES = new Map();
+let MSG_SEQ = 0;
+
 function addAIMessage(parsed) {
   const msgs = document.getElementById('messages');
   const div = document.createElement('div');
   div.className = 'msg msg-ai';
+  div.id = 'aim-' + (++MSG_SEQ);
+  MSG_SOURCES.set(div.id, parsed.citations || []);
 
   let html = `<div class="msg-label">ArchNorm</div><div class="bubble">`;
   html += `<div class="answer-text">${answerHtml(parsed.answer)}</div>`;
@@ -1386,6 +1439,7 @@ function addAIMessage(parsed) {
   window.requestAnimationFrame(() => {
     msgs.scrollTop = Math.max(0, div.offsetTop - 18);
   });
+  return div.id;
 }
 
 function addTyping(id) {
@@ -1401,10 +1455,15 @@ function removeTyping(id) {
   document.getElementById(id)?.remove();
 }
 
-function renderNormCards(citations, domain) {
+let RENDERED_MSG = null;      // чьи источники сейчас в панели
+let CURRENT_CITATIONS = [];   // они же — для поиска по имени СП
+
+function renderNormCards(citations, domain, msgId) {
   const panel = document.getElementById('norm-cards');
   const sub = document.getElementById('norm-sub');
   const toggle = document.getElementById('src-toggle');
+  RENDERED_MSG = msgId || null;
+  CURRENT_CITATIONS = citations || [];
   toggle.textContent = citations.length ? `Источники (${citations.length})` : 'Источники';
 
   if (!citations.length) {
@@ -1428,6 +1487,7 @@ function renderNormCards(citations, domain) {
 
     const pct = Math.round((c.score || 0.5) * 100);
     const longExcerpt = String(c.excerpt || '').length > 340;
+    const extUrl = spExternalUrl(c.norm);
     card.innerHTML = `
       <div class="norm-card-head">
         <span class="norm-name">${escHtml(c.norm)}</span>
@@ -1436,12 +1496,25 @@ function renderNormCards(citations, domain) {
       <div class="match-line" title="Совпадение с базой: ${pct}%"><i class="${c.relevance === 'high' ? '' : 'medium'}" style="width:${pct}%"></i></div>
       <div class="norm-clause">${escHtml([humanClause(c.clause), c.page].filter(Boolean).join(' · ') || 'фрагмент документа')}</div>
       <div class="norm-excerpt${longExcerpt ? ' clamp' : ''}">${excerptHtml}</div>
-      ${longExcerpt ? '<div class="norm-more">развернуть</div>' : ''}
+      <div class="norm-actions">
+        ${longExcerpt ? '<span class="norm-more">развернуть</span>' : ''}
+        <span class="norm-act norm-copy">копировать</span>
+        ${extUrl ? `<a class="norm-act" href="${extUrl}" target="_blank" rel="noopener">текст СП ↗</a>` : ''}
+      </div>
     `;
     const more = card.querySelector('.norm-more');
     if (more) more.addEventListener('click', () => {
       const open = card.classList.toggle('expanded');
       more.textContent = open ? 'свернуть' : 'развернуть';
+    });
+    card.querySelector('.norm-copy').addEventListener('click', async () => {
+      // Выписка уходит в пояснительную записку — копируем с основанием.
+      const basis = [c.norm, humanClause(c.clause), c.page].filter(Boolean).join(', ');
+      try {
+        await navigator.clipboard.writeText(`${c.excerpt}\n— ${basis}`);
+        showToast('Выписка скопирована с основанием');
+        track('chat-citation-copy');
+      } catch (e) { showToast('Не удалось скопировать', true); }
     });
     panel.appendChild(card);
   });
@@ -1472,9 +1545,27 @@ function highlightNorm(sourceId) {
 
 // Citation chips are wired via delegation so backend-provided ids never end
 // up inside inline JS handlers.
+function ensureSourcesFor(mid) {
+  // Панель источников показывает один ответ; клик по старому сообщению
+  // сперва возвращает в неё ЕГО выписку.
+  if (!mid || mid === RENDERED_MSG || !MSG_SOURCES.has(mid)) return;
+  renderNormCards(MSG_SOURCES.get(mid), null, mid);
+}
+
+function highlightNormByName(sp) {
+  const hit = CURRENT_CITATIONS.find(c => String(c.norm).startsWith(sp));
+  if (hit) { highlightNorm(String(hit.sourceId || `${hit.norm}:${hit.clause}`)); return; }
+  showToast(`${sp} не входит в выписку этого ответа`);
+}
+
 document.getElementById('messages').addEventListener('click', (e) => {
   const tag = e.target.closest('.cite-tag');
+  const ref = e.target.closest('.sp-ref');
+  if (!tag && !ref) return;
+  const msg = e.target.closest('.msg-ai');
+  ensureSourcesFor(msg && msg.id);
   if (tag && tag.dataset.sourceId) highlightNorm(tag.dataset.sourceId);
+  else if (ref && ref.dataset.sp) highlightNormByName(ref.dataset.sp);
 });
 
 function toggleSources(force) {
@@ -1791,6 +1882,121 @@ function initIntro() {
   if (!seen) document.getElementById('intro').classList.add('open');
 }
 
+// ─── CHATS: вкладки, история, «новый чат» ────────────────────────────────────
+// История живёт в localStorage браузера пользователя — на сервер не уходит.
+const CHATS_KEY = 'ARCHNORM_CHATS_V1';
+let CHATS = { active: null, chats: [] };
+const EMPTY_HTML = document.getElementById('empty-state').outerHTML;
+
+function loadChats() {
+  try {
+    const raw = localStorage.getItem(CHATS_KEY);
+    if (raw) CHATS = JSON.parse(raw) || CHATS;
+  } catch (e) { /* приватный режим / битый JSON — начинаем заново */ }
+  if (!Array.isArray(CHATS.chats)) CHATS.chats = [];
+  if (!CHATS.chats.length) CHATS.chats = [freshChat()];
+  if (!CHATS.chats.some(c => c.id === CHATS.active)) CHATS.active = CHATS.chats[0].id;
+}
+
+function freshChat() { return { id: 'c' + Date.now(), title: '', ts: Date.now(), msgs: [] }; }
+function activeChat() { return CHATS.chats.find(c => c.id === CHATS.active); }
+
+function saveChats() {
+  try { localStorage.setItem(CHATS_KEY, JSON.stringify(CHATS)); }
+  catch (e) {
+    // Квота localStorage: подрезаем историю неактивных чатов и пробуем ещё раз.
+    try {
+      CHATS.chats.forEach(c => { if (c.id !== CHATS.active) c.msgs = c.msgs.slice(-6); });
+      localStorage.setItem(CHATS_KEY, JSON.stringify(CHATS));
+    } catch (e2) { /* сдаёмся молча — чат работает без персиста */ }
+  }
+}
+
+function chatRecord(entry) {
+  const c = activeChat();
+  if (!c) return;
+  c.msgs.push(entry);
+  if (!c.title && entry.role === 'user') c.title = entry.text.slice(0, 48);
+  c.ts = Date.now();
+  saveChats();
+  renderChatList();
+}
+
+function renderChatList() {
+  const list = document.getElementById('chat-list');
+  list.innerHTML = CHATS.chats.map(c => `
+    <div class="chat-item${c.id === CHATS.active ? ' active' : ''}" data-id="${c.id}">
+      <span class="chat-item-title">${escHtml(c.title || 'Новый чат')}</span>
+      <span class="chat-item-del" title="Удалить чат">&times;</span>
+    </div>`).join('');
+}
+
+document.getElementById('chat-list').addEventListener('click', (e) => {
+  const item = e.target.closest('.chat-item');
+  if (!item) return;
+  if (e.target.closest('.chat-item-del')) deleteChat(item.dataset.id);
+  else switchChat(item.dataset.id);
+});
+
+function newChat() {
+  const cur = activeChat();
+  if (cur && !cur.msgs.length) { closeDrawers(); return; } // пустой уже открыт
+  CHATS.chats.unshift(freshChat());
+  CHATS.active = CHATS.chats[0].id;
+  saveChats(); renderChatList(); renderActiveChat();
+  closeDrawers();
+  track('chat-new');
+}
+
+function switchChat(id) {
+  if (id === CHATS.active) { closeDrawers(); return; }
+  CHATS.active = id;
+  saveChats(); renderChatList(); renderActiveChat();
+  closeDrawers();
+  track('chat-switch');
+}
+
+function deleteChat(id) {
+  const i = CHATS.chats.findIndex(c => c.id === id);
+  if (i < 0) return;
+  if (CHATS.chats[i].msgs.length && !confirm('Удалить чат и его историю?')) return;
+  CHATS.chats.splice(i, 1);
+  if (!CHATS.chats.length) CHATS.chats = [freshChat()];
+  if (CHATS.active === id) CHATS.active = CHATS.chats[0].id;
+  saveChats(); renderChatList(); renderActiveChat();
+}
+
+function resetNormPanel() {
+  renderedReset();
+  document.getElementById('norm-sub').textContent = 'Задайте вопрос — здесь появятся основания';
+  document.getElementById('norm-cards').innerHTML =
+    '<div class="norm-empty"><p>К каждому ответу — выдержки из документов с пунктом и страницей</p></div>';
+  document.getElementById('src-toggle').textContent = 'Источники';
+}
+
+function renderedReset() { RENDERED_MSG = null; CURRENT_CITATIONS = []; }
+
+function renderActiveChat() {
+  const msgs = document.getElementById('messages');
+  const c = activeChat();
+  MSG_SOURCES.clear();
+  msgs.innerHTML = '';
+  if (!c || !c.msgs.length) {
+    msgs.innerHTML = EMPTY_HTML;
+    updateCorpusList(); // освежить штамп корпуса в пустом состоянии
+    resetNormPanel();
+    return;
+  }
+  let lastMid = null, lastParsed = null;
+  for (const m of c.msgs) {
+    if (m.role === 'user') addMessage('user', m.text, m.ctx || '');
+    else if (m.role === 'ai' && m.parsed) { lastMid = addAIMessage(m.parsed); lastParsed = m.parsed; }
+  }
+  if (lastParsed) renderNormCards(lastParsed.citations || [], null, lastMid);
+  else resetNormPanel();
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
 // ─── CONSENT / ANALYTICS ─────────────────────────────────────────────────────
 const CONSENT_KEY = 'ARCHNORM_CONSENT_V1';
 
@@ -1839,6 +2045,9 @@ window.addEventListener('load', () => {
   refreshSession();
   loadCorpus();
   markContextWip();
+  loadChats();
+  renderChatList();
+  renderActiveChat();
   initConsent();
   initIntro();
 });
