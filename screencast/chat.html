@@ -241,6 +241,15 @@ a.corpus-item:hover::after{opacity:1}
 .gate-close{position:absolute;top:10px;right:14px;background:none;border:none;font-size:24px;color:var(--muted);cursor:pointer;line-height:1}
 .gate-note{font-size:12.5px;color:var(--green);background:var(--green-soft);border-left:3px solid var(--green);border-radius:0;padding:11px 13px;margin-top:6px;line-height:1.5;display:none}
 .gate-note.show{display:block}
+.survey-card{max-width:540px;max-height:88vh;overflow-y:auto}
+.survey-q{margin-top:13px}
+.survey-label{font-family:var(--mono);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--green);margin-bottom:6px}
+.survey-chips{display:flex;flex-wrap:wrap;gap:6px}
+.survey-chips button{font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--ink);background:var(--white);border:1px solid var(--line);border-radius:2px;padding:6px 10px;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.survey-chips button:hover{border-color:var(--green)}
+.survey-chips button.sel{background:var(--green);border-color:var(--green);color:#fff}
+#survey .gate-field{margin-top:14px}
+#survey .gate-cta{margin-top:12px}
 
 /* ── INTRO «Как работает» ── */
 .intro-card{position:relative;background:var(--paper-2);border:1px solid var(--line-strong);border-radius:2px;max-width:600px;width:100%;padding:28px 28px 24px;box-shadow:0 40px 90px rgba(20,32,26,.4);animation:rise .28s ease both;max-height:88vh;overflow-y:auto}
@@ -458,6 +467,44 @@ a.corpus-item:hover::after{opacity:1}
     <button class="gate-cta" id="gate-cta" onclick="submitGate()"></button>
     <div class="gate-note" id="gate-note"></div>
     <div class="gate-alt" id="gate-alt"></div>
+  </div>
+</div>
+<!-- SURVEY: 5 коротких вопросов на 60% бесплатной квоты -->
+<div class="gate-overlay" id="survey">
+  <div class="gate-card survey-card">
+    <button class="gate-close" onclick="closeSurvey()" aria-label="Закрыть">&times;</button>
+    <div class="gate-badge">ArchNorm · 20 секунд</div>
+    <div class="gate-title">Как вам навигатор?</div>
+    <div class="gate-msg">Четыре клика и одно поле — это напрямую влияет на то, что мы добавим следующим.</div>
+    <div class="survey-q">
+      <div class="survey-label">Ваша роль</div>
+      <div class="survey-chips" data-key="role">
+        <button type="button">Архитектор</button><button type="button">Инженер-проектировщик</button><button type="button">ГИП / руководитель</button><button type="button">Нормоконтролёр</button><button type="button">Другое</button>
+      </div>
+    </div>
+    <div class="survey-q">
+      <div class="survey-label">Ответы по вашим вопросам</div>
+      <div class="survey-chips" data-key="accuracy">
+        <button type="button">Точные</button><button type="button">Частично точные</button><button type="button">Были ошибки</button>
+      </div>
+    </div>
+    <div class="survey-q">
+      <div class="survey-label">Сколько времени экономит один такой ответ</div>
+      <div class="survey-chips" data-key="time_saved">
+        <button type="button">До 5 минут</button><button type="button">15–30 минут</button><button type="button">Час и более</button><button type="button">Не экономит</button>
+      </div>
+    </div>
+    <div class="survey-q">
+      <div class="survey-label">Порекомендовали бы коллегам?</div>
+      <div class="survey-chips" data-key="recommend">
+        <button type="button">Да</button><button type="button">Возможно</button><button type="button">Нет</button>
+      </div>
+    </div>
+    <input class="gate-field" id="survey-missing" type="text" maxlength="300" autocomplete="off"
+           placeholder="Чего не хватило? Документы, разделы, функции (необязательно)">
+    <button class="gate-cta" onclick="submitSurvey()">Отправить</button>
+    <div class="gate-note" id="survey-note"></div>
+    <div class="gate-alt"><a onclick="closeSurvey()">Позже</a></div>
   </div>
 </div>
 <!-- INTRO: как работает + риски (первый визит).
@@ -1733,6 +1780,7 @@ function updateQuotaUI(q) {
   const r = q.remaining || 0;
   chip.textContent = `Осталось ${r} из ${q.limit}`;
   chip.className = 'quota-chip' + (r === 0 ? ' out' : (r <= 2 ? ' low' : ''));
+  maybeShowSurvey(q);
 }
 
 function localGate(q) {
@@ -1890,7 +1938,7 @@ function handleLoginParam() {
 }
 
 document.getElementById('gate-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitGate(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeGate(); closeIntro(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeGate(); closeIntro(); closeSurvey(); } });
 
 // ─── INTRO «Как работает» ────────────────────────────────────────────────────
 const INTRO_KEY = 'ARCHNORM_INTRO_V1';
@@ -1912,6 +1960,77 @@ function initIntro() {
   let seen = null;
   try { seen = localStorage.getItem(INTRO_KEY); } catch (e) { /* ignore */ }
   if (!seen) document.getElementById('intro').classList.add('open');
+}
+
+// ─── SURVEY: 5 вопросов на 60% бесплатной квоты ─────────────────────────────
+// Показываем один раз бесплатным тарифам (anon 10 / email 50), когда человек
+// уже распробовал продукт, но ещё не упёрся в лимит. «Позже» — второй и
+// последний показ на 90%. Пилотные коды не трогаем: у бюро свой канал.
+const SURVEY_KEY = 'ARCHNORM_SURVEY_V1';
+
+function maybeShowSurvey(q) {
+  if (DEMO_MODE || !q || q.unlimited || !q.limit) return;
+  if (q.kind !== 'anon' && q.kind !== 'user') return;
+  let state = null;
+  try { state = localStorage.getItem(SURVEY_KEY); } catch (e) { return; }
+  if (state === 'done') return;
+  const used = (q.limit - (q.remaining || 0)) / q.limit;
+  if (used < (state === 'later' ? 0.9 : 0.6)) return;
+  if (document.getElementById('gate').classList.contains('open')) return;
+  if (document.getElementById('survey').classList.contains('open')) return;
+  // Пауза, чтобы окно не выскакивало поверх дочитываемого ответа.
+  setTimeout(() => {
+    if (!document.getElementById('gate').classList.contains('open')) {
+      document.getElementById('survey').classList.add('open');
+      track('survey-shown');
+    }
+  }, 1200);
+}
+
+function closeSurvey() {
+  const el = document.getElementById('survey');
+  if (!el.classList.contains('open')) return;
+  el.classList.remove('open');
+  try { localStorage.setItem(SURVEY_KEY, 'later'); } catch (e) { /* ignore */ }
+  track('survey-later');
+}
+
+document.querySelectorAll('.survey-chips').forEach(row => {
+  row.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    row.querySelectorAll('button').forEach(b => b.classList.toggle('sel', b === btn && !b.classList.contains('sel')));
+  });
+});
+
+async function submitSurvey() {
+  const answers = {};
+  document.querySelectorAll('.survey-chips').forEach(row => {
+    const sel = row.querySelector('button.sel');
+    if (sel) answers[row.dataset.key] = sel.textContent;
+  });
+  const missing = document.getElementById('survey-missing').value.trim();
+  if (missing) answers.missing = missing.slice(0, 300);
+  const note = document.getElementById('survey-note');
+  if (!Object.keys(answers).length) {
+    note.textContent = 'Отметьте хотя бы один пункт — или нажмите «Позже».';
+    note.className = 'gate-note show';
+    return;
+  }
+  try {
+    const res = await fetch(`${getApiBase()}/feedback`, {
+      method: 'POST', headers: apiHeaders(), credentials: 'include',
+      body: JSON.stringify({ answers }),
+    });
+    if (!res.ok) throw new Error('bad');
+    try { localStorage.setItem(SURVEY_KEY, 'done'); } catch (e) { /* ignore */ }
+    document.getElementById('survey').classList.remove('open');
+    showToast('Спасибо! Это напрямую влияет на продукт.');
+    track('survey-submitted');
+  } catch (e) {
+    note.textContent = 'Не удалось отправить. Попробуйте ещё раз или нажмите «Позже».';
+    note.className = 'gate-note show';
+  }
 }
 
 // ─── CHATS: вкладки, история, «новый чат» ────────────────────────────────────
