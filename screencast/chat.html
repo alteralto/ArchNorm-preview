@@ -125,6 +125,9 @@ a.corpus-item:hover::after{opacity:1}
 .citations-row{display:flex;flex-direction:column;gap:5px;border-top:1px solid var(--line);padding-top:11px;margin-top:4px}
 .cite-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--green);background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--green);padding:6px 10px;border-radius:0;cursor:pointer;transition:background .15s,transform .15s}
 .cite-tag:hover{background:var(--green-soft);transform:translateX(2px)}
+.cite-tag .cite-ext{margin-left:2px;padding-left:8px;border-left:1px solid var(--line);color:var(--green);text-decoration:none;font-size:12px;line-height:1}
+.cite-tag .cite-ext:hover{color:var(--terra)}
+.msg-rewritten{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.02em;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}
 .sp-ref{color:var(--green);font-weight:600;border-bottom:1px dashed var(--green);cursor:pointer}
 .sp-ref:hover{color:var(--green-2);border-bottom-style:solid}
 /* Совпадение с базой (как в десктопе) + порог доверия */
@@ -500,7 +503,7 @@ a.corpus-item:hover::after{opacity:1}
       <div class="cap">Что важно знать</div>
       <ul>
         <li>Ассистент отвечает <b>строго по загруженному корпусу</b>. Если ответа нет в документах — честно откажет, а не придумает.</li>
-        <li><b>Каждый вопрос — самостоятельный</b>: истории диалога пока нет. Уточняете предыдущий ответ — повторите детали (объект, конструкция, документ) в новом вопросе.</li>
+        <li><b>Память диалога (бета)</b>: уточнения («а если …?») понимаются в контексте последних ответов вкладки; окно — до 15 вопросов, дальше — новый чат. Последние вопросы-ответы уходят с запросом только для этого и на сервере не сохраняются.</li>
         <li>Это <b>предварительный анализ</b>: каждый ответ проверяйте по цитате и первоисточнику. Система не заменяет нормоконтроль и экспертизу.</li>
         <li><b>10 вопросов</b> — бесплатно без регистрации, <b>50</b> — по email, дальше — пилотный код для бюро.</li>
       </ul>
@@ -901,8 +904,32 @@ function apiHeaders() {
 class QuotaError extends Error {
   constructor(payload) { super('quota_exceeded'); this.name = 'QuotaError'; this.payload = payload || {}; }
 }
+// 409: контекстное окно чата исчерпано — предлагаем новый чат, не демо-фоллбек.
+class ContextLimitError extends Error {
+  constructor(payload) { super('context_limit'); this.name = 'ContextLimitError'; this.payload = payload || {}; }
+}
 
-async function askBackend(query, context, signal) {
+// Диалоговая память: последние пары «вопрос-ответ» активного чата уходят с
+// запросом (транзитно, для понимания follow-up), depth — счётчик вопросов
+// чата для капа контекстного окна. Считаем ДО записи текущего вопроса.
+const MEMORY_PAIRS = 4;
+const CONTEXT_LIMIT = 15;
+function chatMemoryPayload() {
+  const c = typeof activeChat === 'function' ? activeChat() : null;
+  const msgs = (c && c.msgs) || [];
+  const pairs = [];
+  let depth = 0, lastQ = null;
+  for (const m of msgs) {
+    if (m.role === 'user') { depth++; lastQ = m.text || ''; }
+    else if (m.role === 'ai' && m.parsed && lastQ) {
+      pairs.push({ q: String(lastQ).slice(0, 1000), a: String(m.parsed.answer || '').slice(0, 2000) });
+      lastQ = null;
+    }
+  }
+  return { history: pairs.slice(-MEMORY_PAIRS), depth };
+}
+
+async function askBackend(query, context, memory, signal) {
   const response = await fetch(`${getApiBase()}/rag/ask`, {
     method: 'POST',
     headers: apiHeaders(),
@@ -911,12 +938,17 @@ async function askBackend(query, context, signal) {
       question: query,
       top_k: 5,
       project_context: context,
+      history: (memory && memory.history) || [],
+      chat_depth: (memory && memory.depth) || 0,
     }),
     signal,
   });
 
   if (response.status === 402) {
     throw new QuotaError(await response.json().catch(() => ({})));
+  }
+  if (response.status === 409) {
+    throw new ContextLimitError(await response.json().catch(() => ({})));
   }
   if (!response.ok) {
     throw new Error(`API ${response.status}`);
@@ -926,7 +958,7 @@ async function askBackend(query, context, signal) {
 
 // SSE-стриминг из POST /rag/ask/stream: onDelta получает накопленный текст,
 // финальный result-эвент имеет тот же формат, что и ответ /rag/ask.
-async function askBackendStream(query, context, onDelta, signal) {
+async function askBackendStream(query, context, memory, onDelta, signal) {
   const response = await fetch(`${getApiBase()}/rag/ask/stream`, {
     method: 'POST',
     headers: apiHeaders(),
@@ -935,12 +967,17 @@ async function askBackendStream(query, context, onDelta, signal) {
       question: query,
       top_k: 5,
       project_context: context,
+      history: (memory && memory.history) || [],
+      chat_depth: (memory && memory.depth) || 0,
     }),
     signal,
   });
 
   if (response.status === 402) {
     throw new QuotaError(await response.json().catch(() => ({})));
+  }
+  if (response.status === 409) {
+    throw new ContextLimitError(await response.json().catch(() => ({})));
   }
   if (!response.ok || !response.body) {
     throw new Error(`API ${response.status}`);
@@ -1027,6 +1064,8 @@ function backendToUi(result) {
     model_badge: backend,
     confidence: matchConfidence(citations),
     not_in_corpus: citations.length === 0,
+    // Память диалога: как переписчик понял follow-up (прозрачность).
+    rewritten: result.rewritten_question || null,
   };
 }
 
@@ -1062,7 +1101,10 @@ function matchConfidence(citations) {
 function isRefusal(answer) {
   // Отказ модели («в фрагментах нет ответа») — сигнал сильнее любого скора:
   // ретривер всегда что-то находит, а отказ значит, что найденное не про вопрос.
-  return /не содерж\w+ (информаци|данн|ответ)|нет (информации|данных|ответа)|информация отсутствует|отсутству\w+ (информаци|данн)|нет относящихся|не могу ответить|невозможно ответить|не позволяют ответить|не относ\w+ к (вопросу|запросу)/i
+  // NB: \w в JS не матчит кириллицу — только [а-яё] (с /i покрывает и верхний регистр).
+  // «Информация о штрафах … отсутствует в …» — между словами бывает хвост,
+  // поэтому «информация…отсутствует» матчится с разрывом внутри предложения.
+  return /не содерж[а-яё]+ [а-яё]*\s*(информаци|данн|ответ|сведени)|нет (информации|данных|ответа|сведений)|информаци[а-яё]*[^.!?\n]{0,80}отсутству|отсутству[а-яё]+[^.!?\n]{0,30}(информаци|данн|сведени)|нет относящихся|не могу ответить|невозможно ответить|не позволяют ответить|не относ[а-яё]+ к (вопросу|запросу)|не (указан|приведен|приведён)[а-яё]* в [а-яё ]{0,30}фрагмент|фрагмент[а-яё]* не содерж/i
     .test(String(answer || ''));
 }
 
@@ -1236,9 +1278,9 @@ function closeDrawers() {
 const qi = document.getElementById('query-input');
 qi.addEventListener('input', () => { qi.style.height='auto'; qi.style.height=qi.scrollHeight+'px'; });
 
-// Диалоговой памяти пока нет — короткий вопрос-уточнение («а если…») уйдёт в
-// retrieval без контекста и вернёт нерелевантное. Ловим паттерн на вводе и
-// честно подсказываем повторить детали, пока conversational RAG не реализован.
+// Диалоговая память (бета): уточнение переписывается в самостоятельный вопрос
+// по последним ответам этой вкладки. Подсказка объясняет это на вводе, а ближе
+// к капу контекстного окна — предупреждает о новом чате.
 const HINT_DEFAULT = document.getElementById('input-hint').textContent;
 function updateFollowupHint() {
   const v = qi.value.trim();
@@ -1246,8 +1288,12 @@ function updateFollowupHint() {
     && /^(а|и|но)[\s,]|^(а если|если|тогда|а сколько|а какая|а какое|а какой|а что)\b/i.test(v)
     && document.querySelector('.msg-user');
   const el = document.getElementById('input-hint');
+  const depth = DEMO_MODE ? 0 : chatMemoryPayload().depth;
   if (looksFollowup) {
-    el.textContent = 'Похоже на уточнение. Система отвечает на каждый вопрос отдельно — повторите ключевые детали (объект, конструкция, документ) прямо в этом вопросе.';
+    el.textContent = 'Похоже на уточнение — учту последние ответы этого чата. Как понят вопрос, будет видно над ответом.';
+    el.classList.add('followup');
+  } else if (depth >= CONTEXT_LIMIT - 3) {
+    el.textContent = `В этом чате ${depth} из ${CONTEXT_LIMIT} вопросов контекстного окна — скоро понадобится новый чат.`;
     el.classList.add('followup');
   } else {
     el.textContent = HINT_DEFAULT;
@@ -1332,6 +1378,13 @@ async function sendQuery() {
   // чтобы поведение совпадало с интерфейсом. Demo: контекст двигает ответы.
   const context = DEMO_MODE ? getProjectContext() : {};
 
+  // Память диалога: собираем ДО записи текущего вопроса в историю.
+  const memory = DEMO_MODE ? { history: [], depth: 0 } : chatMemoryPayload();
+  if (memory.depth >= CONTEXT_LIMIT) {
+    showContextLimitNotice();
+    return;
+  }
+
   document.getElementById('empty-state')?.remove();
   isLoading = true;
   setSendMode(true);
@@ -1365,16 +1418,17 @@ async function sendQuery() {
 
     let result;
     try {
-      result = await askBackendStream(query, context, (text) => {
+      result = await askBackendStream(query, context, memory, (text) => {
         removeTyping(typingId);
         updateStreamBubble(streamId, text);
       }, activeStream.signal);
     } catch (streamError) {
-      // Don't fall back to the demo corpus on abort or quota — surface them.
-      if (streamError.name === 'AbortError' || streamError.name === 'QuotaError') throw streamError;
+      // Don't fall back to the demo corpus on abort, quota or context cap — surface them.
+      if (streamError.name === 'AbortError' || streamError.name === 'QuotaError'
+          || streamError.name === 'ContextLimitError') throw streamError;
       // Стриминг недоступен (старый API/прокси) — обычный /rag/ask.
       document.getElementById(streamId)?.remove();
-      result = await askBackend(query, context, activeStream.signal);
+      result = await askBackend(query, context, memory, activeStream.signal);
     }
 
     document.getElementById(streamId)?.remove();
@@ -1394,6 +1448,14 @@ async function sendQuery() {
       if (error.payload && error.payload.quota) updateQuotaUI(error.payload.quota);
       openGate(error.payload);
       document.getElementById('status-text').textContent = 'API · лимит вопросов';
+      finish();
+      return;
+    }
+    if (error.name === 'ContextLimitError') {
+      document.getElementById(streamId)?.remove();
+      removeTyping(typingId);
+      showContextLimitNotice();
+      document.getElementById('status-text').textContent = 'API · RAG online';
       finish();
       return;
     }
@@ -1437,6 +1499,7 @@ function addMessage(type, text, ctx) {
   const msgs = document.getElementById('messages');
   const div = document.createElement('div');
   if (type === 'user') {
+    LAST_USER_TEXT = text; // следующий AI-ответ привяжет панель источников к этому вопросу
     div.className = 'msg msg-user';
     div.innerHTML = `<div class="msg-label">Запрос</div><div class="bubble">${escHtml(text)}</div>`
       + (ctx ? `<div class="msg-ctx">${escHtml(ctx)}</div>` : '');
@@ -1451,6 +1514,8 @@ function addMessage(type, text, ctx) {
 // Источники каждого ответа живут, пока жив чат: клик по чипу/«СП N» в любом
 // старом сообщении перерисовывает правую панель под ЕГО выписку.
 const MSG_SOURCES = new Map();
+const MSG_META = new Map();   // mid → {q: вопрос пользователя, refusal} для правой панели
+let LAST_USER_TEXT = '';
 let MSG_SEQ = 0;
 
 function addAIMessage(parsed) {
@@ -1461,25 +1526,35 @@ function addAIMessage(parsed) {
   MSG_SOURCES.set(div.id, parsed.citations || []);
 
   let html = `<div class="msg-label">ArchNorm</div><div class="bubble">`;
+  if (parsed.rewritten) {
+    html += `<div class="msg-rewritten" title="Уточнение понято в контексте диалога">понял как: «${escHtml(parsed.rewritten)}»</div>`;
+  }
   html += `<div class="answer-text">${answerHtml(parsed.answer)}</div>`;
 
   if (parsed.not_in_corpus) {
     html += `<div class="not-found">В подключённой базе нормативов не нашлось подтверждающих фрагментов — ответ не достроен. Переформулируйте вопрос или уточните документ.</div>`;
   }
 
+  // Отказ считаем до чипов: при отказе найденные фрагменты — не «основание».
+  const refusal = isRefusal(parsed.answer);
+  MSG_META.set(div.id, { q: LAST_USER_TEXT || '', refusal });
+
   if (parsed.citations?.length) {
     html += `<div class="citations-row">`;
     parsed.citations.forEach((c, i) => {
-      const rel = i === 0 ? 'основание' : 'в поддержку';
+      const rel = refusal ? 'фрагмент' : (i === 0 ? 'основание' : 'в поддержку');
       const label = [c.norm, humanClause(c.clause), c.page].filter(Boolean).join(' · ');
-      html += `<span class="cite-tag" data-source-id="${escHtml(String(c.sourceId))}">${rel} ${escHtml(label)}</span>`;
+      const ext = spExternalUrl(c.norm);
+      const extHtml = ext
+        ? `<a class="cite-ext" href="${ext}" target="_blank" rel="noopener" title="Открыть текст ${escHtml(c.norm)} (docs.cntd.ru)">↗</a>`
+        : '';
+      html += `<span class="cite-tag" data-source-id="${escHtml(String(c.sourceId))}">${rel} ${escHtml(label)}${extHtml}</span>`;
     });
     html += `</div>`;
   }
 
   // Уверенность и отказ пересчитываем из содержимого (а не берём сохранённое):
   // так восстановленная из localStorage история автоматически перекалибруется.
-  const refusal = isRefusal(parsed.answer);
   const conf = refusal ? null
     : (parsed.citations?.length ? matchConfidence(parsed.citations) : null);
 
@@ -1518,6 +1593,23 @@ function addAIMessage(parsed) {
   return div.id;
 }
 
+function showContextLimitNotice() {
+  // Кап контекстного окна: длинный диалог теряет точность понимания
+  // follow-up'ов — честнее начать новый чат, чем отвечать хуже.
+  track('chat-context-limit');
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-ai';
+  div.innerHTML = `<div class="msg-label">ArchNorm</div><div class="bubble">`
+    + `<div class="answer-text">Этот диалог достиг предела контекстного окна (${CONTEXT_LIMIT} вопросов) — `
+    + `дальше уточнения понимались бы всё хуже. Начните новый чат: вопросы и лимит сохраняются, `
+    + `история этой вкладки останется слева.</div>`
+    + `<div class="citations-row"><span class="cite-tag" onclick="newChat()">+ начать новый чат</span></div>`
+    + `</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
 function addTyping(id) {
   const msgs = document.getElementById('messages');
   const div = document.createElement('div');
@@ -1542,18 +1634,27 @@ function renderNormCards(citations, domain, msgId) {
   CURRENT_CITATIONS = citations || [];
   toggle.textContent = citations.length ? `Источники (${citations.length})` : 'Источники';
 
+  // Панель показывает выписки одного ответа — привязываем её к вопросу,
+  // чтобы после клика по старому сообщению было видно, к чему карточки.
+  const meta = MSG_META.get(msgId) || {};
+  const qSnip = meta.q ? (meta.q.length > 58 ? meta.q.slice(0, 55) + '…' : meta.q) : '';
+
   if (!citations.length) {
     panel.innerHTML = '<div class="norm-empty"><p>Нормы не найдены для этого запроса</p></div>';
     sub.textContent = 'Нормы не найдены';
     return;
   }
 
-  sub.textContent = `${ruPlural(citations.length, 'источник', 'источника', 'источников')} · клик по выписке в ответе`;
+  sub.textContent = meta.refusal
+    ? 'Ответ не подтверждён — фрагменты только для проверки'
+      + (qSnip ? ` · «${qSnip}»` : '')
+    : `${ruPlural(citations.length, 'источник', 'источника', 'источников')}`
+      + (qSnip ? ` · «${qSnip}»` : ' · клик по выписке в ответе');
   panel.innerHTML = '';
 
   citations.forEach((c, i) => {
     const card = document.createElement('div');
-    card.className = 'norm-card' + (i === 0 ? ' key' : '');
+    card.className = 'norm-card' + (i === 0 && !meta.refusal ? ' key' : '');
     const sourceId = c.sourceId || `${c.norm}:${c.clause}`;
     card.id = 'norm-' + sourceId.replace(/[^a-zA-Z0-9]/g, '-');
 
@@ -1567,7 +1668,7 @@ function renderNormCards(citations, domain, msgId) {
     card.innerHTML = `
       <div class="norm-card-head">
         <span class="norm-name">${escHtml(c.norm)}</span>
-        <span class="norm-rel ${i === 0 ? 'high' : 'medium'}">${i === 0 ? 'Ключевая' : 'В поддержку'}</span>
+        <span class="norm-rel ${i === 0 && !meta.refusal ? 'high' : 'medium'}">${meta.refusal ? 'Для проверки' : (i === 0 ? 'Ключевая' : 'В поддержку')}</span>
       </div>
       <div class="match-line" title="Совпадение с базой: ${pct}/100"><i class="${c.relevance === 'high' ? '' : 'medium'}" style="width:${pct}%"></i></div>
       <div class="norm-clause">${escHtml([humanClause(c.clause), c.page].filter(Boolean).join(' · ') || 'фрагмент документа')}</div>
@@ -1635,6 +1736,8 @@ function highlightNormByName(sp) {
 }
 
 document.getElementById('messages').addEventListener('click', (e) => {
+  // Ссылка «↗» внутри чипа открывает текст СП — не перехватываем её.
+  if (e.target.closest('.cite-ext')) { track('chat-citation-ext-open'); return; }
   const tag = e.target.closest('.cite-tag');
   const ref = e.target.closest('.sp-ref');
   if (!tag && !ref) return;
@@ -2186,6 +2289,8 @@ function renderActiveChat() {
   const msgs = document.getElementById('messages');
   const c = activeChat();
   MSG_SOURCES.clear();
+  MSG_META.clear();
+  LAST_USER_TEXT = '';
   msgs.innerHTML = '';
   if (!c || !c.msgs.length) {
     msgs.innerHTML = EMPTY_HTML;
