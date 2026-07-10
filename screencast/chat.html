@@ -128,6 +128,9 @@ a.corpus-item:hover::after{opacity:1}
 .cite-tag .cite-ext{margin-left:2px;padding-left:8px;border-left:1px solid var(--line);color:var(--green);text-decoration:none;font-size:12px;line-height:1}
 .cite-tag .cite-ext:hover{color:var(--terra)}
 .msg-rewritten{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.02em;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}
+.msg-actions{margin-top:9px}
+.msg-export{font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--green);border:1px solid var(--line-strong);border-radius:2px;padding:4px 9px;cursor:pointer;user-select:none}
+.msg-export:hover{border-color:var(--green)}
 .sp-ref{color:var(--green);font-weight:600;border-bottom:1px dashed var(--green);cursor:pointer}
 .sp-ref:hover{color:var(--green-2);border-bottom-style:solid}
 /* Совпадение с базой (как в десктопе) + порог доверия */
@@ -1537,7 +1540,13 @@ function addAIMessage(parsed) {
 
   // Отказ считаем до чипов: при отказе найденные фрагменты — не «основание».
   const refusal = isRefusal(parsed.answer);
-  MSG_META.set(div.id, { q: LAST_USER_TEXT || '', refusal });
+  MSG_META.set(div.id, {
+    q: LAST_USER_TEXT || '',
+    refusal,
+    // Для DOCX-выписки: текст ответа и «понял как» нужны в исходном виде.
+    answer: parsed.answer || '',
+    rewritten: parsed.rewritten || null,
+  });
 
   if (parsed.citations?.length) {
     html += `<div class="citations-row">`;
@@ -1580,6 +1589,12 @@ function addAIMessage(parsed) {
     html += `</div>`;
   }
 
+  // DOCX-выписка: подтверждённый ответ с основаниями можно унести коллегам.
+  // В demo API нет; при отказе фрагменты — не основания, выписка не предлагается.
+  if (!DEMO_MODE && parsed.citations?.length && !refusal) {
+    html += `<div class="msg-actions"><span class="msg-export" onclick="exportVypiska('${div.id}')" title="Скачать выписку с основаниями (DOCX)">выписка · DOCX</span></div>`;
+  }
+
   if (parsed.model_badge) {
     html += `<span class="model-badge">${escHtml(parsed.model_badge)}</span>`;
   }
@@ -1591,6 +1606,48 @@ function addAIMessage(parsed) {
     msgs.scrollTop = Math.max(0, div.offsetTop - 18);
   });
   return div.id;
+}
+
+async function exportVypiska(mid) {
+  // Выписка = то, что пользователь уже видит: вопрос, ответ, основания.
+  // Сервер только упаковывает в DOCX — квота не списывается.
+  const meta = MSG_META.get(mid);
+  const cits = MSG_SOURCES.get(mid) || [];
+  if (!meta || !meta.answer) { showToast('Нет данных для выписки', true); return; }
+  track('chat-export-docx');
+  try {
+    const res = await fetch(`${getApiBase()}/rag/export-docx`, {
+      method: 'POST',
+      headers: apiHeaders(),
+      credentials: 'include',
+      body: JSON.stringify({
+        question: meta.q || '—',
+        answer: meta.answer,
+        rewritten: meta.rewritten || null,
+        confidence: cits.length ? matchConfidence(cits) : null,
+        sources: cits.map((c) => ({
+          doc_name: c.norm || '',
+          clause_number: c.clause || '',
+          page_hint: parseInt(String(c.page || '').replace(/\D+/g, ''), 10) || 0,
+          text: c.excerpt || '',
+        })),
+      }),
+    });
+    if (!res.ok) throw new Error('API ' + res.status);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const match = /filename="([^"]+)"/.exec(res.headers.get('Content-Disposition') || '');
+    a.href = url;
+    a.download = match ? match[1] : 'ArchNorm_vypiska.docx';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    showToast('Выписка сохранена (DOCX)');
+  } catch (e) {
+    showToast('Не удалось сформировать выписку', true);
+  }
 }
 
 function showContextLimitNotice() {
