@@ -3,7 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" id="meta-theme" content="#f2f4f1">
 <link rel="canonical" href="https://api.archnorm.ru/chat">
+<script>
+  // Тема применяется до первой отрисовки, чтобы страница не мигала светлым.
+  (function () {
+    try {
+      if (localStorage.getItem('an_theme') === 'dark') {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    } catch (e) {}
+  })();
+</script>
 <script>
   // Продуктовый чат живёт на origin API (same-origin cookie). Любая другая
   // публичная копия (github.io, archnorm.ru) — витрина: редиректим на
@@ -40,13 +51,66 @@
   --terra:#c0402d;--terra-soft:#f3ded9;
   --line:rgba(20,32,26,.15);--line-strong:rgba(20,32,26,.32);
   --white:#fff;
+  /* Заливки кнопок/плашек отделены от акцентного цвета текста: в тёмной теме
+     текстовый зелёный светлеет, а заливка остаётся тёмной под светлый текст. */
+  --on-accent:#fff;
+  --green-fill:#1e5a3a;--green-fill-hover:#2c764d;
+  --terra-fill:#c0402d;--terra-fill-hover:#a33625;
+  --frame:rgba(30,90,58,.22);
+  --hatch:rgba(20,32,26,.055);
+  --terra-dim:rgba(192,64,45,.5);
+  --terra-faint:rgba(192,64,45,.25);
+  --key-bg:#fdfffe;
+  --tint:rgba(255,255,255,.45);
+  --overlay:rgba(20,32,26,.55);
+  --backdrop:rgba(20,32,26,.4);
+  --shadow-bubble:0 18px 44px -30px rgba(20,40,27,.35);
+  --shadow-card:0 40px 90px rgba(20,32,26,.4);
+  --shadow-toast:0 20px 50px rgba(20,32,26,.35);
+  --shadow-drawer-l:18px 0 44px rgba(20,32,26,.22);
+  --shadow-drawer-r:-18px 0 44px rgba(20,32,26,.22);
+  /* Тост и consent-бар инвертированы относительно темы */
+  --inverse:#14201a;--on-inverse:rgba(255,255,255,.9);--on-inverse-strong:#fff;
+  --inverse-link:#a8cdb6;
+  --inverse-btn:rgba(255,255,255,.12);--inverse-btn-border:rgba(255,255,255,.28);--inverse-btn-hover:rgba(255,255,255,.24);
+  --select-arrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' stroke='%2358615a' fill='none' stroke-width='1.4'/%3E%3C/svg%3E");
   --mono:"JetBrains Mono",ui-monospace,monospace;
   --sans:"Manrope",sans-serif;
   --display:"Archivo","Manrope",sans-serif;
+  color-scheme:light;
+}
+/* Ночная синька: графит с зелёным подтоном, светлые чертёжные линии */
+:root[data-theme="dark"]{
+  --paper:#101612;--paper-2:#151d18;--ink:#e2e9e3;--muted:#9aa79e;
+  --green:#63bd8e;--green-2:#82d3aa;--green-soft:#1e3226;
+  --terra:#e58370;--terra-soft:#39211c;
+  --line:rgba(226,233,227,.13);--line-strong:rgba(226,233,227,.3);
+  --white:#1b2420;
+  --on-accent:#f2f7f3;
+  --green-fill:#2c7a50;--green-fill-hover:#38905f;
+  --terra-fill:#b04938;--terra-fill-hover:#c05a47;
+  --frame:rgba(99,189,142,.26);
+  --hatch:rgba(226,233,227,.05);
+  --terra-dim:rgba(229,131,112,.5);
+  --terra-faint:rgba(229,131,112,.28);
+  --key-bg:#1f2b24;
+  --tint:rgba(27,36,32,.5);
+  --overlay:rgba(4,8,6,.62);
+  --backdrop:rgba(4,8,6,.5);
+  --shadow-bubble:0 18px 44px -30px rgba(0,0,0,.6);
+  --shadow-card:0 40px 90px rgba(0,0,0,.6);
+  --shadow-toast:0 20px 50px rgba(0,0,0,.55);
+  --shadow-drawer-l:18px 0 44px rgba(0,0,0,.45);
+  --shadow-drawer-r:-18px 0 44px rgba(0,0,0,.45);
+  --inverse:#e2e9e3;--on-inverse:rgba(16,22,18,.92);--on-inverse-strong:#101612;
+  --inverse-link:#1e5a3a;
+  --inverse-btn:rgba(16,22,18,.08);--inverse-btn-border:rgba(16,22,18,.3);--inverse-btn-hover:rgba(16,22,18,.16);
+  --select-arrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' stroke='%239aa79e' fill='none' stroke-width='1.4'/%3E%3C/svg%3E");
+  color-scheme:dark;
 }
 html,body{height:100%;font-family:var(--sans);background:var(--paper);color:var(--ink);font-size:15px;-webkit-font-smoothing:antialiased}
 /* Рамка чертёжного листа — фирменный элемент v8 */
-body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.22);pointer-events:none;z-index:90}
+body::after{content:"";position:fixed;inset:8px;border:1px solid var(--frame);pointer-events:none;z-index:90}
 
 /* ── LAYOUT ── */
 .app{
@@ -73,14 +137,14 @@ body::after{content:"";position:fixed;inset:8px;border:1px solid rgba(30,90,58,.
   padding:10px 12px;font-family:var(--sans);font-size:13px;color:var(--ink);
   outline:none;transition:border-color .15s;appearance:none;
 }
-.sidebar-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' stroke='%2358615a' fill='none' stroke-width='1.4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.sidebar-select{background-image:var(--select-arrow);background-repeat:no-repeat;background-position:right 12px center}
 .sidebar-select:focus,.sidebar-input:focus{border-color:var(--green)}
 .sidebar-note{font-family:var(--mono);font-size:9.5px;color:var(--muted);line-height:1.5;letter-spacing:.02em;padding:0 2px}
 /* «В разработке»: штриховка + выключенные контролы, чтобы не обещать лишнего */
 .sidebar-section.wip{position:relative;opacity:.78}
-.sidebar-section.wip::before{content:"";position:absolute;inset:-6px -4px;background:repeating-linear-gradient(135deg,rgba(20,32,26,.055) 0 1px,transparent 1px 9px);pointer-events:none}
+.sidebar-section.wip::before{content:"";position:absolute;inset:-6px -4px;background:repeating-linear-gradient(135deg,var(--hatch) 0 1px,transparent 1px 9px);pointer-events:none}
 .sidebar-section.wip .sidebar-select,.sidebar-section.wip .sidebar-input{background:var(--paper);color:var(--muted);cursor:not-allowed}
-.wip-badge{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--terra);border:1px dashed rgba(192,64,45,.55);padding:2px 7px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;margin-left:auto}
+.wip-badge{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--terra);border:1px dashed var(--terra-dim);padding:2px 7px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;margin-left:auto}
 .sidebar-tip{font-size:12px;color:var(--muted);line-height:1.55;padding:12px;background:var(--green-soft);border-left:3px solid var(--green);border-radius:0}
 .sidebar-tip strong{color:var(--green);font-weight:700}
 .corpus-list{display:flex;flex-direction:column;gap:3px;max-height:262px;overflow-y:auto}
@@ -115,8 +179,8 @@ a.corpus-item:hover::after{opacity:1}
 
 .msg{display:flex;flex-direction:column;gap:5px}
 .msg-user{align-items:flex-end}
-.msg-user .bubble{background:var(--green);color:#fff;padding:12px 16px;border-radius:3px;max-width:78%;font-size:14px;line-height:1.55}
-.msg-ai .bubble{background:var(--white);border:1px solid var(--line-strong);border-left:3px solid var(--green);padding:16px 18px;border-radius:2px;max-width:100%;font-size:14px;line-height:1.7;box-shadow:0 18px 44px -30px rgba(20,40,27,.35)}
+.msg-user .bubble{background:var(--green-fill);color:var(--on-accent);padding:12px 16px;border-radius:3px;max-width:78%;font-size:14px;line-height:1.55}
+.msg-ai .bubble{background:var(--white);border:1px solid var(--line-strong);border-left:3px solid var(--green);padding:16px 18px;border-radius:2px;max-width:100%;font-size:14px;line-height:1.7;box-shadow:var(--shadow-bubble)}
 .msg-label{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;padding:0 2px}
 .msg-user .msg-label{text-align:right}
 .msg-ctx{font-family:var(--mono);font-size:10px;color:var(--muted);text-align:right;padding:0 2px;letter-spacing:.02em}
@@ -128,9 +192,33 @@ a.corpus-item:hover::after{opacity:1}
 .cite-tag .cite-ext{margin-left:2px;padding-left:8px;border-left:1px solid var(--line);color:var(--green);text-decoration:none;font-size:12px;line-height:1}
 .cite-tag .cite-ext:hover{color:var(--terra)}
 .msg-rewritten{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.02em;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}
-.msg-actions{margin-top:9px}
+.msg-actions{margin-top:9px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .msg-export{font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--green);border:1px solid var(--line-strong);border-radius:2px;padding:4px 9px;cursor:pointer;user-select:none}
 .msg-export:hover{border-color:var(--green)}
+/* Оценка ответа: 👍/👎 в том же драфтинг-регистре, что msg-export */
+.rate-box{display:inline-flex;align-items:center;gap:4px;margin-left:auto}
+.rate-btn{font-family:var(--mono);font-size:11px;line-height:1;color:var(--muted);border:1px solid var(--line);border-radius:2px;padding:4px 8px;cursor:pointer;user-select:none;transition:border-color .15s,color .15s,background .15s}
+.rate-btn:hover{border-color:var(--green);color:var(--green)}
+.rate-btn.sel{border-color:var(--green);color:var(--green);background:var(--green-soft)}
+.rate-btn.sel-down{border-color:var(--terra);color:var(--terra);background:var(--terra-soft)}
+.rate-done{font-family:var(--mono);font-size:9.5px;color:var(--green);letter-spacing:.03em;text-transform:uppercase}
+.rate-panel{margin-top:8px;padding:10px;border:1px dashed var(--line-strong);background:var(--tint);display:flex;flex-direction:column;gap:8px}
+.rate-panel-cap{font-family:var(--mono);font-size:9.5px;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.rate-reasons{display:flex;flex-wrap:wrap;gap:5px}
+.rate-reasons button{font-family:var(--mono);font-size:10px;color:var(--ink);background:var(--white);border:1px solid var(--line);border-radius:2px;padding:5px 9px;cursor:pointer;transition:border-color .15s,background .15s,color .15s}
+.rate-reasons button:hover{border-color:var(--green)}
+.rate-reasons button.sel{background:var(--green-fill);border-color:var(--green-fill);color:var(--on-accent)}
+.rate-row2{display:flex;gap:7px}
+.rate-comment{flex:1;min-width:0;background:var(--white);border:1px solid var(--line);border-radius:2px;padding:6px 9px;font-family:var(--sans);font-size:12px;color:var(--ink);outline:none;transition:border-color .15s}
+.rate-comment:focus{border-color:var(--green)}
+.rate-send{font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--on-accent);background:var(--green-fill);border:none;border-radius:2px;padding:6px 12px;cursor:pointer;transition:background .15s;flex-shrink:0}
+.rate-send:hover:not(:disabled){background:var(--green-fill-hover)}
+.rate-send:disabled{background:var(--line-strong);cursor:not-allowed}
+/* Отказ: вместо оценки — приглашение оставить вопрос (фидбек + лид) */
+.rate-gap{margin-top:9px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.02em}
+.rate-gap-btn{font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--green);border:1px solid var(--line-strong);border-radius:2px;padding:4px 9px;cursor:pointer;user-select:none;transition:border-color .15s;flex-shrink:0}
+.rate-gap-btn:hover{border-color:var(--green)}
+.rate-btn:active,.rate-gap-btn:active,.rate-reasons button:active,.rate-send:active:not(:disabled){transform:translateY(1px)}
 .sp-ref{color:var(--green);font-weight:600;border-bottom:1px dashed var(--green);cursor:pointer}
 .sp-ref:hover{color:var(--green-2);border-bottom-style:solid}
 /* Совпадение с базой (как в десктопе) + порог доверия */
@@ -141,9 +229,9 @@ a.corpus-item:hover::after{opacity:1}
 .conf-line i.low{background:var(--terra)}
 .conf-val{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--green)}
 .conf-val.low{color:var(--terra)}
-.low-conf{font-size:12.5px;color:var(--terra);background:var(--terra-soft);border:1px dashed rgba(192,64,45,.45);border-radius:0;padding:10px 12px;margin-top:9px;line-height:1.5}
+.low-conf{font-size:12.5px;color:var(--terra);background:var(--terra-soft);border:1px dashed var(--terra-dim);border-radius:0;padding:10px 12px;margin-top:9px;line-height:1.5}
 .risk-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
-.risk-badge{font-family:var(--mono);font-size:10px;font-weight:600;background:var(--terra-soft);color:var(--terra);border:1px solid rgba(192,64,45,.25);padding:4px 9px;border-radius:2px;display:flex;align-items:center;gap:6px}
+.risk-badge{font-family:var(--mono);font-size:10px;font-weight:600;background:var(--terra-soft);color:var(--terra);border:1px solid var(--terra-faint);padding:4px 9px;border-radius:2px;display:flex;align-items:center;gap:6px}
 .risk-badge::before{content:'!';font-weight:700}
 .model-badge{font-family:var(--mono);font-size:9px;color:var(--muted);border:1px solid var(--line);padding:3px 8px;border-radius:2px;letter-spacing:.05em;text-transform:uppercase;display:inline-block;margin-top:10px}
 .not-found{font-size:13px;color:var(--muted);padding:9px 12px;background:var(--paper-2);border:1px dashed var(--line-strong);border-radius:0;margin-top:8px}
@@ -156,7 +244,7 @@ a.corpus-item:hover::after{opacity:1}
 
 /* Пустой лист: штамп нового запроса */
 .empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;color:var(--muted);text-align:center;padding:18px}
-.empty-sheet{width:100%;max-width:460px;border:1px dashed var(--line-strong);padding:30px 26px 0;display:flex;flex-direction:column;align-items:center;gap:12px;background:rgba(255,255,255,.4)}
+.empty-sheet{width:100%;max-width:460px;border:1px dashed var(--line-strong);padding:30px 26px 0;display:flex;flex-direction:column;align-items:center;gap:12px;background:var(--tint)}
 .empty-icon{width:46px;height:46px;border:1px solid var(--line-strong);border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:14px;font-weight:700;color:var(--green);background:var(--white)}
 .empty-state p{font-size:14px;max-width:300px;line-height:1.55;color:var(--muted)}
 .empty-stamp{width:calc(100% + 52px);margin:16px -26px 0;border-top:1px solid var(--line-strong);display:flex;font-family:var(--mono);font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
@@ -178,11 +266,11 @@ a.corpus-item:hover::after{opacity:1}
 .input-row{display:flex;gap:10px;align-items:flex-end}
 .query-input{flex:1;background:var(--white);border:1px solid var(--line-strong);border-radius:2px;padding:12px 14px;font-family:var(--sans);font-size:14px;color:var(--ink);outline:none;resize:none;max-height:120px;line-height:1.5;transition:border-color .15s}
 .query-input:focus{border-color:var(--green)}
-.send-btn{flex-shrink:0;width:44px;height:44px;background:var(--green);border:none;border-radius:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;color:#fff}
-.send-btn:hover{background:var(--green-2)}
+.send-btn{flex-shrink:0;width:44px;height:44px;background:var(--green-fill);border:none;border-radius:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;color:var(--on-accent)}
+.send-btn:hover{background:var(--green-fill-hover)}
 .send-btn:disabled{background:var(--line-strong);cursor:not-allowed}
-.send-btn.stop{background:var(--terra)}
-.send-btn.stop:hover{background:#a33625}
+.send-btn.stop{background:var(--terra-fill)}
+.send-btn.stop:hover{background:var(--terra-fill-hover)}
 .send-btn svg{width:18px;height:18px;fill:currentColor}
 .input-hint{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:7px}
 .input-hint.followup{color:var(--terra);font-weight:600}
@@ -206,7 +294,7 @@ a.corpus-item:hover::after{opacity:1}
 .norm-rel.high{color:var(--green)}
 .norm-rel.medium{color:var(--muted)}
 /* Ключевая выписка визуально главнее поддерживающих */
-.norm-card.key{border-color:var(--green);border-left:3px solid var(--green);background:#fdfffe}
+.norm-card.key{border-color:var(--green);border-left:3px solid var(--green);background:var(--key-bg)}
 .norm-card.key .norm-name{font-size:12px}
 /* Линейка «совпадение с базой» — как в десктопной версии */
 .match-line{height:3px;background:var(--paper);margin:0 12px}
@@ -227,21 +315,21 @@ a.corpus-item:hover::after{opacity:1}
 
 /* ── ACCOUNTS / QUOTA ── */
 .quota-chip{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink);background:var(--white);border:1px solid var(--line-strong);padding:5px 10px;border-radius:2px;letter-spacing:.01em;white-space:nowrap}
-.quota-chip.low{color:var(--terra);border-color:rgba(192,64,45,.5)}
-.quota-chip.out{color:#fff;background:var(--terra);border-color:var(--terra)}
+.quota-chip.low{color:var(--terra);border-color:var(--terra-dim)}
+.quota-chip.out{color:var(--on-accent);background:var(--terra-fill);border-color:var(--terra-fill)}
 .acct-btn{font-family:var(--sans);font-size:12px;font-weight:700;color:var(--green);background:var(--white);border:1px solid var(--line-strong);padding:6px 13px;border-radius:2px;cursor:pointer;transition:background .15s,border-color .15s}
 .acct-btn:hover{border-color:var(--green);background:var(--green-soft)}
-.gate-overlay{position:fixed;inset:0;background:rgba(20,32,26,.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+.gate-overlay{position:fixed;inset:0;background:var(--overlay);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
 .gate-overlay.open{display:flex;animation:fade .2s ease}
-.gate-card{position:relative;background:var(--paper-2);border:1px solid var(--line-strong);border-radius:2px;max-width:420px;width:100%;padding:28px 26px;box-shadow:0 40px 90px rgba(20,32,26,.4);animation:rise .28s ease both}
+.gate-card{position:relative;background:var(--paper-2);border:1px solid var(--line-strong);border-radius:2px;max-width:420px;width:100%;padding:28px 26px;box-shadow:var(--shadow-card);animation:rise .28s ease both}
 .gate-badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--green)}
 .gate-badge::before{content:"";width:18px;height:2px;background:currentColor;opacity:.55}
 .gate-title{font-family:var(--display);font-size:21px;font-weight:800;color:var(--ink);letter-spacing:-.02em;margin:8px 0 8px}
 .gate-msg{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:18px}
 .gate-field{width:100%;background:var(--white);border:1px solid var(--line-strong);border-radius:2px;padding:12px 14px;font-family:var(--sans);font-size:14px;color:var(--ink);outline:none;margin-bottom:12px;transition:border-color .15s}
 .gate-field:focus{border-color:var(--green)}
-.gate-cta{width:100%;background:var(--green);color:#fff;border:none;border-radius:2px;padding:13px;font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;transition:background .15s}
-.gate-cta:hover{background:var(--green-2)}
+.gate-cta{width:100%;background:var(--green-fill);color:var(--on-accent);border:none;border-radius:2px;padding:13px;font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;transition:background .15s}
+.gate-cta:hover{background:var(--green-fill-hover)}
 .gate-cta:disabled{opacity:.55;cursor:not-allowed}
 .gate-alt{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.5;text-align:center}
 .gate-alt a{color:var(--green);cursor:pointer;text-decoration:underline}
@@ -254,12 +342,12 @@ a.corpus-item:hover::after{opacity:1}
 .survey-chips{display:flex;flex-wrap:wrap;gap:6px}
 .survey-chips button{font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--ink);background:var(--white);border:1px solid var(--line);border-radius:2px;padding:6px 10px;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
 .survey-chips button:hover{border-color:var(--green)}
-.survey-chips button.sel{background:var(--green);border-color:var(--green);color:#fff}
+.survey-chips button.sel{background:var(--green-fill);border-color:var(--green-fill);color:var(--on-accent)}
 #survey .gate-field{margin-top:14px}
 #survey .gate-cta{margin-top:12px}
 
 /* ── INTRO «Как работает» ── */
-.intro-card{position:relative;background:var(--paper-2);border:1px solid var(--line-strong);border-radius:2px;max-width:600px;width:100%;padding:28px 28px 24px;box-shadow:0 40px 90px rgba(20,32,26,.4);animation:rise .28s ease both;max-height:88vh;overflow-y:auto}
+.intro-card{position:relative;background:var(--paper-2);border:1px solid var(--line-strong);border-radius:2px;max-width:600px;width:100%;padding:28px 28px 24px;box-shadow:var(--shadow-card);animation:rise .28s ease both;max-height:88vh;overflow-y:auto}
 .intro-title{font-family:var(--display);font-size:22px;font-weight:800;color:var(--ink);letter-spacing:-.02em;margin:8px 0 6px}
 .intro-sub{font-size:13.5px;color:var(--muted);line-height:1.55;margin-bottom:18px}
 .intro-steps{display:flex;gap:0;align-items:stretch;margin-bottom:18px}
@@ -268,7 +356,7 @@ a.corpus-item:hover::after{opacity:1}
 .intro-step .num{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--green);letter-spacing:.08em}
 .intro-step .t{font-size:13px;font-weight:700;color:var(--ink);margin:4px 0 3px}
 .intro-step .d{font-size:11.5px;color:var(--muted);line-height:1.45}
-.intro-risks{border:1px dashed var(--line-strong);background:rgba(255,255,255,.5);padding:12px 14px;margin-bottom:18px}
+.intro-risks{border:1px dashed var(--line-strong);background:var(--tint);padding:12px 14px;margin-bottom:18px}
 .intro-risks .cap{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--terra);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
 .intro-risks ul{margin:0;padding-left:18px;font-size:12.5px;color:var(--muted);line-height:1.55}
 .intro-risks li{margin:3px 0}
@@ -277,17 +365,17 @@ a.corpus-item:hover::after{opacity:1}
 .intro-foot .gate-cta{width:auto;padding:12px 26px}
 .intro-foot a{font-size:12.5px;color:var(--green);text-decoration:underline}
 @media(max-width:640px){.intro-steps{flex-direction:column}.intro-step+.intro-step{margin-left:0;margin-top:-1px}}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:2px;font-size:13px;font-weight:600;box-shadow:0 20px 50px rgba(20,32,26,.35);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:95;max-width:90vw;text-align:center}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--inverse);color:var(--on-inverse-strong);padding:12px 20px;border-radius:2px;font-size:13px;font-weight:600;box-shadow:var(--shadow-toast);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:95;max-width:90vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.err{background:var(--terra)}
+.toast.err{background:var(--terra-fill);color:var(--on-accent)}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 
 /* ── CONSENT BAR ── */
-.consent-bar{position:fixed;left:0;right:0;bottom:0;z-index:92;background:var(--ink);color:rgba(255,255,255,.9);padding:12px 18px;display:none;align-items:center;gap:14px;font-size:13px;line-height:1.5}
+.consent-bar{position:fixed;left:0;right:0;bottom:0;z-index:92;background:var(--inverse);color:var(--on-inverse);padding:12px 18px;display:none;align-items:center;gap:14px;font-size:13px;line-height:1.5}
 .consent-bar.show{display:flex;flex-wrap:wrap}
-.consent-bar a{color:#a8cdb6;text-decoration:underline}
-.consent-bar button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);color:#fff;font-family:var(--sans);font-size:13px;font-weight:600;padding:8px 18px;border-radius:2px;cursor:pointer;margin-left:auto}
-.consent-bar button:hover{background:rgba(255,255,255,.24)}
+.consent-bar a{color:var(--inverse-link);text-decoration:underline}
+.consent-bar button{background:var(--inverse-btn);border:1px solid var(--inverse-btn-border);color:var(--on-inverse-strong);font-family:var(--sans);font-size:13px;font-weight:600;padding:8px 18px;border-radius:2px;cursor:pointer;margin-left:auto}
+.consent-bar button:hover{background:var(--inverse-btn-hover)}
 
 /* ── GATE CONSENT ── */
 .gate-consent{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--muted);line-height:1.5;margin:-4px 0 12px;cursor:pointer}
@@ -296,8 +384,29 @@ a.corpus-item:hover::after{opacity:1}
 
 /* ── MOBILE TOGGLES ── */
 .src-toggle,.ctx-toggle{display:none;font-family:var(--sans);font-size:12px;font-weight:700;color:var(--green);background:var(--white);border:1px solid var(--line-strong);padding:6px 12px;border-radius:2px;cursor:pointer}
-.drawer-backdrop{display:none;position:fixed;inset:62px 0 0 0;background:rgba(20,32,26,.4);z-index:44}
+.drawer-backdrop{display:none;position:fixed;inset:62px 0 0 0;background:var(--backdrop);z-index:44}
 .drawer-backdrop.show{display:block}
+
+/* ── THEME TOGGLE ── */
+.theme-toggle{font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--white);border:1px solid var(--line);border-radius:2px;padding:5px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:border-color .15s,color .15s}
+.theme-toggle:hover{border-color:var(--green);color:var(--green)}
+.theme-toggle .glyph{font-size:12px;line-height:1;color:var(--green)}
+
+/* ── FOCUS & ACTIVE: клавиатура и отклик на нажатие ── */
+:where(button,a,[role="button"],[tabindex]):focus-visible{outline:2px solid var(--green);outline-offset:2px}
+:where(select,input,textarea):focus-visible{outline:2px solid var(--green);outline-offset:1px}
+.sugg-btn:active,.chat-new:active,.acct-btn:active,.msg-export:active,.theme-toggle:active,.survey-chips button:active,.src-toggle:active,.ctx-toggle:active{transform:translateY(1px)}
+.send-btn:active:not(:disabled),.gate-cta:active:not(:disabled){transform:translateY(1px)}
+.cite-tag:active{transform:translateX(2px) translateY(1px)}
+.chat-item:active{background:var(--green-soft)}
+.norm-act:active,.norm-more:active,.sp-ref:active{color:var(--green-2)}
+.acct-btn:hover{color:var(--green-2)}
+.consent-bar button:active{transform:translateY(1px)}
+
+/* ── COMPOSITION: колонка сообщений не расползается на широких экранах ── */
+.msg{width:100%;max-width:840px;align-self:center}
+.empty-state{width:100%;max-width:840px;align-self:center}
+.input-area .context-strip,.input-area .input-row,.input-area .input-hint{max-width:840px;margin-left:auto;margin-right:auto}
 
 /* ── RESPONSIVE ── */
 @media(max-width:900px){
@@ -308,7 +417,7 @@ a.corpus-item:hover::after{opacity:1}
   .suggested{max-width:100%}
   body::after{display:none}
   /* Контекст проекта на телефоне — выезжающая слева панель. */
-  .sidebar{position:fixed;top:62px;left:0;bottom:0;width:min(86vw,320px);transform:translateX(-102%);transition:transform .25s ease;z-index:45;box-shadow:18px 0 44px rgba(20,32,26,.22);border-right:1px solid var(--line-strong)}
+  .sidebar{position:fixed;top:62px;left:0;bottom:0;width:min(86vw,320px);transform:translateX(-102%);transition:transform .25s ease;z-index:45;box-shadow:var(--shadow-drawer-l);border-right:1px solid var(--line-strong)}
   .sidebar.open{transform:translateX(0)}
   .context-strip .ctx-edit{display:inline-block}
   /* Топбар: на телефоне логотип, «Контекст», «Источники», квота и вход. */
@@ -318,10 +427,12 @@ a.corpus-item:hover::after{opacity:1}
   .topbar-right{gap:6px}
   .logo{font-size:16px;margin-right:0}
   .quota-chip{font-size:10px;padding:4px 8px}
+  .theme-toggle{padding:5px 7px}
+  .theme-toggle .theme-label{display:none}
   .src-toggle,.ctx-toggle{padding:6px 10px;display:inline-flex}
   .acct-btn{padding:5px 10px}
   /* Sources stay reachable on mobile: the norm panel becomes a slide-in drawer. */
-  .norm-panel{position:fixed;top:62px;right:0;bottom:0;width:min(86vw,388px);transform:translateX(102%);transition:transform .25s ease;z-index:45;box-shadow:-18px 0 44px rgba(20,32,26,.22);border-left:1px solid var(--line-strong)}
+  .norm-panel{position:fixed;top:62px;right:0;bottom:0;width:min(86vw,388px);transform:translateX(102%);transition:transform .25s ease;z-index:45;box-shadow:var(--shadow-drawer-r);border-left:1px solid var(--line-strong)}
   .norm-panel.open{transform:translateX(0)}
   .msg-user .bubble{max-width:92%}
   .messages{padding:20px 14px 30px}
@@ -337,6 +448,7 @@ a.corpus-item:hover::after{opacity:1}
     <a class="logo" href="https://archnorm.ru" title="ArchNorm — о продукте" style="text-decoration:none">ArchNorm</a>
     <span class="topbar-badge">Нормативный навигатор · Лист Ч-01</span>
     <div class="topbar-right">
+      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Переключить светлую/тёмную тему" aria-label="Переключить тему"><span class="glyph">◐</span><span class="theme-label" id="theme-label">светлая</span></button>
       <button class="ctx-toggle" id="ctx-toggle" onclick="toggleContext()">Контекст</button>
       <button class="src-toggle" id="src-toggle" onclick="toggleSources()">Источники</button>
       <span class="quota-chip" id="quota-chip" hidden></span>
@@ -1557,7 +1669,7 @@ function addAIMessage(parsed) {
       const extHtml = ext
         ? `<a class="cite-ext" href="${ext}" target="_blank" rel="noopener" title="Открыть текст ${escHtml(c.norm)} (docs.cntd.ru)">↗</a>`
         : '';
-      html += `<span class="cite-tag" data-source-id="${escHtml(String(c.sourceId))}">${rel} ${escHtml(label)}${extHtml}</span>`;
+      html += `<span class="cite-tag" role="button" tabindex="0" data-source-id="${escHtml(String(c.sourceId))}">${rel} ${escHtml(label)}${extHtml}</span>`;
     });
     html += `</div>`;
   }
@@ -1589,10 +1701,16 @@ function addAIMessage(parsed) {
     html += `</div>`;
   }
 
-  // DOCX-выписка: подтверждённый ответ с основаниями можно унести коллегам.
-  // В demo API нет; при отказе фрагменты — не основания, выписка не предлагается.
-  if (!DEMO_MODE && parsed.citations?.length && !refusal) {
-    html += `<div class="msg-actions"><span class="msg-export" onclick="exportVypiska('${div.id}')" title="Скачать выписку с основаниями (DOCX)">выписка · DOCX</span></div>`;
+  // DOCX-выписка + оценка ответа: подтверждённый ответ можно унести коллегам
+  // и оценить (канал ОС от анонимного трафика). В demo API нет; при отказе
+  // фрагменты — не основания, вместо оценки — приглашение оставить вопрос.
+  if (!DEMO_MODE && !refusal) {
+    const exp = parsed.citations?.length
+      ? `<span class="msg-export" role="button" tabindex="0" onclick="exportVypiska('${div.id}')" title="Скачать выписку с основаниями (DOCX)">выписка · DOCX</span>`
+      : '';
+    html += `<div class="msg-actions">${exp}${rateWidgetHtml(div.id)}</div>`;
+  } else if (!DEMO_MODE && refusal) {
+    html += rateGapHtml(div.id);
   }
 
   if (parsed.model_badge) {
@@ -1650,6 +1768,188 @@ async function exportVypiska(mid) {
   }
 }
 
+// ─── ОЦЕНКА ОТВЕТА (микро-ОС, форма C) ────────────────────────────────────────
+// Весь реальный трафик анонимный — 👍/👎 под ответом единственный канал
+// оценки качества. Сетевые ошибки глотаем: фидбек не должен раздражать.
+const RATE_REASONS = [
+  ['wrong_source', 'неверный документ/пункт'],
+  ['quote_mismatch', 'цитата не подтверждает вывод'],
+  ['norm_missing', 'нужной нормы нет в базе'],
+  ['incomplete', 'неполный/общий ответ'],
+  ['other', 'другое'],
+];
+const RATE_STATE = new Map(); // mid → 'up' | 'down' | 'gap' (отправленная оценка)
+
+function rateWidgetHtml(mid) {
+  return `<span class="rate-box" data-mid="${mid}">`
+    + `<span class="rate-btn" role="button" tabindex="0" data-v="up" title="Ответ помог">&#128077;</span>`
+    + `<span class="rate-btn" role="button" tabindex="0" data-v="down" title="Ответ не помог">&#128078;</span>`
+    + `</span>`;
+}
+
+function rateGapHtml(mid) {
+  return `<div class="rate-gap" data-mid="${mid}"><span>Этой нормы пока нет в базе — оставьте вопрос, добавим</span>`
+    + `<span class="rate-gap-btn" role="button" tabindex="0">оставить</span></div>`;
+}
+
+function ratePayload(mid, verdict, reason, comment, cancel) {
+  const meta = MSG_META.get(mid) || {};
+  const cits = MSG_SOURCES.get(mid) || [];
+  return {
+    message_id: mid,
+    verdict,
+    question: meta.q || '',
+    rewritten: meta.rewritten || null,
+    reason: reason || null,
+    comment: comment || null,
+    confidence: (!meta.refusal && cits.length) ? matchConfidence(cits) : null,
+    cancel: !!cancel,
+    sources: cits.slice(0, 3).map((c) => ({
+      doc_name: c.norm || '', clause_number: c.clause || '',
+    })),
+  };
+}
+
+function postRating(payload) {
+  try {
+    fetch(`${getApiBase()}/feedback/answer`, {
+      method: 'POST',
+      headers: apiHeaders(),
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    }).catch(() => {});
+  } catch (e) { /* фидбек не должен ломать чат */ }
+}
+
+function ratePanelHtml() {
+  const btns = RATE_REASONS.map(([code, label]) =>
+    `<button type="button" data-r="${code}">${label}</button>`).join('');
+  return `<div class="rate-panel">`
+    + `<div class="rate-panel-cap">Что помешало?</div>`
+    + `<div class="rate-reasons">${btns}</div>`
+    + `<div class="rate-row2">`
+    + `<input class="rate-comment" type="text" maxlength="300" placeholder="комментарий (необязательно)">`
+    + `<button type="button" class="rate-send" disabled>отправить</button>`
+    + `</div></div>`;
+}
+
+function rateSetDone(box, verdict) {
+  box.querySelectorAll('.rate-btn').forEach((b) => {
+    const mine = b.dataset.v === verdict;
+    b.classList.toggle('sel', mine && verdict === 'up');
+    b.classList.toggle('sel-down', mine && verdict === 'down');
+    b.style.display = mine ? '' : 'none';
+    if (mine) b.title = 'Нажмите ещё раз, чтобы отменить оценку';
+  });
+  let done = box.querySelector('.rate-done');
+  if (!done) {
+    done = document.createElement('span');
+    done.className = 'rate-done';
+    box.appendChild(done);
+  }
+  done.textContent = 'оценка учтена';
+}
+
+function rateReset(box) {
+  box.querySelectorAll('.rate-btn').forEach((b) => {
+    b.classList.remove('sel', 'sel-down');
+    b.style.display = '';
+    b.title = b.dataset.v === 'up' ? 'Ответ помог' : 'Ответ не помог';
+  });
+  box.querySelector('.rate-done')?.remove();
+  rateRemovePanel(box);
+}
+
+function rateRemovePanel(box) {
+  box.closest('.bubble')?.querySelector('.rate-panel')?.remove();
+}
+
+function onRateClick(box, mid, v) {
+  const cur = RATE_STATE.get(mid);
+  if (cur === v) {
+    // Повторный клик по поставленной оценке — отмена.
+    RATE_STATE.delete(mid);
+    postRating(ratePayload(mid, v, v === 'down' ? 'other' : null, null, true));
+    rateReset(box);
+    return;
+  }
+  if (cur) { // смена оценки: тихо отменяем предыдущую
+    RATE_STATE.delete(mid);
+    postRating(ratePayload(mid, cur, cur === 'down' ? 'other' : null, null, true));
+    rateReset(box);
+  }
+  if (v === 'up') {
+    RATE_STATE.set(mid, 'up');
+    postRating(ratePayload(mid, 'up'));
+    track('chat-rate-up');
+    rateSetDone(box, 'up');
+    return;
+  }
+  // 👎: причина обязательна — оценка уйдёт по «отправить».
+  const bubble = box.closest('.bubble');
+  const open = bubble?.querySelector('.rate-panel');
+  const downBtn = box.querySelector('.rate-btn[data-v="down"]');
+  if (open) { // клик по 👎 при открытой панели — передумал
+    open.remove();
+    downBtn?.classList.remove('sel-down');
+    return;
+  }
+  downBtn?.classList.add('sel-down');
+  const actions = box.closest('.msg-actions');
+  actions?.insertAdjacentHTML('afterend', ratePanelHtml());
+}
+
+function submitDownRating(panel, box, mid) {
+  const reason = panel.querySelector('.rate-reasons button.sel')?.dataset.r;
+  if (!reason) return;
+  const comment = (panel.querySelector('.rate-comment')?.value || '').trim().slice(0, 300);
+  RATE_STATE.set(mid, 'down');
+  postRating(ratePayload(mid, 'down', reason, comment || null));
+  track('chat-rate-down');
+  panel.remove();
+  rateSetDone(box, 'down');
+}
+
+document.getElementById('messages').addEventListener('click', (e) => {
+  const rateBtn = e.target.closest('.rate-btn');
+  if (rateBtn) {
+    const box = rateBtn.closest('.rate-box');
+    onRateClick(box, box.dataset.mid, rateBtn.dataset.v);
+    return;
+  }
+  const gap = e.target.closest('.rate-gap');
+  if (gap && e.target.closest('.rate-gap-btn')) {
+    const mid = gap.dataset.mid;
+    if (RATE_STATE.get(mid) === 'gap') return;
+    RATE_STATE.set(mid, 'gap');
+    postRating(ratePayload(mid, 'gap', 'norm_gap'));
+    track('chat-rate-gap');
+    gap.innerHTML = '<span class="rate-done">Вопрос записан — добавим норму в базу</span>';
+    return;
+  }
+  const panel = e.target.closest('.rate-panel');
+  if (panel) {
+    const bubble = panel.closest('.bubble');
+    const box = bubble?.querySelector('.rate-box');
+    const reasonBtn = e.target.closest('.rate-reasons button');
+    if (reasonBtn) {
+      panel.querySelectorAll('.rate-reasons button').forEach((b) =>
+        b.classList.toggle('sel', b === reasonBtn));
+      panel.querySelector('.rate-send').disabled = false;
+    } else if (e.target.closest('.rate-send') && box) {
+      submitDownRating(panel, box, box.dataset.mid);
+    }
+  }
+});
+
+document.getElementById('messages').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && e.target.classList?.contains('rate-comment')) {
+    e.preventDefault();
+    const send = e.target.closest('.rate-panel')?.querySelector('.rate-send');
+    if (send && !send.disabled) send.click();
+  }
+});
+
 function showContextLimitNotice() {
   // Кап контекстного окна: длинный диалог теряет точность понимания
   // follow-up'ов — честнее начать новый чат, чем отвечать хуже.
@@ -1661,7 +1961,7 @@ function showContextLimitNotice() {
     + `<div class="answer-text">Этот диалог достиг предела контекстного окна (${CONTEXT_LIMIT} вопросов) — `
     + `дальше уточнения понимались бы всё хуже. Начните новый чат: вопросы и лимит сохраняются, `
     + `история этой вкладки останется слева.</div>`
-    + `<div class="citations-row"><span class="cite-tag" onclick="newChat()">+ начать новый чат</span></div>`
+    + `<div class="citations-row"><span class="cite-tag" role="button" tabindex="0" onclick="newChat()">+ начать новый чат</span></div>`
     + `</div>`;
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
@@ -1731,8 +2031,8 @@ function renderNormCards(citations, domain, msgId) {
       <div class="norm-clause">${escHtml([humanClause(c.clause), c.page].filter(Boolean).join(' · ') || 'фрагмент документа')}</div>
       <div class="norm-excerpt${longExcerpt ? ' clamp' : ''}">${excerptHtml}</div>
       <div class="norm-actions">
-        ${longExcerpt ? '<span class="norm-more">развернуть</span>' : ''}
-        <span class="norm-act norm-copy">копировать</span>
+        ${longExcerpt ? '<span class="norm-more" role="button" tabindex="0">развернуть</span>' : ''}
+        <span class="norm-act norm-copy" role="button" tabindex="0">копировать</span>
         ${extUrl ? `<a class="norm-act" href="${extUrl}" target="_blank" rel="noopener">текст СП ↗</a>` : ''}
       </div>
     `;
@@ -2082,6 +2382,38 @@ function showToast(msg, isErr) {
   toastTimer = setTimeout(() => { t.className = 'toast' + (isErr ? ' err' : ''); }, 3400);
 }
 
+// ─── THEME ────────────────────────────────────────────────────────────────────
+// Дефолт — светлая (как бумажный лист); выбор живёт в localStorage('an_theme').
+// Boot-скрипт в <head> уже применил сохранённую тему до отрисовки.
+function setTheme(theme) {
+  if (theme === 'dark') document.documentElement.dataset.theme = 'dark';
+  else delete document.documentElement.dataset.theme;
+  try { localStorage.setItem('an_theme', theme); } catch (e) {}
+  updateThemeUi();
+}
+
+function toggleTheme() {
+  const dark = document.documentElement.dataset.theme === 'dark';
+  setTheme(dark ? 'light' : 'dark');
+  track(dark ? 'chat-theme-light' : 'chat-theme-dark');
+}
+
+function updateThemeUi() {
+  const dark = document.documentElement.dataset.theme === 'dark';
+  const label = document.getElementById('theme-label');
+  if (label) label.textContent = dark ? 'тёмная' : 'светлая';
+  const meta = document.getElementById('meta-theme');
+  if (meta) meta.setAttribute('content', dark ? '#151d18' : '#f2f4f1');
+}
+
+// Span-кнопки (выписки, копирование, экспорт) доступны с клавиатуры:
+// Enter/Space срабатывают как клик.
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const el = e.target.closest?.('[role="button"][tabindex]');
+  if (el && el.tagName !== 'BUTTON') { e.preventDefault(); el.click(); }
+});
+
 function handleLoginParam() {
   const params = new URLSearchParams(window.location.search);
   const l = params.get('login');
@@ -2291,9 +2623,9 @@ function chatRecord(entry) {
 function renderChatList() {
   const list = document.getElementById('chat-list');
   list.innerHTML = CHATS.chats.map(c => `
-    <div class="chat-item${c.id === CHATS.active ? ' active' : ''}" data-id="${c.id}">
+    <div class="chat-item${c.id === CHATS.active ? ' active' : ''}" role="button" tabindex="0" data-id="${c.id}">
       <span class="chat-item-title">${escHtml(c.title || 'Новый чат')}</span>
-      <span class="chat-item-del" title="Удалить чат">&times;</span>
+      <span class="chat-item-del" role="button" tabindex="0" title="Удалить чат">&times;</span>
     </div>`).join('');
 }
 
@@ -2418,6 +2750,7 @@ window.addEventListener('load', () => {
   renderActiveChat();
   initConsent();
   initIntro();
+  updateThemeUi();
 });
 </script>
 </body>
