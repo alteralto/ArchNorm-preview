@@ -511,7 +511,7 @@
         "featureList": ["Поиск нормы со ссылкой на пункт и страницу", "Закрытый контур / on-prem без публичного облака", "Цитата-источник у каждого вывода"],
         "offers": [
           {"@type": "Offer", "name": "Пилот", "price": "0", "priceCurrency": "RUB", "description": "Бесплатный пилот 4–6 недель на одном домене"},
-          {"@type": "Offer", "name": "Лицензия для бюро", "price": "145000", "priceCurrency": "RUB", "description": "Лицензия на всю фирму, в месяц"}
+          {"@type": "Offer", "name": "Облачная лицензия для бюро", "price": "25000", "priceCurrency": "RUB", "description": "Лицензия на всю фирму, в месяц"}
         ]
       },
       {
@@ -519,8 +519,8 @@
         "mainEntity": [
           {"@type": "Question", "name": "ArchNorm заменяет ГАПа или нормоконтролёра?", "acceptedAnswer": {"@type": "Answer", "text": "Нет. ArchNorm ускоряет поиск и сбор оснований, но не принимает проектное решение и не снимает ответственность со специалиста."}},
           {"@type": "Question", "name": "Можно ли не передавать документы в облако?", "acceptedAnswer": {"@type": "Answer", "text": "Да. Для чувствительной документации предусмотрен локальный (on-prem) контур — данные не уходят в публичные AI-сервисы. Это ключевое отличие ArchNorm от облачных ассистентов по нормам."}},
-          {"@type": "Question", "name": "Какие нормы уже есть в MVP?", "acceptedAnswer": {"@type": "Answer", "text": "Текущий тестовый корпус включает 20 ключевых СП и расширяется под домен пилота. Это не «полная база всех норм»."}},
-          {"@type": "Question", "name": "Сколько стоит ArchNorm?", "acceptedAnswer": {"@type": "Answer", "text": "Пилот — бесплатно (4–6 недель, по пилот-коду). Лицензия на бюро — 145 000 ₽/мес. On-prem для проектного института — 275 000 ₽/мес. Тариф на всю фирму, не за каждое место."}}
+          {"@type": "Question", "name": "Какие нормы уже есть в MVP?", "acceptedAnswer": {"@type": "Answer", "text": "Текущий тестовый корпус включает 21 ключевой СП и расширяется под домен пилота. Это не «полная база всех норм»."}},
+          {"@type": "Question", "name": "Сколько стоит ArchNorm?", "acceptedAnswer": {"@type": "Answer", "text": "Пилот — бесплатно (4–6 недель, по пилот-коду). Облачная лицензия на бюро — 25 000 ₽/мес, на всю фирму, не за каждое место. On-prem в закрытом контуре — цена договорная: ориентир 275 000 ₽/мес для бюро 30–50 человек, может быть меньше или больше в зависимости от размера и объёма."}}
         ]
       }
     ]
@@ -611,9 +611,9 @@
 
     <div class="proof" aria-label="Проверенные показатели MVP">
       <div class="wrap proof-grid">
-        <div class="proof-item"><span class="proof-value">20 СП</span><span class="proof-label">в текущем корпусе MVP</span></div>
-        <div class="proof-item"><span class="proof-value">9 001</span><span class="proof-label">структурный фрагмент норм</span></div>
-        <div class="proof-item"><span class="proof-value">94,7%</span><span class="proof-label">Hit@3 на наборе из 132 вопросов</span></div>
+        <div class="proof-item"><span class="proof-value">21 СП</span><span class="proof-label">в текущем корпусе MVP</span></div>
+        <div class="proof-item"><span class="proof-value">500+</span><span class="proof-label">автотестов перед каждым деплоем</span></div>
+        <div class="proof-item"><span class="proof-value">132</span><span class="proof-label">вопроса в регрессионном бенчмарке качества</span></div>
         <div class="proof-item"><span class="proof-value">ON-PREM</span><span class="proof-label">локальный режим без публичного облака</span></div>
       </div>
     </div>
@@ -697,7 +697,7 @@
           </div>
         </div>
         <div class="demo-cta">
-          <span><b>Попробуйте на своём вопросе.</b> Это не витрина — тот же ArchNorm, что работает у пилотных бюро: корпус из 20 СП, ответы с пунктом и страницей. 10 вопросов бесплатно, без регистрации.</span>
+          <span><b>Попробуйте на своём вопросе.</b> Это не витрина — тот же ArchNorm, что работает у пилотных бюро: корпус из 21 СП, ответы с пунктом и страницей. 10 вопросов бесплатно, без регистрации.</span>
           <a class="btn btn-primary" href="https://api.archnorm.ru/chat" data-track="product-try-chat-2">Задать вопрос по нормам →</a>
         </div>
       </div>
@@ -738,31 +738,31 @@
           </aside>
           <aside class="pilot-card feat hatch-tr hatch-red">
             <span class="price-tag">Оптимально для бюро</span>
-            <span class="eyebrow">Лицензия для бюро</span>
-            <div class="pilot-price">145 000 ₽<span class="mo">/мес</span></div>
-            <div class="pilot-term">1,74 млн ₽/год · вся команда фирмы</div>
+            <span class="eyebrow">Cloud · лицензия для бюро</span>
+            <div class="pilot-price">25 000 ₽<span class="mo">/мес</span></div>
+            <div class="pilot-term">300 тыс ₽/год · вся команда фирмы</div>
             <ul>
               <li>Поиск нормы со ссылкой на пункт</li>
-              <li>Без лимита запросов и мест</li>
+              <li>Без лимита мест — дешевле двух мест справочной системы</li>
               <li>Нормативный корпус по согласованному домену</li>
-              <li>Облако или локальный режим</li>
+              <li>Облачный доступ, работает сразу</li>
             </ul>
             <a class="btn btn-primary" href="#pilot" data-track="price-bureau">Запросить пилот</a>
           </aside>
           <aside class="pilot-card">
-            <span class="eyebrow">On-prem · институт</span>
-            <div class="pilot-price">275 000 ₽<span class="mo">/мес</span></div>
-            <div class="pilot-term">3,3 млн ₽/год · закрытый контур</div>
+            <span class="eyebrow">On-prem · закрытый контур</span>
+            <div class="pilot-price">≈ 275 000 ₽<span class="mo">/мес</span></div>
+            <div class="pilot-term">цена договорная · ориентир для бюро 30–50 человек</div>
             <ul>
               <li>Развёртывание в инфраструктуре заказчика</li>
+              <li>Итоговая цена зависит от размера бюро и объёма — может быть меньше или больше</li>
               <li>Расширенный домен и объёмы</li>
-              <li>Интеграции и доработки — на roadmap</li>
               <li>Поддержка инсталляции</li>
             </ul>
             <a class="btn btn-secondary" href="#pilot" data-track="price-onprem">Связаться</a>
           </aside>
         </div>
-        <p class="price-note">MVP: нормативный корпус из 20 СП, расширяется под домен пилота — это не «полная база всех норм». Часть возможностей (DWG, BIM-интеграции, white-label, SLA) — на roadmap или в индивидуальных конфигурациях. Год лицензии может окупиться одним предотвращённым отказом экспертизы.</p>
+        <p class="price-note">MVP: нормативный корпус из 21 СП, расширяется под домен пилота — это не «полная база всех норм». Часть возможностей (DWG, BIM-интеграции, white-label, SLA) — на roadmap или в индивидуальных конфигурациях. Год лицензии может окупиться одним предотвращённым отказом экспертизы.</p>
       </div>
     </section>
 
@@ -799,7 +799,7 @@
         <div><div class="eyebrow">Лист 07 · Примечания</div><h2>До первого разговора</h2></div>
         <div>
           <details><summary>ArchNorm заменяет ГАПа или нормоконтролёра?</summary><p>Нет. Система ускоряет поиск и сбор оснований, но не принимает проектное решение и не снимает ответственность со специалиста.</p></details>
-          <details><summary>Какие нормы уже есть в MVP?</summary><p>Текущий тестовый корпус включает 20 ключевых СП. Для пилота заранее согласуем домен и перечень документов; не называем корпус «полной базой всех норм».</p></details>
+          <details><summary>Какие нормы уже есть в MVP?</summary><p>Текущий тестовый корпус включает 21 ключевой СП. Для пилота заранее согласуем домен и перечень документов; не называем корпус «полной базой всех норм».</p></details>
           <details><summary>Можно ли не передавать документы в облако?</summary><p>Да, для таких сценариев предусмотрен локальный контур. Схему развёртывания и требования безопасности согласуем до передачи материалов.</p></details>
           <details><summary>Что нужно для первой демонстрации?</summary><p>Три реальных нормативных вопроса без конфиденциальных данных. По ним можно быстро понять, насколько продукт попадает в ваш рабочий процесс.</p></details>
         </div>
@@ -825,7 +825,7 @@
           <strong>ArchNorm («АрхНорм») — AI-нормоконтроль строительной документации</strong>
         </div>
         <div><span class="stamp-cap">Разраб.</span><span class="stamp-val">Алексей Ткаченко</span></div>
-        <div><span class="stamp-cap">Стадия</span><span class="stamp-val">MVP · 20 СП</span></div>
+        <div><span class="stamp-cap">Стадия</span><span class="stamp-val">MVP · 21 СП</span></div>
         <div><span class="stamp-cap">Связь</span><span class="stamp-val"><a href="https://t.me/ArchNorm">@ArchNorm</a> · <a href="mailto:xelartn75@gmail.com">email</a></span></div>
         <div><span class="stamp-cap">Документы</span><span class="stamp-val"><a href="privacy.html">Политика</a> · <a href="#" onclick="openCookie();return false;" data-track="footer-cookie">Cookie</a></span></div>
         <div><span class="stamp-cap">Лист</span><span class="stamp-val">1</span></div>
